@@ -57,6 +57,15 @@
 .habit-list li.recurrent .badge { background: color-mix(in srgb, var(--c-mistake) 18%, transparent); color: var(--c-mistake); }
 .drill { margin-bottom: 16px; }
 
+.text-input { font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; max-width: 320px; }
+.check.consent { align-items: flex-start; }
+.check.consent input { margin-top: 3px; flex: none; }
+.found { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+.month-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 0 12px; max-height: 220px; overflow-y: auto; margin-bottom: 8px; }
+.month-list .check { margin-bottom: 6px; }
+.inline-field { display: inline-flex; gap: 6px; align-items: center; }
+.inline-field select { font: inherit; padding: 6px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+
 /* Les pendules au-dessus et au-dessous de l'échiquier réduisent la place disponible. */
 .board-page.play-page { grid-template-columns: minmax(0, min(calc(100svh - 230px), 680px)) minmax(260px, 360px); }
 

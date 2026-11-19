@@ -21,9 +21,9 @@ export function HomePage() {
       <section className="panel">
         <h2 className="panel-title">Où en est l'application</h2>
         <p>
-          Cette version (Phase 4) intègre le moteur Stockfish : adversaire à 6 niveaux, analyse complète des parties avec explications
-          de l'entraîneur, « Comprendre mon erreur », détection des habitudes et positions à retravailler issues de tes propres parties.
-          S'y ajoutent l'évaluation initiale, 16 leçons, plus de 3 000 exercices tactiques et 14 ouvertures.
+          Cette version (Phase 5) permet d'importer tes parties publiques Chess.com, avec ton accord, pour que l'entraîneur les analyse.
+          Elle comprend le moteur Stockfish (adversaire à 6 niveaux, analyse expliquée, « Comprendre mon erreur », habitudes),
+          l'évaluation initiale, 16 leçons, plus de 3 000 exercices tactiques et 14 ouvertures.
         </p>
         <ul className="phase-list">
           {SECTIONS.filter((s) => s.path !== '/').map((s) => (

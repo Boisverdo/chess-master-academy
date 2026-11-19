@@ -90,6 +90,27 @@ export interface GameRecord {
   accuracy?: { w: number; b: number };
   /** Étiquettes d'erreurs du joueur dans cette partie (habitudes). */
   tags?: string[];
+  /** Identifiant chez la source externe (ex. URL de la partie Chess.com) : évite les doublons. */
+  externalId?: string;
+  timeClass?: string;
+}
+
+/** Liaison facultative avec un service externe (Phase 5). Supprimable à tout moment. */
+export interface IntegrationRecord {
+  id: 'chesscom';
+  username: string;
+  consentAt: number;
+  profile?: unknown;
+  stats?: unknown;
+  refreshedAt?: number;
+  lastImportAt?: number;
+}
+
+/** Mois d'archives terminés, déjà téléchargés (ne changent plus). */
+export interface MonthCacheRecord {
+  url: string;
+  games: unknown;
+  savedAt: number;
 }
 
 /** Position à retravailler, issue d'un moment critique d'une partie du joueur. */
@@ -117,6 +138,8 @@ export class CmaDatabase extends Dexie {
   openings!: Table<OpeningProgress, string>;
   games!: Table<GameRecord, number>;
   drills!: Table<Drill, string>;
+  integrations!: Table<IntegrationRecord, string>;
+  monthCache!: Table<MonthCacheRecord, string>;
 
   constructor(name = 'chess-master-academy') {
     super(name);
@@ -130,6 +153,12 @@ export class CmaDatabase extends Dexie {
     this.version(2).stores({
       games: '++id, createdAt, source',
       drills: 'id, due, gameId',
+    });
+    // Version 3 (Phase 5) : intégration Chess.com facultative.
+    this.version(3).stores({
+      games: '++id, createdAt, source, externalId',
+      integrations: 'id',
+      monthCache: 'url',
     });
   }
 }

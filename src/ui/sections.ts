@@ -1,5 +1,5 @@
 /** Les 12 sections de l'application (Module 15) et leur phase de livraison prévue. */
-export const CURRENT_PHASE = 4;
+export const CURRENT_PHASE = 5;
 
 export interface SectionDef {
   path: string;

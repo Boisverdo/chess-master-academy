@@ -10,8 +10,9 @@ Académie d'échecs indépendante, propulsée par un entraîneur IA qui apprend 
 | 2 — Prototype (échiquier, règles, partie complète, PGN) | ✅ Terminée et testée — [rapport](docs/05-phase2-rapport.md) |
 | 3 — Apprentissage (évaluation, 16 leçons, 3 365 exercices, 14 ouvertures) | ✅ Terminée et testée — [rapport](docs/06-phase3-rapport.md) |
 | 4 — Stockfish, adversaire à 6 niveaux, analyse, entraîneur | ✅ Terminée et testée — [rapport](docs/07-phase4-rapport.md) |
-| 5 — Chess.com (import de tes parties) | ⏳ Prochaine |
-| 6 et 7 | ⏳ À venir |
+| 5 — Chess.com (liaison par pseudo, import, analyse groupée) | ✅ Terminée et testée — [rapport](docs/08-phase5-rapport.md) |
+| 6 — Tableau de bord, défis, stratégie positionnelle et finales | ⏳ Prochaine |
+| 7 — Tests, sécurité, application Windows, livraison | ⏳ À venir |
 
 ## Démarrer
 
@@ -42,6 +43,7 @@ Puis ouvrir http://localhost:5173.
 5. [Rapport de la Phase 2](docs/05-phase2-rapport.md)
 6. [Rapport de la Phase 3](docs/06-phase3-rapport.md)
 7. [Rapport de la Phase 4](docs/07-phase4-rapport.md) · [mesure des niveaux](docs/mesures-niveaux.json)
+8. [Rapport de la Phase 5](docs/08-phase5-rapport.md)
 
 ## Principes non négociables
 

@@ -1,7 +1,7 @@
 # 02 — Connexion à Chess.com et à Google : possibilités réelles
 
 > Vérifié le 19 novembre 2026 à partir des sources officielles listées en bas.
-> **Statut : étude seulement. Aucune intégration n'est encore codée ni testée.**
+> **Statut (mise à jour Phase 5, 19/11/2026) : intégration codée et testée** — voir [08-phase5-rapport.md](08-phase5-rapport.md).
 
 ## Conclusions principales
 
@@ -54,10 +54,12 @@ Paramètres → « Lier mon pseudo Chess.com »
 
 ## Ce qui doit encore être testé (Phase 5)
 
-- [ ] Requête de profil réelle avec ton pseudo et ton contact (ton accord sera demandé avant).
-- [ ] Import d'un mois complet en PGN, puis analyse complète dans CMA.
-- [ ] Comportement 304, 404 (pseudo inconnu), 403 (User-Agent manquant), 429.
-- [ ] Parties dont la variante n'est pas les échecs classiques (Chess960, etc.) : les filtrer ou les signaler.
+- [x] Requêtes réelles depuis le navigateur (compte public de référence) : profil, statistiques, archives, un mois complet (44 parties lues sans erreur).
+- [ ] Requête avec **ton** pseudo : à faire par toi dans l'application (l'écran demande ton consentement).
+- [x] 404 (pseudo inconnu), 429 (reprise avec Retry-After), service injoignable : testés (API simulée).
+- [x] Chess960 et autres variantes : ignorées et comptées.
+- [x] **User-Agent** : un navigateur n'autorise pas à le modifier. L'API accepte les requêtes du navigateur (vérifié). Les coordonnées de contact ne peuvent donc pas y figurer ; aucune donnée personnelle n'est ajoutée aux requêtes.
+- [x] **ETag** : l'en-tête n'est pas lisible depuis une page web (règles CORS). Le navigateur gère son propre cache HTTP, et les mois terminés sont conservés localement : ils ne sont jamais redemandés.
 
 ## Sources
 

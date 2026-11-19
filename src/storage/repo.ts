@@ -1,5 +1,5 @@
 /** Accès aux données du joueur : lecture, écriture, sauvegarde et restauration. */
-import { db, type Attempt, type CmaDatabase, type Drill, type GameRecord, type LessonProgress, type Level, type OpeningProgress, type Profile } from './db';
+import { db, type Attempt, type CmaDatabase, type Drill, type GameRecord, type IntegrationRecord, type LessonProgress, type Level, type OpeningProgress, type Profile } from './db';
 import { notifyDataChange } from './events';
 import { reviewQuality, scheduleReview, START_RATING, updateRating } from './learning';
 
@@ -68,7 +68,7 @@ export async function recordOpeningReview(openingId: string, success: boolean, m
 // ---------- Sauvegarde / restauration ----------
 
 export const BACKUP_FORMAT = 'chess-master-academy-backup';
-export const BACKUP_VERSION = 2;
+export const BACKUP_VERSION = 3;
 
 export interface Backup {
   format: typeof BACKUP_FORMAT;
@@ -81,11 +81,13 @@ export interface Backup {
   /** Depuis la version 2. */
   games?: GameRecord[];
   drills?: Drill[];
+  /** Depuis la version 3. */
+  integrations?: IntegrationRecord[];
 }
 
 export async function exportBackup(d: CmaDatabase = db): Promise<Backup> {
-  const [profile, lessons, attempts, openings, games, drills] = await Promise.all([d.profile.toArray(), d.lessons.toArray(), d.attempts.toArray(), d.openings.toArray(), d.games.toArray(), d.drills.toArray()]);
-  return { format: BACKUP_FORMAT, version: BACKUP_VERSION, exportedAt: new Date().toISOString(), profile, lessons, attempts, openings, games, drills };
+  const [profile, lessons, attempts, openings, games, drills, integrations] = await Promise.all([d.profile.toArray(), d.lessons.toArray(), d.attempts.toArray(), d.openings.toArray(), d.games.toArray(), d.drills.toArray(), d.integrations.toArray()]);
+  return { format: BACKUP_FORMAT, version: BACKUP_VERSION, exportedAt: new Date().toISOString(), profile, lessons, attempts, openings, games, drills, integrations };
 }
 
 export class BackupError extends Error {}
@@ -102,15 +104,16 @@ export function validateBackup(data: unknown): Backup {
   if (typeof b.version !== 'number' || b.version > BACKUP_VERSION) throw new BackupError('Cette sauvegarde provient d’une version plus récente de l’application.');
   if (!isArray(b.profile) || !isArray(b.lessons) || !isArray(b.attempts) || !isArray(b.openings)) throw new BackupError('Sauvegarde incomplète ou endommagée.');
   if (b.profile.some((p) => (p as Profile).id !== 'me')) throw new BackupError('Profil invalide dans la sauvegarde.');
-  if ((b.games !== undefined && !isArray(b.games)) || (b.drills !== undefined && !isArray(b.drills))) throw new BackupError('Sauvegarde incomplète ou endommagée.');
+  if ((b.games !== undefined && !isArray(b.games)) || (b.drills !== undefined && !isArray(b.drills)) || (b.integrations !== undefined && !isArray(b.integrations))) throw new BackupError('Sauvegarde incomplète ou endommagée.');
   return b as Backup;
 }
 
 /** Remplace toutes les données par celles de la sauvegarde (opération atomique). */
 export async function importBackup(data: unknown, d: CmaDatabase = db): Promise<void> {
   const b = validateBackup(data);
-  await d.transaction('rw', [d.profile, d.lessons, d.attempts, d.openings, d.games, d.drills], async () => {
-    await Promise.all([d.profile.clear(), d.lessons.clear(), d.attempts.clear(), d.openings.clear(), d.games.clear(), d.drills.clear()]);
+  await d.transaction('rw', [d.profile, d.lessons, d.attempts, d.openings, d.games, d.drills, d.integrations], async () => {
+    await Promise.all([d.profile.clear(), d.lessons.clear(), d.attempts.clear(), d.openings.clear(), d.games.clear(), d.drills.clear(), d.integrations.clear()]);
+    await d.integrations.bulkPut(b.integrations ?? []);
     await d.games.bulkPut(b.games ?? []);
     await d.drills.bulkPut(b.drills ?? []);
     await d.profile.bulkPut(b.profile);
@@ -122,8 +125,8 @@ export async function importBackup(data: unknown, d: CmaDatabase = db): Promise<
 }
 
 export async function resetAll(d: CmaDatabase = db): Promise<void> {
-  await d.transaction('rw', [d.profile, d.lessons, d.attempts, d.openings, d.games, d.drills], async () => {
-    await Promise.all([d.profile.clear(), d.lessons.clear(), d.attempts.clear(), d.openings.clear(), d.games.clear(), d.drills.clear()]);
+  await d.transaction('rw', [d.profile, d.lessons, d.attempts, d.openings, d.games, d.drills, d.integrations, d.monthCache], async () => {
+    await Promise.all([d.profile.clear(), d.lessons.clear(), d.attempts.clear(), d.openings.clear(), d.games.clear(), d.drills.clear(), d.integrations.clear(), d.monthCache.clear()]);
   });
   notifyDataChange();
 }
@@ -170,4 +173,37 @@ export async function recordDrill(id: string, success: boolean, mistakes: number
   });
   notifyDataChange();
   return out;
+}
+
+// ---------- Intégration Chess.com (Phase 5) ----------
+
+export async function getIntegration(d: CmaDatabase = db): Promise<IntegrationRecord | undefined> {
+  return d.integrations.get('chesscom');
+}
+
+export async function saveIntegration(r: IntegrationRecord, d: CmaDatabase = db): Promise<void> {
+  await d.integrations.put(r);
+  notifyDataChange();
+}
+
+/** Déconnexion : oublie le pseudo et le cache ; supprime aussi les parties importées si demandé. */
+export async function disconnectIntegration(deleteGames: boolean, d: CmaDatabase = db): Promise<number> {
+  let removed = 0;
+  await d.transaction('rw', [d.integrations, d.monthCache, d.games, d.drills], async () => {
+    await d.integrations.delete('chesscom');
+    await d.monthCache.clear();
+    if (deleteGames) {
+      const ids = (await d.games.where('source').equals('chesscom').primaryKeys()) as number[];
+      removed = ids.length;
+      await d.games.bulkDelete(ids);
+      await d.drills.where('gameId').anyOf(ids).delete();
+    }
+  });
+  notifyDataChange();
+  return removed;
+}
+
+export async function existingExternalIds(d: CmaDatabase = db): Promise<Set<string>> {
+  const keys = (await d.games.orderBy('externalId').keys()) as string[];
+  return new Set(keys);
 }
