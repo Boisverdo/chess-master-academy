@@ -32,6 +32,8 @@ export interface BoardViewProps {
   /** Change cette valeur pour forcer la resynchronisation (ex. promotion annulée). */
   syncKey?: number;
   onMove?: (from: string, to: string) => void;
+  /** Clic sur une case (exercices de coordonnées). */
+  onSelect?: (square: string) => void;
   ariaLabel?: string;
 }
 
@@ -40,6 +42,8 @@ export function BoardView(props: BoardViewProps) {
   const api = useRef<Api | null>(null);
   const onMoveRef = useRef(props.onMove);
   onMoveRef.current = props.onMove;
+  const onSelectRef = useRef(props.onSelect);
+  onSelectRef.current = props.onSelect;
 
   const config = (): Config => ({
     fen: props.fen,
@@ -62,6 +66,7 @@ export function BoardView(props: BoardViewProps) {
     animation: { enabled: true, duration: 180 },
     highlight: { lastMove: true, check: true },
     drawable: { enabled: true, visible: true, autoShapes: props.shapes ?? [] },
+    events: { select: (key) => onSelectRef.current?.(key) },
   });
 
   useEffect(() => {

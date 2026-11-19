@@ -3,6 +3,7 @@ import { expect, type Page } from '@playwright/test';
 /** Centre d'une case à l'écran, selon l'orientation de l'échiquier. */
 export async function squareCenter(page: Page, square: string): Promise<{ x: number; y: number }> {
   const board = page.getByTestId('board');
+  await board.waitFor({ state: 'visible' });
   const box = await board.boundingBox();
   if (!box) throw new Error('échiquier introuvable');
   const black = await board.evaluate((el) => el.classList.contains('orientation-black'));

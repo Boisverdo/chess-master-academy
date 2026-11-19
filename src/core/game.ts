@@ -249,6 +249,11 @@ export class ChessGame {
     return this.chess.get(square);
   }
 
+  /** Cases des pièces de `color` qui attaquent `square` dans la position actuelle. */
+  attackers(square: Square, color: Color): Square[] {
+    return this.chess.attackers(square, color);
+  }
+
   /** Copie de l'objet chess.js interne (pour le module PGN uniquement). */
   /** @internal */
   clone(): Chess {

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { SECTIONS, type SectionDef } from '../ui/sections';
+import { CURRENT_PHASE, SECTIONS, type SectionDef } from '../ui/sections';
+import { DataSettings } from './DataSettings';
 import { useSettings, type ThemeChoice } from '../ui/settings';
 import type { NotationStyle } from '../core/notation';
 
@@ -12,19 +13,23 @@ export function HomePage() {
         <p className="lead">
           Chess Master Academy réunit un échiquier, des leçons, des exercices et un entraîneur qui vous fait réfléchir avant de vous donner les réponses.
         </p>
-        <Link to="/echiquier" className="btn btn-primary btn-large">Ouvrir l'échiquier</Link>
+        <div className="row">
+          <Link to="/apprentissage" className="btn btn-primary btn-large">Mon apprentissage</Link>
+          <Link to="/echiquier" className="btn btn-large">Ouvrir l'échiquier</Link>
+        </div>
       </section>
       <section className="panel">
         <h2 className="panel-title">Où en est l'application</h2>
         <p>
-          Cette version (Phase 2) fournit un échiquier complet et vérifié : toutes les règles officielles, parties à deux sur le même appareil,
-          historique, notation algébrique, import et export PGN. Les autres sections arrivent phase par phase.
+          Cette version (Phase 3) ajoute l'apprentissage : évaluation initiale, 16 leçons interactives, plus de 3 000 exercices tactiques
+          classés par thème, et 14 ouvertures expliquées avec entraînement par répétition espacée. L'échiquier complet (règles, PGN) est disponible.
+          L'adversaire informatique, l'analyse et l'entraîneur IA arrivent en Phase 4.
         </p>
         <ul className="phase-list">
           {SECTIONS.filter((s) => s.path !== '/').map((s) => (
             <li key={s.path}>
               <Link to={s.path}>{s.label}</Link>
-              <span className={`badge ${s.phase <= 2 ? 'badge-ok' : ''}`}>{s.phase <= 2 ? 'Disponible' : `Phase ${s.phase}`}</span>
+              <span className={`badge ${s.phase <= CURRENT_PHASE ? 'badge-ok' : ''}`}>{s.phase <= CURRENT_PHASE ? 'Disponible' : `Phase ${s.phase}`}</span>
             </li>
           ))}
         </ul>
@@ -86,6 +91,7 @@ export function SettingsPage() {
         </label>
         <p className="muted small">Vos préférences sont enregistrées sur cet appareil uniquement.</p>
       </section>
+      <DataSettings />
     </div>
   );
 }
