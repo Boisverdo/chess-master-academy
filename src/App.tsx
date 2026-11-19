@@ -9,6 +9,10 @@ import { TacticsPage } from './sections/tactics/TacticsPage';
 import { OpeningDetail, OpeningsPage } from './sections/openings/OpeningsPage';
 import { AssessmentPage } from './sections/learning/AssessmentPage';
 import { MyLearningPage } from './sections/learning/MyLearningPage';
+import { PlayPage } from './sections/play/PlayPage';
+import { AnalysisListPage } from './sections/analysis/AnalysisListPage';
+import { AnalysisView } from './sections/analysis/AnalysisView';
+import { CoachPage } from './sections/coach/CoachPage';
 
 function Shell() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -62,6 +66,10 @@ function Shell() {
           <Route path="/tactiques" element={<TacticsPage />} />
           <Route path="/ouvertures" element={<OpeningsPage />} />
           <Route path="/ouvertures/:id" element={<OpeningDetail />} />
+          <Route path="/jouer" element={<PlayPage />} />
+          <Route path="/analyse" element={<AnalysisListPage />} />
+          <Route path="/analyse/:id" element={<AnalysisView />} />
+          <Route path="/entraineur" element={<CoachPage />} />
           {SECTIONS.filter((s) => s.phase > CURRENT_PHASE).map((s) => (
             <Route key={s.path} path={s.path} element={<PlannedPage section={s} />} />
           ))}

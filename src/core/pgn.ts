@@ -105,6 +105,7 @@ export function exportPgn(game: ChessGame, now: Date = new Date()): string {
   const headers: Record<string, string> = { ...defaults, ...game.headers, Result: status.result };
   if (status.termination === 'resignation') headers['Termination'] = 'Abandon';
   if (status.termination === 'agreement') headers['Termination'] = 'Nulle par accord mutuel';
+  if (status.termination === 'timeout' || status.termination === 'timeout-draw') headers['Termination'] = 'Temps écoulé';
   for (const [k, v] of Object.entries(headers)) chess.setHeader(k, v);
   let text = chess.pgn({ maxWidth: 80 });
   // chess.js n'ajoute le résultat en fin de partie que s'il est connu de lui ; on garantit sa présence.

@@ -21,6 +21,10 @@ export function describeStatus(s: GameStatus): string {
       return `${s.result === '1-0' ? 'Les Noirs abandonnent' : 'Les Blancs abandonnent'} — ${winner}`;
     case 'agreement':
       return 'Nulle par accord mutuel';
+    case 'timeout':
+      return `${s.result === '1-0' ? 'Les Noirs' : 'Les Blancs'} perdent au temps — ${winner}`;
+    case 'timeout-draw':
+      return 'Temps écoulé, mais l’adversaire ne peut plus mater : partie nulle';
     case 'recorded-result':
       return `Résultat enregistré : ${s.result} — ${winner}`;
     default:

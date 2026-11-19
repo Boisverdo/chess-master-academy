@@ -4,6 +4,7 @@
  * Toute évolution du schéma DOIT ajouter une nouvelle `version()` (jamais modifier une version publiée).
  */
 import Dexie, { type Table } from 'dexie';
+import type { PositionEval } from '../analysis/review';
 
 export type Level = 'debutant-absolu' | 'debutant' | 'intermediaire' | 'avance';
 
@@ -44,7 +45,7 @@ export interface LessonProgress {
   completedAt?: number;
 }
 
-export type AttemptKind = 'puzzle' | 'lesson' | 'opening' | 'assessment';
+export type AttemptKind = 'puzzle' | 'lesson' | 'opening' | 'assessment' | 'drill';
 
 export interface Attempt {
   id?: number;
@@ -70,11 +71,52 @@ export interface OpeningProgress {
   updatedAt: number;
 }
 
+export type GameSource = 'ia' | 'import' | 'echiquier' | 'chesscom';
+
+export interface GameRecord {
+  id?: number;
+  source: GameSource;
+  createdAt: number;
+  pgn: string;
+  white: string;
+  black: string;
+  result: string;
+  /** Camp du joueur (sert aux moments critiques et aux habitudes). */
+  userColor?: 'w' | 'b';
+  /** Niveau de l'ordinateur pour les parties contre l'IA. */
+  level?: number;
+  evals?: PositionEval[];
+  analyzedAt?: number;
+  accuracy?: { w: number; b: number };
+  /** Étiquettes d'erreurs du joueur dans cette partie (habitudes). */
+  tags?: string[];
+}
+
+/** Position à retravailler, issue d'un moment critique d'une partie du joueur. */
+export interface Drill {
+  id: string;
+  gameId: number;
+  ply: number;
+  fen: string;
+  best: string;
+  played: string;
+  tags: string[];
+  reps: number;
+  ease: number;
+  intervalDays: number;
+  due: number;
+  attempts: number;
+  lastSuccess?: boolean;
+  createdAt: number;
+}
+
 export class CmaDatabase extends Dexie {
   profile!: Table<Profile, 'me'>;
   lessons!: Table<LessonProgress, string>;
   attempts!: Table<Attempt, number>;
   openings!: Table<OpeningProgress, string>;
+  games!: Table<GameRecord, number>;
+  drills!: Table<Drill, string>;
 
   constructor(name = 'chess-master-academy') {
     super(name);
@@ -83,6 +125,11 @@ export class CmaDatabase extends Dexie {
       lessons: 'lessonId, status',
       attempts: '++id, kind, refId, at, success',
       openings: 'openingId, due',
+    });
+    // Version 2 (Phase 4) : parties analysées et positions à retravailler.
+    this.version(2).stores({
+      games: '++id, createdAt, source',
+      drills: 'id, due, gameId',
     });
   }
 }

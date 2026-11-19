@@ -2,21 +2,16 @@ import { Link } from 'react-router-dom';
 import { ALL_LESSONS } from '../../learning/lessons';
 import { recommend } from '../../learning/recommend';
 import { themeLabel } from '../../learning/puzzles/themes';
-import { db, LEVEL_LABELS } from '../../storage/db';
-import { themeStats, weakThemes } from '../../storage/learning';
-import { getLessonProgress, getProfile } from '../../storage/repo';
+import { loadCoachData } from '../../coach/coachData';
+import { LEVEL_LABELS } from '../../storage/db';
+import { weakThemes } from '../../storage/learning';
 import { useData } from '../../ui/useData';
 
-async function load() {
-  const [profile, lessons, openings, attempts] = await Promise.all([getProfile(), getLessonProgress(), db.openings.toArray(), db.attempts.toArray()]);
-  const puzzleAttempts = attempts.filter((a) => a.kind === 'puzzle');
-  return { profile, lessons, openings, puzzleAttempts, stats: themeStats(puzzleAttempts) };
-}
 
 export function MyLearningPage() {
-  const { data } = useData(load);
+  const { data } = useData(() => loadCoachData());
   if (!data) return <div className="page"><h1>Mon apprentissage</h1><p className="muted">Chargement…</p></div>;
-  const { profile, lessons, openings, puzzleAttempts, stats } = data;
+  const { profile, lessons, openings, puzzleAttempts, stats, habits, drillsDue } = data;
 
   if (!profile) {
     return (
@@ -30,7 +25,7 @@ export function MyLearningPage() {
     );
   }
 
-  const recs = recommend({ level: profile.level, lessons, openings, themeStats: stats, now: Date.now() });
+  const recs = recommend({ level: profile.level, lessons, openings, themeStats: stats, now: Date.now(), habits, drillsDue: drillsDue.length });
   const lessonsDone = ALL_LESSONS.filter((l) => lessons.get(l.id)?.status === 'done').length;
   const solved = puzzleAttempts.filter((a) => a.success).length;
   const weak = weakThemes(stats);

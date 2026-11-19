@@ -9,8 +9,9 @@ Académie d'échecs indépendante, propulsée par un entraîneur IA qui apprend 
 | 1 — Recherche et planification | ✅ Terminée |
 | 2 — Prototype (échiquier, règles, partie complète, PGN) | ✅ Terminée et testée — [rapport](docs/05-phase2-rapport.md) |
 | 3 — Apprentissage (évaluation, 16 leçons, 3 365 exercices, 14 ouvertures) | ✅ Terminée et testée — [rapport](docs/06-phase3-rapport.md) |
-| 4 — Moteur Stockfish, adversaire, analyse, entraîneur IA | ⏳ Prochaine |
-| 5 à 7 | ⏳ À venir |
+| 4 — Stockfish, adversaire à 6 niveaux, analyse, entraîneur | ✅ Terminée et testée — [rapport](docs/07-phase4-rapport.md) |
+| 5 — Chess.com (import de tes parties) | ⏳ Prochaine |
+| 6 et 7 | ⏳ À venir |
 
 ## Démarrer
 
@@ -30,6 +31,7 @@ Puis ouvrir http://localhost:5173.
 | `npm run test:e2e` | Tests de bout en bout dans un navigateur (ordinateur + téléphone) |
 | `npm run typecheck` | Vérification du typage |
 | `npm run build` | Version de production dans `dist/` |
+| `MEASURE=1 npx vitest run src/engine/levels.measure.test.ts` | Tournoi de mesure des niveaux de l'ordinateur (long) |
 
 ## Documentation
 
@@ -39,6 +41,7 @@ Puis ouvrir http://localhost:5173.
 4. [Plan de développement et risques](docs/04-plan-et-risques.md)
 5. [Rapport de la Phase 2](docs/05-phase2-rapport.md)
 6. [Rapport de la Phase 3](docs/06-phase3-rapport.md)
+7. [Rapport de la Phase 4](docs/07-phase4-rapport.md) · [mesure des niveaux](docs/mesures-niveaux.json)
 
 ## Principes non négociables
 
@@ -56,6 +59,7 @@ Chess Master Academy est distribué sous **GPL-3.0-or-later** (voir [LICENSE](LI
 |---|---|---|
 | [chess.js](https://github.com/jhlywa/chess.js) | BSD-2-Clause | Règles, PGN, FEN |
 | [Chessground](https://github.com/lichess-org/chessground) | GPL-3.0-or-later | Échiquier interactif, pièces « cburnett » |
+| [Stockfish 19](https://stockfishchess.org) via [stockfish.js](https://github.com/nmrugg/stockfish.js) | GPL-3.0 | Moteur d'analyse et adversaire (WebAssembly, version lite) |
 | [Dexie](https://dexie.org) | Apache-2.0 | Base de données locale (IndexedDB) |
 | React, React Router, Vite | MIT | Interface |
 | [Base de puzzles Lichess](https://database.lichess.org/#puzzles) | CC0 (domaine public) | 3 365 exercices tactiques (`src/data/puzzles.json`, régénérable avec `scripts/extract-puzzles.mjs`) |

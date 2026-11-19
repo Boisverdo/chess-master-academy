@@ -1,0 +1,68 @@
+/* ---------- Phase 4 : jeu, analyse, entraîneur ---------- */
+:root {
+  --c-best: #1f7a4d;
+  --c-good: #4f7d63;
+  --c-book: #7a6a3a;
+  --c-inacc: #c9961a;
+  --c-mistake: #d9731f;
+  --c-blunder: #c0392b;
+}
+
+.setup { display: grid; gap: 6px; max-width: 760px; }
+.setup .panel-title { margin: 10px 0 4px; }
+.setup .btn-large { justify-self: start; margin-top: 12px; }
+.level-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+.level-grid .choice { display: grid; gap: 2px; }
+
+.clock { padding: 8px 12px; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); font-variant-numeric: tabular-nums; font-weight: 600; }
+.clock.running { border-color: var(--accent); background: var(--accent-soft); }
+.clock.low.running { border-color: var(--danger); color: var(--danger); }
+
+.analysis-grid { display: grid; grid-template-columns: minmax(0, min(calc(100svh - 170px), 600px)) minmax(300px, 1fr); gap: 24px; align-items: start; margin-bottom: 16px; }
+.analysis-board { display: grid; grid-template-columns: 22px minmax(0, 1fr); grid-template-rows: auto auto; gap: 8px; min-width: 0; }
+.analysis-board > .eval-bar { grid-row: 1; grid-column: 1; }
+.analysis-board > .board-holder { grid-row: 1; grid-column: 2; }
+.analysis-board > .demo-controls { grid-row: 2; grid-column: 2; }
+.analysis-side { display: grid; gap: 12px; align-content: start; min-width: 0; }
+.analysis-side .panel + .panel { margin-top: 0; }
+.eval-bar { position: relative; width: 22px; align-self: stretch; background: #3a3f4b; border-radius: 4px; overflow: hidden; display: flex; flex-direction: column-reverse; align-self: stretch; }
+.eval-bar.flipped { flex-direction: column; }
+.eval-white { background: #f2f2f2; transition: height 0.25s ease; }
+.eval-label { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%) rotate(-90deg); font-size: 10px; font-weight: 700; text-align: center; color: #888; white-space: nowrap; }
+.eval-graph { width: 100%; height: 120px; display: block; cursor: pointer; background: #3a3f4b; border-radius: 6px; }
+.eval-area { fill: #f2f2f2; }
+.eval-line { fill: none; stroke: var(--accent); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.eval-mid { stroke: rgba(128, 128, 128, 0.6); stroke-dasharray: 4 4; vector-effect: non-scaling-stroke; }
+.eval-cursor { stroke: var(--focus); stroke-width: 2; vector-effect: non-scaling-stroke; }
+
+.verdict { margin: 4px 0 8px; padding-left: 10px; border-left: 4px solid var(--border); }
+.verdict.cls-meilleur, .verdict.cls-bon { border-left-color: var(--c-best); }
+.verdict.cls-theorie { border-left-color: var(--c-book); }
+.verdict.cls-imprecision { border-left-color: var(--c-inacc); }
+.verdict.cls-erreur { border-left-color: var(--c-mistake); }
+.verdict.cls-gaffe { border-left-color: var(--c-blunder); }
+.analysis-moves .move.cls-imprecision:not(.current) { color: var(--c-inacc); font-weight: 600; }
+.analysis-moves .move.cls-erreur:not(.current) { color: var(--c-mistake); font-weight: 700; }
+.analysis-moves .move.cls-gaffe:not(.current) { color: var(--c-blunder); font-weight: 700; }
+.analysis-moves { max-height: 260px; overflow-y: auto; }
+.understand { display: grid; gap: 8px; justify-items: start; }
+.understand p { margin: 0; }
+.preview-bar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+.summary-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.summary-table th, .summary-table td { padding: 4px 6px; border-bottom: 1px solid var(--border); text-align: left; }
+.summary-table td { text-align: right; }
+.rec-button { width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+.game-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; max-height: 480px; overflow-y: auto; }
+.habit-list, .journal { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.habit-list li.recurrent .badge { background: color-mix(in srgb, var(--c-mistake) 18%, transparent); color: var(--c-mistake); }
+.drill { margin-bottom: 16px; }
+
+/* Les pendules au-dessus et au-dessous de l'échiquier réduisent la place disponible. */
+.board-page.play-page { grid-template-columns: minmax(0, min(calc(100svh - 230px), 680px)) minmax(260px, 360px); }
+
+@media (max-width: 1100px) {
+  .board-page.play-page { grid-template-columns: minmax(0, 1fr); }
+  .play-page .board-column { width: min(100%, max(280px, calc(100svh - 260px))); }
+  .analysis-grid { grid-template-columns: minmax(0, 1fr); max-width: 680px; }
+  .analysis-board { width: min(100%, max(300px, calc(100svh - 200px))); }
+}

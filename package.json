@@ -1,7 +1,7 @@
 {
   "name": "chess-master-academy",
   "private": true,
-  "version": "0.3.0",
+  "version": "0.4.0",
   "license": "GPL-3.0-or-later",
   "type": "module",
   "scripts": {
@@ -11,7 +11,11 @@
     "typecheck": "tsc -b",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "engine": "node scripts/copy-engine.mjs",
+    "predev": "node scripts/copy-engine.mjs",
+    "prebuild": "node scripts/copy-engine.mjs",
+    "pretest:e2e": "node scripts/copy-engine.mjs"
   },
   "dependencies": {
     "chess.js": "1.4.0",
@@ -19,10 +23,12 @@
     "dexie": "4.4.7",
     "react": "19.3.1",
     "react-dom": "19.3.1",
-    "react-router-dom": "7.18.6"
+    "react-router-dom": "7.18.6",
+    "stockfish": "19.0.1"
   },
   "devDependencies": {
     "@playwright/test": "1.65.1",
+    "@types/node": "24.19.2",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "6.3.0",

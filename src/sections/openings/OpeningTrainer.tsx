@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { PlayableBoard } from '../../board/PlayableBoard';
 import { ChessGame, type PromotionPiece, type Square } from '../../core/game';
 import { formatSan } from '../../core/notation';
@@ -100,7 +101,7 @@ export function OpeningTrainer({ opening }: { opening: Opening }) {
             <button type="button" className="btn btn-primary" onClick={restart}>Recommencer</button>
           </div>
         )}
-        <p className="muted small">La pratique de cette ouverture contre l’ordinateur arrivera avec le moteur (Phase 4).</p>
+        <p className="small"><Link to={`/jouer?ouverture=${opening.id}`}>Jouer la suite de cette ouverture contre l’ordinateur →</Link></p>
       </div>
     </div>
   );

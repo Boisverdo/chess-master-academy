@@ -63,7 +63,8 @@ test('exercice tactique : indice, résolution et explication factuelle', async (
   const id = (await page.locator('.eyebrow', { hasText: 'Exercice' }).textContent())!.match(/Exercice (\S+)/)![1]!;
   const solution = puzzles.find((p) => p.id === id)!.moves.split(' ');
   await page.getByTestId('hint').click();
-  await expect(page.getByText('Indice 1 — Motif : Mat en 1.')).toBeVisible();
+  // Un exercice peut avoir plusieurs thèmes (ex. « Mat en 1, Sacrifice »).
+  await expect(page.getByText(/Indice 1 — Motif : .*Mat en 1/)).toBeVisible();
   await clickMove(page, solution[1]!.slice(0, 4));
   await expect(page.getByTestId('feedback')).toContainText('Résolu avec indices');
   await expect(page.getByTestId('explanation')).toContainText('échec et mat');

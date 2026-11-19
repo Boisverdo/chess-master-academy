@@ -20,6 +20,10 @@ export type Termination =
   | 'insufficient-material'
   | 'resignation'
   | 'agreement'
+  /** Temps écoulé à la pendule. */
+  | 'timeout'
+  /** Temps écoulé, mais l'adversaire n'a plus de quoi mater : nulle. */
+  | 'timeout-draw'
   /** Partie importée qui se termine sans fin « sur l'échiquier » (abandon, temps…). */
   | 'recorded-result';
 
@@ -51,7 +55,7 @@ export interface Ply {
 }
 
 interface ManualEnd {
-  termination: 'resignation' | 'agreement' | 'recorded-result';
+  termination: 'resignation' | 'agreement' | 'recorded-result' | 'timeout' | 'timeout-draw';
   result: Exclude<GameResult, '*'>;
 }
 
@@ -110,6 +114,17 @@ export class ChessGame {
     sans.forEach((san, i) => {
       const next = game.playSan(san);
       if (!next) throw new RulesError(`Coup illégal ou invalide au demi-coup ${i + 1} : « ${san} »`);
+      game = next;
+    });
+    return game;
+  }
+
+  /** Reconstruit une partie à partir de coups UCI (ex. « e2e4 », « e7e8q »). */
+  static fromUci(ucis: readonly string[], startFen: string = START_FEN): ChessGame {
+    let game = ChessGame.create(startFen);
+    ucis.forEach((u, i) => {
+      const next = game.playUci(u);
+      if (!next) throw new RulesError(`Coup UCI illégal au demi-coup ${i + 1} : « ${u} »`);
       game = next;
     });
     return game;
@@ -194,6 +209,28 @@ export class ChessGame {
       return null;
     }
     return new ChessGame(this.startFen, next, this.headerMap);
+  }
+
+  /** Joue un coup en notation UCI. */
+  playUci(uci: string): ChessGame | null {
+    return this.play(uci.slice(0, 2) as Square, uci.slice(2, 4) as Square, (uci[4] as PromotionPiece | undefined) || undefined);
+  }
+
+  /**
+   * Chute du drapeau. Simplification documentée de la règle FIDE : si l'adversaire n'a plus
+   * qu'un roi, ou un roi et une seule pièce mineure sans pion, il ne peut pas mater : nulle.
+   */
+  timeout(loser: Color): ChessGame {
+    if (this.status().over) return this;
+    const winner = loser === 'w' ? 'b' : 'w';
+    const pieces = this.chess
+      .board()
+      .flat()
+      .filter((p): p is NonNullable<typeof p> => !!p && p.color === winner && p.type !== 'k');
+    const cannotMate = pieces.length === 0 || (pieces.length === 1 && (pieces[0]!.type === 'n' || pieces[0]!.type === 'b'));
+    return new ChessGame(this.startFen, this.clone(), this.headerMap, cannotMate
+      ? { termination: 'timeout-draw', result: '1/2-1/2' }
+      : { termination: 'timeout', result: loser === 'w' ? '0-1' : '1-0' });
   }
 
   /** Revient en arrière de `count` demi-coups (annule aussi un abandon ou une nulle). */

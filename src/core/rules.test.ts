@@ -193,3 +193,17 @@ describe('historique et annulation', () => {
     expect(g.length).toBe(4);
   });
 });
+
+describe('notation UCI et pendule', () => {
+  it('rejoue des coups UCI, promotion comprise', () => {
+    const g = ChessGame.fromUci(['e2e4', 'e7e5', 'g1f3']);
+    expect(g.plies.map((p) => p.san)).toEqual(['e4', 'e5', 'Nf3']);
+    expect(ChessGame.create('4k3/P7/8/8/8/8/8/4K3 w - - 0 1').playUci('a7a8n')?.pieceAt('a8')).toEqual({ color: 'w', type: 'n' });
+    expect(() => ChessGame.fromUci(['e2e5'])).toThrow(RulesError);
+  });
+  it('chute du drapeau : perte, ou nulle si l’adversaire ne peut pas mater', () => {
+    expect(ChessGame.create().timeout('w').status()).toMatchObject({ over: true, result: '0-1', termination: 'timeout' });
+    expect(ChessGame.create('4k3/8/8/8/8/8/3P4/4K1n1 w - - 0 1').timeout('w').status()).toMatchObject({ result: '1/2-1/2', termination: 'timeout-draw' });
+    expect(ChessGame.create('4k3/7p/8/8/8/8/3P4/4K3 w - - 0 1').timeout('w').status().result).toBe('0-1');
+  });
+});

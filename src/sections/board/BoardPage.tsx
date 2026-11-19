@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { BoardView, type BoardColor } from '../../board/BoardView';
 import { ChessGame, type PromotionPiece, type Square } from '../../core/game';
 import { exportPgn, importPgn } from '../../core/pgn';
+import { useNavigate } from 'react-router-dom';
+import { saveGameRecord } from '../../storage/repo';
 import { useSettings } from '../../ui/settings';
 import { ConfirmModal, Modal } from '../../ui/Modal';
 import { MoveList } from './MoveList';
@@ -14,6 +16,7 @@ const toColor = (c: 'w' | 'b'): BoardColor => (c === 'w' ? 'white' : 'black');
 
 export function BoardPage() {
   const { settings } = useSettings();
+  const navigate = useNavigate();
   const initial = useMemo(loadGame, []);
   const [game, setGame] = useState<ChessGame>(initial.game);
   const [orientation, setOrientation] = useState<BoardColor>(initial.orientation);
@@ -224,6 +227,18 @@ export function BoardPage() {
           </button>
           <button type="button" className="btn" onClick={downloadPgn}>
             Télécharger le PGN
+          </button>
+          <button
+            type="button"
+            className="btn btn-primary"
+            disabled={game.length === 0}
+            data-testid="analyse-board-game"
+            onClick={async () => {
+              const id = await saveGameRecord({ source: 'echiquier', createdAt: Date.now(), pgn: pgnText(), white: game.headers['White'] ?? 'Blancs', black: game.headers['Black'] ?? 'Noirs', result: status.result });
+              navigate(`/analyse/${id}`);
+            }}
+          >
+            Analyser cette partie
           </button>
         </section>
 

@@ -21,9 +21,9 @@ export function HomePage() {
       <section className="panel">
         <h2 className="panel-title">Où en est l'application</h2>
         <p>
-          Cette version (Phase 3) ajoute l'apprentissage : évaluation initiale, 16 leçons interactives, plus de 3 000 exercices tactiques
-          classés par thème, et 14 ouvertures expliquées avec entraînement par répétition espacée. L'échiquier complet (règles, PGN) est disponible.
-          L'adversaire informatique, l'analyse et l'entraîneur IA arrivent en Phase 4.
+          Cette version (Phase 4) intègre le moteur Stockfish : adversaire à 6 niveaux, analyse complète des parties avec explications
+          de l'entraîneur, « Comprendre mon erreur », détection des habitudes et positions à retravailler issues de tes propres parties.
+          S'y ajoutent l'évaluation initiale, 16 leçons, plus de 3 000 exercices tactiques et 14 ouvertures.
         </p>
         <ul className="phase-list">
           {SECTIONS.filter((s) => s.path !== '/').map((s) => (

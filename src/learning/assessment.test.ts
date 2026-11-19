@@ -71,3 +71,19 @@ describe('séance du jour', () => {
     expect(r.find((x) => x.kind === 'tactics')?.reason).toMatch(/25 %/);
   });
 });
+
+describe('séance du jour avec les parties analysées', () => {
+  it('positions à retravailler et habitude récurrente en premier', () => {
+    const r = recommend({
+      level: 'intermediaire', lessons: new Map(), openings: [], themeStats: [], now: 0, drillsDue: 2,
+      habits: [{ tag: 'fourchette-subie', label: 'Fourchettes subies', games: 4, window: 10, recurrent: true, lastSeen: 0 }],
+    });
+    expect(r[0]).toMatchObject({ kind: 'drill', link: '/entraineur' });
+    expect(r[1]).toMatchObject({ kind: 'habit', link: '/tactiques?theme=fourchette' });
+    expect(r[1]!.reason).toContain('4 de tes 10 dernières parties');
+  });
+  it('une habitude ponctuelle ne change pas le programme', () => {
+    const r = recommend({ level: 'intermediaire', lessons: new Map(), openings: [], themeStats: [], now: 0, habits: [{ tag: 'finale', label: 'x', games: 1, window: 10, recurrent: false, lastSeen: 0 }] });
+    expect(r.some((x) => x.kind === 'habit')).toBe(false);
+  });
+});

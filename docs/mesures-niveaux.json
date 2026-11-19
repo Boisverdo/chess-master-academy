@@ -1,0 +1,42 @@
+{
+ "date": "2026-11-19",
+ "engine": "Stockfish 19 Lite WASM",
+ "results": [
+  {
+   "weaker": "Aléatoire",
+   "stronger": "Débutant",
+   "games": 10,
+   "strongerScore": 9.5
+  },
+  {
+   "weaker": "Débutant",
+   "stronger": "Facile",
+   "games": 12,
+   "strongerScore": 12
+  },
+  {
+   "weaker": "Facile",
+   "stronger": "Intermédiaire",
+   "games": 12,
+   "strongerScore": 12
+  },
+  {
+   "weaker": "Intermédiaire",
+   "stronger": "Difficile",
+   "games": 12,
+   "strongerScore": 11
+  },
+  {
+   "weaker": "Difficile",
+   "stronger": "Expert",
+   "games": 8,
+   "strongerScore": 5.5
+  },
+  {
+   "weaker": "Expert",
+   "stronger": "Très avancé",
+   "games": 8,
+   "strongerScore": 7
+  }
+ ]
+}
