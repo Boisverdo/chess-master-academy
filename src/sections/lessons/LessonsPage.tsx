@@ -45,7 +45,6 @@ export function LessonsPage() {
           </section>
         );
       })}
-      <p className="muted small">Les leçons de stratégie positionnelle et de finales arriveront en Phase 6.</p>
     </div>
   );
 }

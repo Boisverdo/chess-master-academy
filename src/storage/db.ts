@@ -45,7 +45,7 @@ export interface LessonProgress {
   completedAt?: number;
 }
 
-export type AttemptKind = 'puzzle' | 'lesson' | 'opening' | 'assessment' | 'drill';
+export type AttemptKind = 'puzzle' | 'lesson' | 'opening' | 'assessment' | 'drill' | 'exam' | 'challenge';
 
 export interface Attempt {
   id?: number;

@@ -74,14 +74,37 @@ export interface ChoiceStep {
   prompt: string;
   board?: BoardSpec;
   options: { label: string; correct: boolean; feedback: string }[];
+  /**
+   * Résultat théorique de la position (camp au trait, meilleur jeu des deux côtés),
+   * vérifié par Stockfish dans les tests : la bonne réponse ne peut pas être fausse.
+   */
+  verify?: { fen?: string; result: 'win' | 'draw' | 'loss' };
 }
 
-export type Step = ExplainStep | DemoStep | MoveStep | SquareStep | ChoiceStep;
-export type ExerciseStep = MoveStep | SquareStep | ChoiceStep;
+/**
+ * Jouer une position contre le moteur (pleine force). Objectifs :
+ * - mate : mater en au plus `maxMoves` coups ;
+ * - promote : promouvoir un pion en au plus `maxMoves` coups ;
+ * - draw : tenir la nulle (nulle obtenue, ou `maxMoves` coups sans promotion adverse ni perte de matériel).
+ * La jouabilité de chaque position est vérifiée par Stockfish dans les tests.
+ */
+export interface PlayStep {
+  kind: 'play';
+  prompt: string;
+  fen: string;
+  orientation?: 'white' | 'black';
+  goal: 'mate' | 'promote' | 'draw';
+  maxMoves: number;
+  hint: string;
+  success: string;
+}
+
+export type Step = ExplainStep | DemoStep | MoveStep | SquareStep | ChoiceStep | PlayStep;
+export type ExerciseStep = MoveStep | SquareStep | ChoiceStep | PlayStep;
 
 export interface Lesson {
   id: string;
-  course: 'regles' | 'principes';
+  course: 'regles' | 'principes' | 'strategie' | 'finales';
   title: string;
   summary: string;
   minutes: number;
@@ -98,4 +121,4 @@ export interface Course {
   lessons: Lesson[];
 }
 
-export const isExercise = (s: Step): s is ExerciseStep => s.kind === 'move' || s.kind === 'square' || s.kind === 'choice';
+export const isExercise = (s: Step): s is ExerciseStep => s.kind === 'move' || s.kind === 'square' || s.kind === 'choice' || s.kind === 'play';

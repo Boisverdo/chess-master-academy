@@ -41,7 +41,7 @@ export const HABIT_ACTIONS: Record<string, { title: string; link: string }> = {
   ouverture: { title: 'Réviser tes ouvertures', link: '/ouvertures' },
   'dame-precoce': { title: 'Leçon : le développement des pièces', link: '/lecons/principes-developpement' },
   'developpement-lent': { title: 'Leçon : le développement des pièces', link: '/lecons/principes-developpement' },
-  finale: { title: 'Finales : module prévu en Phase 6', link: '/apprentissage' },
+  finale: { title: 'Leçon : roi et pion, cases clés et opposition', link: '/lecons/finales-roi-pion' },
 };
 
 export function recommend(input: RecommendInput): Recommendation[] {
@@ -60,7 +60,7 @@ export function recommend(input: RecommendInput): Recommendation[] {
   }
 
   // 2. Prochaine leçon, dans l'ordre adapté au niveau.
-  const order = input.level === 'debutant-absolu' || input.level === 'debutant' ? ['regles', 'principes'] : ['principes', 'regles'];
+  const order = input.level === 'debutant-absolu' || input.level === 'debutant' ? ['regles', 'principes', 'finales', 'strategie'] : ['principes', 'strategie', 'finales', 'regles'];
   const lessons = order.flatMap((c) => COURSES.find((x) => x.id === c)!.lessons);
   const inProgress = lessons.find((l) => input.lessons.get(l.id)?.status === 'in-progress');
   const nextLesson = inProgress ?? lessons.find((l) => input.lessons.get(l.id)?.status !== 'done');

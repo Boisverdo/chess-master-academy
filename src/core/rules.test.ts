@@ -21,6 +21,9 @@ describe('coups illégaux refusés', () => {
   });
   it('refuse un SAN invalide', () => expect(g.playSan('Qh5')).toBeNull());
   it('refuse une FEN invalide', () => expect(() => ChessGame.create('pas une position')).toThrow(RulesError));
+  it('refuse une position impossible (roi en échec sans avoir le trait)', () => {
+    expect(() => ChessGame.create('7k/8/6K1/7P/8/8/8/B7 w - - 0 1')).toThrow(/Position impossible/);
+  });
   it('fromSan signale le coup fautif', () => expect(() => ChessGame.fromSan(['e4', 'e5', 'Ke3'])).toThrow(/demi-coup 3/));
 });
 
@@ -53,7 +56,7 @@ describe('roque', () => {
     expect(ChessGame.create('3r2k1/8/8/8/8/8/8/R3K2R w KQ - 0 1').play('e1', 'c1')).toBeNull();
   });
   it('interdit si le roi arrive sur une case attaquée', () => {
-    expect(ChessGame.create('6rk/8/8/8/8/8/8/R3K2R w KQ - 0 1').play('e1', 'g1')).toBeNull();
+    expect(ChessGame.create('1k4r1/8/8/8/8/8/8/R3K2R w KQ - 0 1').play('e1', 'g1')).toBeNull();
   });
   it('autorisé si seule la tour (b1) traverse une case attaquée au grand roque', () => {
     expect(ChessGame.create('1r4k1/8/8/8/8/8/8/R3K2R w KQ - 0 1').play('e1', 'c1')).not.toBeNull();

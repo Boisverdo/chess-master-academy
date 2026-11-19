@@ -66,6 +66,32 @@
 .inline-field { display: inline-flex; gap: 6px; align-items: center; }
 .inline-field select { font: inherit; padding: 6px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
 
+/* ---------- Phase 6 : progression ---------- */
+.chart { margin: 0; }
+.chart-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; }
+.chart-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.chart-wrap { position: relative; }
+.chart-wrap svg { width: 100%; height: auto; display: block; overflow: visible; }
+.chart-grid { stroke: var(--border); stroke-width: 1; }
+.chart-axis { font-size: 11px; fill: var(--muted); font-variant-numeric: tabular-nums; }
+.chart-value { font-size: 12px; font-weight: 600; fill: var(--text); }
+.chart-line { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.chart-area { fill: var(--accent); opacity: 0.1; }
+.chart-dot { fill: var(--accent); stroke: var(--surface); stroke-width: 2; }
+.chart-cross { stroke: var(--muted); stroke-width: 1; }
+.chart-tip { position: absolute; top: 0; transform: translateX(-50%); background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 4px 8px; display: grid; font-size: 0.8rem; pointer-events: none; box-shadow: var(--shadow); white-space: nowrap; }
+.chart-table { max-height: 220px; display: block; overflow-y: auto; }
+.badge-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+.badge-list li { display: grid; grid-template-columns: 28px 1fr; gap: 8px; padding: 10px; border: 1px solid var(--border); border-radius: 8px; opacity: 0.75; }
+.badge-list li > span:last-child { display: grid; gap: 4px; }
+.badge-list li.earned { opacity: 1; border-color: var(--accent); background: var(--accent-soft); }
+.badge-icon { font-size: 1.3rem; color: var(--accent); }
+.history { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.history li { display: grid; gap: 2px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.history li strong::first-letter { text-transform: uppercase; }
+.streak { margin-top: 12px; }
+.play-step { display: grid; gap: 10px; }
+
 /* Les pendules au-dessus et au-dessous de l'échiquier réduisent la place disponible. */
 .board-page.play-page { grid-template-columns: minmax(0, min(calc(100svh - 230px), 680px)) minmax(260px, 360px); }
 

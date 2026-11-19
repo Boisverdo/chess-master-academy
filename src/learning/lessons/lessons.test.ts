@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest';
 import { ChessGame, type PromotionPiece, type Square } from '../../core/game';
 import { checkMove, solutions } from './check';
 import { ALL_LESSONS } from './index';
-import type { MoveStep } from './types';
+import { isExercise, type MoveStep } from './types';
 
 const SQUARE = /^[a-h][1-8]$/;
 const play = (step: MoveStep, uci: string) => checkMove(step, uci.slice(0, 2) as Square, uci.slice(2, 4) as Square, (uci[4] as PromotionPiece) || undefined);
@@ -20,7 +20,7 @@ describe('contenu des leçons', () => {
   for (const lesson of ALL_LESSONS) {
     describe(lesson.title, () => {
       it('a au moins un exercice', () => {
-        expect(lesson.steps.some((s) => s.kind === 'move' || s.kind === 'square' || s.kind === 'choice')).toBe(true);
+        expect(lesson.steps.some(isExercise)).toBe(true);
       });
       lesson.steps.forEach((step, i) => {
         it(`étape ${i + 1} (${step.kind}) est valide`, () => {
@@ -43,6 +43,12 @@ describe('contenu des leçons', () => {
           if (step.kind === 'demo') {
             expect(() => ChessGame.fromSan(step.moves.map((m) => m.san), step.fen)).not.toThrow();
             step.moves.forEach((m) => expect(m.comment.length).toBeGreaterThan(5));
+          }
+          if (step.kind === 'play') {
+            const g = ChessGame.create(step.fen);
+            expect(g.status().over).toBe(false);
+            expect(step.maxMoves).toBeGreaterThan(0);
+            if (step.orientation) expect(step.orientation).toBe(g.turn === 'w' ? 'white' : 'black');
           }
           if (step.kind === 'move') {
             const game = ChessGame.create(step.fen);

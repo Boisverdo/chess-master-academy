@@ -105,7 +105,12 @@ export class ChessGame {
   static create(startFen: string = START_FEN, headers: Record<string, string> = {}): ChessGame {
     const check = validateFen(startFen);
     if (!check.ok) throw new RulesError(`Position FEN invalide : ${check.error ?? 'format incorrect'}`);
-    return new ChessGame(startFen, new Chess(startFen), { ...headers });
+    const chess = new Chess(startFen);
+    // Position impossible : le roi du camp qui N'a PAS le trait est en échec (il aurait été pris).
+    const idle: Color = chess.turn() === 'w' ? 'b' : 'w';
+    const king = chess.findPiece({ type: 'k', color: idle })[0];
+    if (king && chess.isAttacked(king, chess.turn())) throw new RulesError('Position impossible : le roi du camp qui n’a pas le trait est en échec.');
+    return new ChessGame(startFen, chess, { ...headers });
   }
 
   /** Reconstruit une partie à partir d'une suite de coups SAN (ex. ["e4", "e5", "Cf3"] en notation anglaise). */
