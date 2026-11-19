@@ -56,4 +56,4 @@ L’application a besoin d’un **identifiant client OAuth** Google. Il est publ
 
 - `src/sync/sync.test.ts` : fusion (union, commutativité, idempotence, suppressions, profil), base locale (identifiants stables, numéros conservés), deux appareils avec un Drive simulé (hors ligne, autorisation expirée, jeton refusé, fichier plus récent jamais écrasé, fichier supprimé recréé, refus, déliaison, « Tout effacer »).
 - `tests/e2e/sync.spec.ts` : deux navigateurs isolés avec la connexion Google et l’API Drive simulées (aussi sous la politique de sécurité de la version de production).
-- Le vrai service Google se vérifie avec ton compte, une fois l’identifiant configuré.
+- Le vrai service Google a été vérifié avec le compte du propriétaire le 19 novembre 2026 (PC et cellulaire, dans les deux sens), sur la version publiée.
