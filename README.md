@@ -11,8 +11,8 @@ Académie d'échecs indépendante, propulsée par un entraîneur IA qui apprend 
 | 3 — Apprentissage (évaluation, 16 leçons, 3 365 exercices, 14 ouvertures) | ✅ Terminée et testée — [rapport](docs/06-phase3-rapport.md) |
 | 4 — Stockfish, adversaire à 6 niveaux, analyse, entraîneur | ✅ Terminée et testée — [rapport](docs/07-phase4-rapport.md) |
 | 5 — Chess.com (liaison par pseudo, import, analyse groupée) | ✅ Terminée et testée — [rapport](docs/08-phase5-rapport.md) |
-| 6 — Tableau de bord, défis, stratégie positionnelle et finales | ⏳ Prochaine |
-| 7 — Tests, sécurité, application Windows, livraison | ⏳ À venir |
+| 6 — Stratégie, finales, tableau de bord, défis, examens, badges | ✅ Terminée et testée — [rapport](docs/09-phase6-rapport.md) |
+| 7 — Tests, sécurité, application Windows, livraison | ⏳ Prochaine |
 
 ## Démarrer
 
@@ -44,6 +44,7 @@ Puis ouvrir http://localhost:5173.
 6. [Rapport de la Phase 3](docs/06-phase3-rapport.md)
 7. [Rapport de la Phase 4](docs/07-phase4-rapport.md) · [mesure des niveaux](docs/mesures-niveaux.json)
 8. [Rapport de la Phase 5](docs/08-phase5-rapport.md)
+9. [Rapport de la Phase 6](docs/09-phase6-rapport.md)
 
 ## Principes non négociables
 

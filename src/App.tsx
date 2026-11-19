@@ -54,7 +54,7 @@ function Shell() {
             </li>
           ))}
         </ul>
-        <p className="version">Version 0.3 · Phase {CURRENT_PHASE}</p>
+        <p className="version">Version {__APP_VERSION__} · Phase {CURRENT_PHASE}</p>
       </nav>
       <div className="scrim" onClick={() => setMenuOpen(false)} aria-hidden="true" />
       <main className="content" id="contenu">

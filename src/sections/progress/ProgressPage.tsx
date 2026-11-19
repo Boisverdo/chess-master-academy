@@ -26,9 +26,11 @@ async function load() {
 
 export function ProgressPage() {
   const { data } = useData(load);
-  const [params] = useSearchParams();
-  const initial = params.get('onglet');
-  const [tab, setTab] = useState<Tab>(initial === 'defis' || initial === 'examens' || initial === 'historique' ? initial : 'tableau');
+  const [params, setParams] = useSearchParams();
+  const asked = params.get('onglet');
+  // L'onglet suit l'adresse : un lien vers « ?onglet=examens » ouvre bien cet onglet.
+  const tab: Tab = asked === 'defis' || asked === 'examens' || asked === 'historique' ? asked : 'tableau';
+  const setTab = (t: Tab) => setParams(t === 'tableau' ? {} : { onglet: t }, { replace: true });
   const [puzzles, setPuzzles] = useState<Puzzle[] | null>(null);
   useEffect(() => void loadPuzzles().then(setPuzzles), []);
   if (!data) return <div className="page"><h1>Ma progression</h1><p className="muted">Chargement…</p></div>;
@@ -51,6 +53,14 @@ export function ProgressPage() {
 }
 
 type Data = Awaited<ReturnType<typeof load>>;
+
+/** Moments d'activité d'apprentissage : essais, leçons, parties jouées contre l'ordinateur et analyses. */
+const activityTimes = (data: Data) => [
+  ...data.attempts.map((a) => a.at),
+  ...[...data.lessons.values()].map((l) => l.updatedAt),
+  ...data.games.filter((g) => g.source === 'ia').map((g) => g.createdAt),
+  ...data.games.flatMap((g) => (g.analyzedAt ? [g.analyzedAt] : [])),
+];
 
 function Dashboard({ data }: { data: Data }) {
   const p = data.profile;
@@ -169,7 +179,7 @@ function Challenges({ data, puzzles }: { data: Data; puzzles: Puzzle[] | null })
   const doneToday = data.attempts.find((a) => a.kind === 'challenge' && a.refId === dailyId(now));
   const [result, setResult] = useState<boolean | null>(null);
   const objectives = weeklyObjectives({ attempts: data.attempts, lessons: [...data.lessons.values()], games: data.games, weakTheme: weakThemes(data.stats)[0], now });
-  const days = streak([...data.attempts.map((a) => a.at), ...[...data.lessons.values()].map((l) => l.updatedAt)], now);
+  const days = streak(activityTimes(data), now);
 
   return (
     <div className="two-cols">
@@ -215,7 +225,7 @@ function Challenges({ data, puzzles }: { data: Data; puzzles: Puzzle[] | null })
 
 function ExamsAndBadges({ data }: { data: Data }) {
   const now = Date.now();
-  const days = streak([...data.attempts.map((a) => a.at), ...[...data.lessons.values()].map((l) => l.updatedAt)], now);
+  const days = streak(activityTimes(data), now);
   const p = data.profile;
   const list = badges({
     attempts: data.attempts,

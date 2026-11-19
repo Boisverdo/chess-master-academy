@@ -20,7 +20,14 @@ export function LineChart({ title, points, unit = '', format = (v) => String(Mat
   const [hover, setHover] = useState<number | null>(null);
   const [table, setTable] = useState(false);
   const id = useId();
-  if (points.length === 0) return <p className="muted">Pas encore de données.</p>;
+  if (points.length === 0) {
+    return (
+      <figure className="chart">
+        <figcaption className="chart-head"><span className="chart-title">{title}</span></figcaption>
+        <p className="muted">Pas encore de données.</p>
+      </figure>
+    );
+  }
   const W = 600;
   const H = 180;
   const P = { l: 44, r: 16, t: 12, b: 26 };
@@ -77,8 +84,14 @@ export function LineChart({ title, points, unit = '', format = (v) => String(Mat
                 <text x={P.l - 6} y={y(t) + 4} textAnchor="end" className="chart-axis">{format(t)}</text>
               </g>
             ))}
-            <text x={P.l} y={H - 6} className="chart-axis">{fmtDate(points[0]!.at)}</text>
-            <text x={W - P.r} y={H - 6} textAnchor="end" className="chart-axis">{fmtDate(points[lastIdx]!.at)}</text>
+            {points.length === 1 ? (
+              <text x={x(0)} y={H - 6} textAnchor="middle" className="chart-axis">{fmtDate(points[0]!.at)}</text>
+            ) : (
+              <>
+                <text x={P.l} y={H - 6} className="chart-axis">{fmtDate(points[0]!.at)}</text>
+                <text x={W - P.r} y={H - 6} textAnchor="end" className="chart-axis">{fmtDate(points[lastIdx]!.at)}</text>
+              </>
+            )}
             <path d={`${path} L${x(lastIdx)},${H - P.b} L${x(0)},${H - P.b} Z`} className="chart-area" />
             <path d={path} className="chart-line" />
             <circle cx={x(lastIdx)} cy={y(points[lastIdx]!.value)} r="4.5" className="chart-dot" />
