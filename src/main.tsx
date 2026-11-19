@@ -12,3 +12,12 @@ createRoot(root).render(
     <App />
   </StrictMode>,
 );
+
+// Application installable et utilisable hors ligne (version de production uniquement).
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {
+      /* sans service worker, l'application fonctionne normalement en ligne */
+    });
+  });
+}

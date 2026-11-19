@@ -3,7 +3,7 @@
 .breadcrumb { font-size: 0.88rem; color: var(--muted); margin: 0 0 6px; }
 .breadcrumb a { color: var(--muted); }
 .notice { background: var(--accent-soft); border-radius: var(--radius); padding: 10px 14px; }
-.ok-text { color: var(--ok); font-weight: 500; }
+.ok-text { color: var(--ok-text); font-weight: 500; }
 .two-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; margin-top: 16px; }
 .two-cols .panel + .panel { margin-top: 0; }
 
@@ -64,7 +64,7 @@
 .card:hover { border-color: var(--accent); }
 .card-title { font-weight: 700; }
 .card .badge { justify-self: start; }
-.badge-due { background: var(--accent-soft); color: var(--accent); }
+.badge-due { background: var(--accent-soft); color: var(--accent-text); }
 .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin: 8px 0 16px; overflow-x: auto; }
 .tab { font: inherit; background: none; border: 0; border-bottom: 3px solid transparent; padding: 10px 12px; color: var(--muted); cursor: pointer; white-space: nowrap; }
 .tab.active { color: var(--text); border-bottom-color: var(--accent); font-weight: 600; }
@@ -78,7 +78,7 @@
 .stepper li { font-size: 0.82rem; padding: 4px 10px; border-radius: 999px; background: var(--surface-2); color: var(--muted); }
 .stepper li.current { background: var(--brand); color: var(--brand-contrast); font-weight: 600; }
 .stepper li.done { color: var(--ok); }
-.level-title { font-size: clamp(1.6rem, 4vw, 2.2rem); color: var(--accent); }
+.level-title { font-size: clamp(1.6rem, 4vw, 2.2rem); color: var(--accent-text); }
 .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
 .stat-card { display: grid; gap: 2px; padding: 14px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--border); }
 .stat-card strong { font-size: 1.35rem; }

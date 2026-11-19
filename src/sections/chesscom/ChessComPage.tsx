@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { analyseBatch, type BatchProgress } from '../../analysis/batch';
 import { getEngine } from '../../engine/browser';
-import { archiveLabel, normalizeUsername, type ChessComProfile, type ChessComStats } from '../../integrations/chesscom/client';
+import { archiveLabel, normalizeUsername, safeChessComUrl, type ChessComProfile, type ChessComStats } from '../../integrations/chesscom/client';
 import { importMonths, TIME_CLASS_LABELS, type ImportSummary, type TimeClass } from '../../integrations/chesscom/importer';
 import { chessComClient } from '../../integrations/chesscom/service';
 import { db, type IntegrationRecord } from '../../storage/db';
@@ -196,8 +196,8 @@ function Connected({ integration }: { integration: IntegrationRecord }) {
           <p>
             <strong>{profile?.username ?? integration.username}</strong>
             {profile?.title ? ` · ${profile.title}` : ''}
-            {profile?.url && (
-              <> · <a href={profile.url} target="_blank" rel="noopener noreferrer">voir sur Chess.com</a></>
+            {safeChessComUrl(profile?.url) && (
+              <> · <a href={safeChessComUrl(profile?.url)!} target="_blank" rel="noopener noreferrer">voir sur Chess.com</a></>
             )}
           </p>
           <table className="summary-table">

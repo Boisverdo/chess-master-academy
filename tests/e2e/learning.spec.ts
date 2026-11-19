@@ -47,6 +47,8 @@ test('exercice de coordonnées : clic sur une case', async ({ page }) => {
   await page.goto('./#/lecons/regles-echiquier');
   await next(page);
   await next(page);
+  // Attendre l'étape « clique sur une case » avant de cliquer (l'échiquier précédent est remplacé).
+  await expect(page.getByText('Clique sur la case')).toBeVisible();
   const d4 = await squareCenter(page, 'd4');
   await page.mouse.click(d4.x, d4.y);
   await expect(page.getByTestId('feedback')).toContainText('Tu as cliqué sur d4');

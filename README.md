@@ -12,24 +12,34 @@ Académie d'échecs indépendante, propulsée par un entraîneur IA qui apprend 
 | 4 — Stockfish, adversaire à 6 niveaux, analyse, entraîneur | ✅ Terminée et testée — [rapport](docs/07-phase4-rapport.md) |
 | 5 — Chess.com (liaison par pseudo, import, analyse groupée) | ✅ Terminée et testée — [rapport](docs/08-phase5-rapport.md) |
 | 6 — Stratégie, finales, tableau de bord, défis, examens, badges | ✅ Terminée et testée — [rapport](docs/09-phase6-rapport.md) |
-| 7 — Tests, sécurité, application Windows, livraison | ⏳ Prochaine |
+| 7 — Tests, sécurité, performances, application installable, documentation | ✅ Terminée — [rapport final](docs/10-phase7-rapport-final.md) |
 
-## Démarrer
+**Version 1.0.0 livrée.**
+
+## Installer et utiliser
 
 Prérequis : Node.js 20 ou plus récent.
 
 ```powershell
 npm install
-npm run dev
 ```
 
-Puis ouvrir http://localhost:5173.
+```powershell
+npm run app
+```
+
+Puis ouvrir http://localhost:4173 dans Edge ou Chrome et choisir **« Installer l’application »** : elle s’ajoute au menu Démarrer et fonctionne ensuite hors ligne. Tout est expliqué dans le **[guide d’utilisation](docs/guide-utilisation.md)**.
+
+Pour développer : `npm run dev` (http://localhost:5173).
 
 | Commande | Rôle |
 |---|---|
-| `npm run dev` | Serveur de développement |
+| `npm run app` | Version de production installable (port 4173) |
+| `npm run dev` | Serveur de développement (port 5173) |
 | `npm test` | Tests unitaires (règles, perft, PGN, validation de tout le contenu pédagogique) |
 | `npm run test:e2e` | Tests de bout en bout dans un navigateur (ordinateur + téléphone) |
+| `npm run test:prod` | Toute la suite sur la version de production (sécurité, hors ligne, accessibilité, performances) |
+| `npm run test:all` | Typage + unitaires + bout en bout + production |
 | `npm run typecheck` | Vérification du typage |
 | `npm run build` | Version de production dans `dist/` |
 | `MEASURE=1 npx vitest run src/engine/levels.measure.test.ts` | Tournoi de mesure des niveaux de l'ordinateur (long) |
@@ -45,6 +55,9 @@ Puis ouvrir http://localhost:5173.
 7. [Rapport de la Phase 4](docs/07-phase4-rapport.md) · [mesure des niveaux](docs/mesures-niveaux.json)
 8. [Rapport de la Phase 5](docs/08-phase5-rapport.md)
 9. [Rapport de la Phase 6](docs/09-phase6-rapport.md)
+10. [Rapport final (Phase 7)](docs/10-phase7-rapport-final.md) · [mesures de performance](docs/mesures-performances.json)
+
+Guides : **[guide d’utilisation](docs/guide-utilisation.md)** · [documentation technique](docs/documentation-technique.md)
 
 ## Principes non négociables
 

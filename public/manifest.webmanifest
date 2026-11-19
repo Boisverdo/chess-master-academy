@@ -1,0 +1,19 @@
+{
+  "name": "Chess Master Academy",
+  "short_name": "Chess Master",
+  "description": "Académie d’échecs avec entraîneur personnel : leçons, exercices, ouvertures, analyse Stockfish.",
+  "lang": "fr",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#14213d",
+  "theme_color": "#14213d",
+  "categories": ["education", "games"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

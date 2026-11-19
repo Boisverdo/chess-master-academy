@@ -51,7 +51,7 @@ export function PlayPage() {
         <section className="panel setup">
           <h2 className="panel-title">Position de départ</h2>
           <label className="field">
-            <select value={setup.opening ?? ''} onChange={(e) => { const o = findOpening(e.target.value); setSetup({ ...setup, opening: o?.id, color: o ? (o.side === 'white' ? 'w' : 'b') : setup.color }); }} data-testid="opening-select">
+            <select aria-label="Position de départ" value={setup.opening ?? ''} onChange={(e) => { const o = findOpening(e.target.value); setSetup({ ...setup, opening: o?.id, color: o ? (o.side === 'white' ? 'w' : 'b') : setup.color }); }} data-testid="opening-select">
               <option value="">Position initiale</option>
               {OPENINGS.map((o) => <option key={o.id} value={o.id}>Après la ligne principale : {o.name} ({o.side === 'white' ? 'avec les Blancs' : 'avec les Noirs'})</option>)}
             </select>

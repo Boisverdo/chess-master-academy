@@ -162,6 +162,20 @@ export class ChessComClient {
   }
 }
 
+/**
+ * Adresse de profil sûre à afficher comme lien : uniquement https://www.chess.com/…
+ * (une donnée reçue d'un service externe ne doit jamais devenir un lien « javascript: »).
+ */
+export function safeChessComUrl(url: unknown): string | null {
+  if (typeof url !== 'string') return null;
+  try {
+    const u = new URL(url);
+    return u.protocol === 'https:' && (u.hostname === 'www.chess.com' || u.hostname === 'chess.com') ? u.href : null;
+  } catch {
+    return null;
+  }
+}
+
 export function archiveLabel(url: string): { year: number; month: number; label: string } {
   const m = url.match(/(\d{4})\/(\d{2})$/);
   const year = Number(m?.[1]);

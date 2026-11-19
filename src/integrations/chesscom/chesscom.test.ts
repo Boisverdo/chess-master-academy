@@ -2,7 +2,7 @@ import 'fake-indexeddb/auto';
 import { describe, expect, it } from 'vitest';
 import { CmaDatabase } from '../../storage/db';
 import { disconnectIntegration, existingExternalIds, saveGameRecord, saveIntegration } from '../../storage/repo';
-import { API_ROOT, ChessComClient, ChessComError, isPastMonth, normalizeUsername, type ChessComGame } from './client';
+import { API_ROOT, ChessComClient, ChessComError, isPastMonth, normalizeUsername, safeChessComUrl, type ChessComGame } from './client';
 import { importMonths, toRecord } from './importer';
 
 /** PGN au format de Chess.com (en-têtes, temps de pendule en commentaires). */
@@ -50,6 +50,16 @@ describe('pseudo', () => {
     expect(normalizeUsername('  @MonPseudo ')).toBe('monpseudo');
     expect(() => normalizeUsername('a')).toThrow(ChessComError);
     expect(() => normalizeUsername('../../etc')).toThrow(ChessComError);
+  });
+});
+
+describe('sécurité des liens reçus', () => {
+  it('n’accepte que https://www.chess.com', () => {
+    expect(safeChessComUrl('https://www.chess.com/member/x')).toBe('https://www.chess.com/member/x');
+    expect(safeChessComUrl('javascript:alert(1)')).toBeNull();
+    expect(safeChessComUrl('http://www.chess.com/member/x')).toBeNull();
+    expect(safeChessComUrl('https://www.chess.com.evil.example/x')).toBeNull();
+    expect(safeChessComUrl(42)).toBeNull();
   });
 });
 

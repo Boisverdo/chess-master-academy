@@ -1,21 +1,25 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { HashRouter, NavLink, Route, Routes, useLocation } from 'react-router-dom';
 import { CURRENT_PHASE, SECTIONS } from './ui/sections';
 import { SettingsProvider } from './ui/settings';
-import { BoardPage } from './sections/board/BoardPage';
 import { HomePage, PlannedPage, SettingsPage } from './sections/Pages';
-import { LessonRoute, LessonsPage } from './sections/lessons/LessonsPage';
-import { TacticsPage } from './sections/tactics/TacticsPage';
-import { OpeningDetail, OpeningsPage } from './sections/openings/OpeningsPage';
-import { AssessmentPage } from './sections/learning/AssessmentPage';
-import { MyLearningPage } from './sections/learning/MyLearningPage';
-import { PlayPage } from './sections/play/PlayPage';
-import { AnalysisListPage } from './sections/analysis/AnalysisListPage';
-import { AnalysisView } from './sections/analysis/AnalysisView';
-import { CoachPage } from './sections/coach/CoachPage';
-import { ChessComPage } from './sections/chesscom/ChessComPage';
-import { ProgressPage } from './sections/progress/ProgressPage';
-import { ExamPage } from './sections/progress/ExamPage';
+
+/** Chaque écran est chargé à la demande : le démarrage reste léger. */
+const LessonRoute = lazy(() => import('./sections/lessons/LessonsPage').then((m) => ({ default: m.LessonRoute })));
+const LessonsPage = lazy(() => import('./sections/lessons/LessonsPage').then((m) => ({ default: m.LessonsPage })));
+const TacticsPage = lazy(() => import('./sections/tactics/TacticsPage').then((m) => ({ default: m.TacticsPage })));
+const OpeningDetail = lazy(() => import('./sections/openings/OpeningsPage').then((m) => ({ default: m.OpeningDetail })));
+const OpeningsPage = lazy(() => import('./sections/openings/OpeningsPage').then((m) => ({ default: m.OpeningsPage })));
+const AssessmentPage = lazy(() => import('./sections/learning/AssessmentPage').then((m) => ({ default: m.AssessmentPage })));
+const MyLearningPage = lazy(() => import('./sections/learning/MyLearningPage').then((m) => ({ default: m.MyLearningPage })));
+const PlayPage = lazy(() => import('./sections/play/PlayPage').then((m) => ({ default: m.PlayPage })));
+const AnalysisListPage = lazy(() => import('./sections/analysis/AnalysisListPage').then((m) => ({ default: m.AnalysisListPage })));
+const AnalysisView = lazy(() => import('./sections/analysis/AnalysisView').then((m) => ({ default: m.AnalysisView })));
+const CoachPage = lazy(() => import('./sections/coach/CoachPage').then((m) => ({ default: m.CoachPage })));
+const ChessComPage = lazy(() => import('./sections/chesscom/ChessComPage').then((m) => ({ default: m.ChessComPage })));
+const ProgressPage = lazy(() => import('./sections/progress/ProgressPage').then((m) => ({ default: m.ProgressPage })));
+const ExamPage = lazy(() => import('./sections/progress/ExamPage').then((m) => ({ default: m.ExamPage })));
+const BoardPage = lazy(() => import('./sections/board/BoardPage').then((m) => ({ default: m.BoardPage })));
 
 function Shell() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -58,6 +62,7 @@ function Shell() {
       </nav>
       <div className="scrim" onClick={() => setMenuOpen(false)} aria-hidden="true" />
       <main className="content" id="contenu">
+        <Suspense fallback={<p className="muted" role="status">Chargement…</p>}>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/echiquier" element={<BoardPage />} />
@@ -81,6 +86,7 @@ function Shell() {
           ))}
           <Route path="*" element={<HomePage />} />
         </Routes>
+        </Suspense>
       </main>
     </div>
   );
