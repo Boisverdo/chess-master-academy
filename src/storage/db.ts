@@ -5,6 +5,7 @@
  */
 import Dexie, { type Table } from 'dexie';
 import type { PositionEval } from '../analysis/review';
+import { gameUid } from './ids';
 
 export type Level = 'debutant-absolu' | 'debutant' | 'intermediaire' | 'avance';
 
@@ -93,6 +94,8 @@ export interface GameRecord {
   /** Identifiant chez la source externe (ex. URL de la partie Chess.com) : évite les doublons. */
   externalId?: string;
   timeClass?: string;
+  /** Identifiant stable, identique sur tous les appareils (synchronisation, version 4). */
+  uid?: string;
 }
 
 /** Liaison facultative avec un service externe (Phase 5). Supprimable à tout moment. */
@@ -131,6 +134,25 @@ export interface Drill {
   createdAt: number;
 }
 
+/** Trace d'une suppression, pour qu'une synchronisation ne fasse pas réapparaître l'élément (version 4). */
+export interface Tombstone {
+  /** `game:<uid>` ou `integration:<id>`. */
+  key: string;
+  at: number;
+}
+
+/** État local de la synchronisation Google Drive (version 4). Propre à chaque appareil. */
+export interface SyncState {
+  id: 'google';
+  connectedAt: number;
+  /** Fichier de synchronisation dans le dossier privé de l'application sur Google Drive. */
+  fileId?: string;
+  lastSyncAt?: number;
+  /** Jeton d'accès Google (valable environ une heure, limité au dossier privé de l'application). */
+  token?: string;
+  tokenExpiresAt?: number;
+}
+
 export class CmaDatabase extends Dexie {
   profile!: Table<Profile, 'me'>;
   lessons!: Table<LessonProgress, string>;
@@ -140,6 +162,8 @@ export class CmaDatabase extends Dexie {
   drills!: Table<Drill, string>;
   integrations!: Table<IntegrationRecord, string>;
   monthCache!: Table<MonthCacheRecord, string>;
+  tombstones!: Table<Tombstone, string>;
+  sync!: Table<SyncState, 'google'>;
 
   constructor(name = 'chess-master-academy') {
     super(name);
@@ -160,6 +184,21 @@ export class CmaDatabase extends Dexie {
       integrations: 'id',
       monthCache: 'url',
     });
+    // Version 4 : synchronisation entre appareils (identifiant stable des parties, suppressions, état).
+    this.version(4)
+      .stores({
+        games: '++id, createdAt, source, externalId, uid',
+        tombstones: 'key',
+        sync: 'id',
+      })
+      .upgrade((tx) =>
+        tx
+          .table('games')
+          .toCollection()
+          .modify((g: GameRecord) => {
+            if (!g.uid) g.uid = gameUid(g);
+          }),
+      );
   }
 }
 

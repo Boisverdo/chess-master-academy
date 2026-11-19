@@ -228,3 +228,8 @@ button.move:hover { background: var(--border); }
   .board-page { grid-template-columns: minmax(0, 1fr); max-width: 640px; margin: 0 auto; }
   .board-column { width: min(100%, max(280px, calc(100svh - 150px))); margin: 0 auto; }
 }
+
+/* Synchronisation Google Drive */
+.sync-banner { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 16px; padding: 10px 14px; border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: var(--radius); background: var(--surface); }
+.sync-banner span { flex: 1 1 220px; }
+.sync-facts { display: grid; gap: 6px; margin: 8px 0 14px; padding-left: 20px; }

@@ -6,7 +6,8 @@ import { defineConfig, devices } from '@playwright/test';
  * celle qui est livrée (voir « npm run test:prod »).
  */
 const prod = !!process.env.CMA_PROD;
-const baseURL = prod ? 'http://localhost:4173/' : 'http://localhost:5173/';
+// Port distinct de « npm run app » (4173) : les tests de production ne gênent pas l'application installée.
+const baseURL = prod ? 'http://localhost:4179/' : 'http://localhost:5173/';
 
 export default defineConfig({
   testDir: 'tests/e2e',
@@ -19,6 +20,6 @@ export default defineConfig({
     { name: 'mobile', use: { ...devices['Pixel 7'] }, testMatch: /mobile\.spec\.ts/ },
   ],
   webServer: prod
-    ? { command: 'npm run build && npx vite preview', url: baseURL, reuseExistingServer: false, timeout: 180_000 }
+    ? { command: 'npm run build && npx vite preview --port 4179', url: baseURL, reuseExistingServer: false, timeout: 180_000 }
     : { command: 'npm run dev', url: baseURL, reuseExistingServer: true, timeout: 60_000 },
 });

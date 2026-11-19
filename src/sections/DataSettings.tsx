@@ -33,7 +33,7 @@ export function DataSettings() {
   return (
     <section className="panel settings">
       <h2 className="panel-title">Mes données</h2>
-      <p className="muted small">Ton profil, tes leçons et tes exercices sont enregistrés uniquement sur cet appareil. Fais une sauvegarde de temps en temps : vider les données du navigateur les effacerait.</p>
+      <p className="muted small">Ton profil, tes leçons et tes exercices sont enregistrés sur cet appareil (et dans ton Google Drive si la synchronisation est activée). Sans synchronisation, fais une sauvegarde de temps en temps : vider les données du navigateur les effacerait.</p>
       <div className="row">
         <button type="button" className="btn" onClick={doExport}>Télécharger une sauvegarde</button>
         <label className="btn">
@@ -46,12 +46,13 @@ export function DataSettings() {
       <ConfirmModal
         open={confirmReset}
         title="Effacer toutes les données"
-        message="Ton profil, tes leçons, tes exercices et tes révisions seront définitivement supprimés de cet appareil. Pense à télécharger une sauvegarde avant."
+        message="Ton profil, tes leçons, tes exercices et tes révisions seront définitivement supprimés de cet appareil, qui sera aussi délié de la synchronisation (la copie sur Google Drive et tes autres appareils ne sont pas touchés). Pense à télécharger une sauvegarde avant."
         confirmLabel="Tout effacer"
         onCancel={() => setConfirmReset(false)}
         onConfirm={async () => {
           setConfirmReset(false);
           await resetAll();
+          await import('../sync/manager').then((m) => m.getSyncManager().refresh());
           setMessage({ tone: 'ok', text: 'Toutes les données ont été effacées.' });
         }}
       />

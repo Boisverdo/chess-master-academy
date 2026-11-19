@@ -8,15 +8,17 @@ import pkg from './package.json' with { type: 'json' };
 /**
  * Politique de sécurité du contenu (version de production uniquement : le serveur de
  * développement a besoin de scripts injectés). Seules les connexions vers l'application
- * elle-même et l'API publique de Chess.com sont autorisées.
+ * elle-même, l'API publique de Chess.com et, pour la synchronisation facultative, la connexion Google
+ * (Google Identity Services) et l'API Google Drive sont autorisées.
  */
 const CSP = [
   "default-src 'self'",
-  "script-src 'self' 'wasm-unsafe-eval'",
+  "script-src 'self' 'wasm-unsafe-eval' https://accounts.google.com/gsi/client",
   "worker-src 'self'",
-  "connect-src 'self' https://api.chess.com",
+  "connect-src 'self' https://api.chess.com https://www.googleapis.com https://accounts.google.com/gsi/",
+  "frame-src https://accounts.google.com/gsi/",
   "img-src 'self' data:",
-  "style-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style",
   "font-src 'self'",
   "object-src 'none'",
   "base-uri 'self'",

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { CURRENT_PHASE, SECTIONS, type SectionDef } from '../ui/sections';
 import { DataSettings } from './DataSettings';
+import { SyncSettings } from './SyncSettings';
 import { useSettings, type ThemeChoice } from '../ui/settings';
 import type { NotationStyle } from '../core/notation';
 
@@ -91,6 +92,7 @@ export function SettingsPage() {
         </label>
         <p className="muted small">Vos préférences sont enregistrées sur cet appareil uniquement.</p>
       </section>
+      <SyncSettings />
       <DataSettings />
     </div>
   );

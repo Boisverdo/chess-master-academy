@@ -30,7 +30,7 @@ L’application est publiée en HTTPS à l’adresse **https://boisverdo.github.
 
 Ouvre-la une première fois avec une connexion : ensuite elle fonctionne **hors ligne** (moteur et exercices compris). Les mises à jour arrivent automatiquement à la prochaine ouverture avec connexion.
 
-> **Chaque appareil a ses propres données.** Pour retrouver ta progression sur le cellulaire : *Paramètres › Télécharger une sauvegarde* sur l’ordinateur, envoie-toi le fichier, puis *Paramètres › Restaurer une sauvegarde* sur le cellulaire.
+> **Chaque appareil a ses propres données.** Pour les partager automatiquement : *Paramètres › Synchronisation entre appareils* (par ton Google Drive, voir le [guide de synchronisation](guide-synchronisation.md)). Sinon : *Télécharger une sauvegarde* sur un appareil, puis *Restaurer une sauvegarde* sur l’autre.
 
 ## 3. Premiers pas
 
@@ -69,7 +69,7 @@ Ouvre-la une première fois avec une connexion : ensuite elle fonctionne **hors 
 
 ## 7. Tes données
 
-- Tout est enregistré **sur ton appareil** (aucun serveur, aucun compte).
+- Tout est enregistré **sur ton appareil** (aucun serveur, aucun compte). Si tu actives la synchronisation, une copie va aussi dans un dossier privé de **ton** Google Drive.
 - **Sauvegarde régulièrement** : *Paramètres › Télécharger une sauvegarde*. Vider les données du navigateur effacerait ta progression.
 - *Tout effacer* supprime définitivement les données de cet appareil.
 

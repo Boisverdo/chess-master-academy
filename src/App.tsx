@@ -3,6 +3,7 @@ import { HashRouter, NavLink, Route, Routes, useLocation } from 'react-router-do
 import { CURRENT_PHASE, SECTIONS } from './ui/sections';
 import { SettingsProvider } from './ui/settings';
 import { HomePage, PlannedPage, SettingsPage } from './sections/Pages';
+import { SyncBanner } from './sync/SyncBanner';
 
 /** Chaque écran est chargé à la demande : le démarrage reste léger. */
 const LessonRoute = lazy(() => import('./sections/lessons/LessonsPage').then((m) => ({ default: m.LessonRoute })));
@@ -62,6 +63,7 @@ function Shell() {
       </nav>
       <div className="scrim" onClick={() => setMenuOpen(false)} aria-hidden="true" />
       <main className="content" id="contenu">
+        <SyncBanner />
         <Suspense fallback={<p className="muted" role="status">Chargement…</p>}>
         <Routes>
           <Route path="/" element={<HomePage />} />

@@ -1,6 +1,7 @@
 /** Accès aux données du joueur : lecture, écriture, sauvegarde et restauration. */
 import { db, type Attempt, type CmaDatabase, type Drill, type GameRecord, type IntegrationRecord, type LessonProgress, type Level, type OpeningProgress, type Profile } from './db';
 import { notifyDataChange } from './events';
+import { gameUid } from './ids';
 import { reviewQuality, scheduleReview, START_RATING, updateRating } from './learning';
 
 export async function getProfile(d: CmaDatabase = db): Promise<Profile | undefined> {
@@ -114,7 +115,7 @@ export async function importBackup(data: unknown, d: CmaDatabase = db): Promise<
   await d.transaction('rw', [d.profile, d.lessons, d.attempts, d.openings, d.games, d.drills, d.integrations], async () => {
     await Promise.all([d.profile.clear(), d.lessons.clear(), d.attempts.clear(), d.openings.clear(), d.games.clear(), d.drills.clear(), d.integrations.clear()]);
     await d.integrations.bulkPut(b.integrations ?? []);
-    await d.games.bulkPut(b.games ?? []);
+    await d.games.bulkPut((b.games ?? []).map((g) => ({ ...g, uid: gameUid(g) })));
     await d.drills.bulkPut(b.drills ?? []);
     await d.profile.bulkPut(b.profile);
     await d.lessons.bulkPut(b.lessons);
@@ -125,8 +126,9 @@ export async function importBackup(data: unknown, d: CmaDatabase = db): Promise<
 }
 
 export async function resetAll(d: CmaDatabase = db): Promise<void> {
-  await d.transaction('rw', [d.profile, d.lessons, d.attempts, d.openings, d.games, d.drills, d.integrations, d.monthCache], async () => {
-    await Promise.all([d.profile.clear(), d.lessons.clear(), d.attempts.clear(), d.openings.clear(), d.games.clear(), d.drills.clear(), d.integrations.clear(), d.monthCache.clear()]);
+  // La synchronisation est aussi déliée sur cet appareil : sinon la copie Google Drive ramènerait tout.
+  await d.transaction('rw', [d.profile, d.lessons, d.attempts, d.openings, d.games, d.drills, d.integrations, d.monthCache, d.tombstones, d.sync], async () => {
+    await Promise.all([d.profile.clear(), d.lessons.clear(), d.attempts.clear(), d.openings.clear(), d.games.clear(), d.drills.clear(), d.integrations.clear(), d.monthCache.clear(), d.tombstones.clear(), d.sync.clear()]);
   });
   notifyDataChange();
 }
@@ -134,7 +136,7 @@ export async function resetAll(d: CmaDatabase = db): Promise<void> {
 // ---------- Parties et positions à retravailler (Phase 4) ----------
 
 export async function saveGameRecord(g: Omit<GameRecord, 'id'>, d: CmaDatabase = db): Promise<number> {
-  const id = await d.games.add(g);
+  const id = await d.games.add({ ...g, uid: gameUid(g) });
   notifyDataChange();
   return id;
 }
@@ -145,7 +147,9 @@ export async function updateGameRecord(id: number, patch: Partial<GameRecord>, d
 }
 
 export async function deleteGameRecord(id: number, d: CmaDatabase = db): Promise<void> {
-  await d.transaction('rw', d.games, d.drills, async () => {
+  await d.transaction('rw', d.games, d.drills, d.tombstones, async () => {
+    const g = await d.games.get(id);
+    if (g) await d.tombstones.put({ key: `game:${gameUid(g)}`, at: Date.now() });
     await d.games.delete(id);
     await d.drills.where('gameId').equals(id).delete();
   });
@@ -189,11 +193,15 @@ export async function saveIntegration(r: IntegrationRecord, d: CmaDatabase = db)
 /** Déconnexion : oublie le pseudo et le cache ; supprime aussi les parties importées si demandé. */
 export async function disconnectIntegration(deleteGames: boolean, d: CmaDatabase = db): Promise<number> {
   let removed = 0;
-  await d.transaction('rw', [d.integrations, d.monthCache, d.games, d.drills], async () => {
+  await d.transaction('rw', [d.integrations, d.monthCache, d.games, d.drills, d.tombstones], async () => {
+    const now = Date.now();
     await d.integrations.delete('chesscom');
+    await d.tombstones.put({ key: 'integration:chesscom', at: now });
     await d.monthCache.clear();
     if (deleteGames) {
-      const ids = (await d.games.where('source').equals('chesscom').primaryKeys()) as number[];
+      const games = await d.games.where('source').equals('chesscom').toArray();
+      const ids = games.map((g) => g.id!);
+      await d.tombstones.bulkPut(games.map((g) => ({ key: `game:${gameUid(g)}`, at: now })));
       removed = ids.length;
       await d.games.bulkDelete(ids);
       await d.drills.where('gameId').anyOf(ids).delete();

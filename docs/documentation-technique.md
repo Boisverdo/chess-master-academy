@@ -10,7 +10,8 @@
 | Règles, PGN, FEN | chess.js 1.4 | BSD-2-Clause |
 | Échiquier | Chessground 9 (encapsulé dans `BoardView`) | GPL-3.0+ |
 | Moteur | Stockfish 19 lite (WebAssembly, `stockfish` 19.0.1), dans un Web Worker | GPL-3.0 |
-| Données locales | IndexedDB via Dexie 4 (schéma versionné v1→v3) | Apache-2.0 |
+| Données locales | IndexedDB via Dexie 4 (schéma versionné v1→v4) | Apache-2.0 |
+| Synchronisation (facultative) | Google Identity Services (chargé à la demande) + API Google Drive v3, dossier privé `appDataFolder` | Service Google |
 | Exercices | Base de puzzles Lichess (extrait vérifié) | CC0 |
 | Tests | Vitest, Playwright, axe-core | MIT / Apache-2.0 / MPL-2.0 (développement) |
 
@@ -30,7 +31,9 @@ src/
                  « Retente ta chance » (retry.ts), données de l'entraîneur (coachData.ts)
   learning/      Leçons (contenu + vérification), ouvertures, exercices, évaluation, recommandations
   progress/      Statistiques, défis, objectifs, badges, examens, graphique
-  integrations/  Chess.com (client PubAPI, import, service) — module isolé et facultatif
+  integrations/  Chess.com (client PubAPI, import, service) et Google (connexion, Drive) — modules isolés et facultatifs
+  sync/          Synchronisation entre appareils : instantané portable et fusion (snapshot.ts), base locale (local.ts),
+                 gestionnaire automatique (manager.ts), bandeau et état pour les écrans
   storage/       Base Dexie, dépôt (lecture/écriture/sauvegarde), calculs d'apprentissage, événements
   sections/      Écrans (un dossier par section ; chargés à la demande)
   ui/            Thème, paramètres, fenêtres modales, textes riches, petits outils
@@ -57,7 +60,7 @@ docs/            Analyse, architecture, rapports de phase, mesures, guides
 | `npm run app` | Compile et sert la version de production (port 4173), installable |
 | `npm test` | Tests unitaires (dont Stockfish réel sous Node) |
 | `npm run test:e2e` | Scénarios navigateur sur le serveur de développement |
-| `npm run test:prod` | Toute la suite sur la version de production (CSP, hors ligne, performances) |
+| `npm run test:prod` | Toute la suite sur la version de production (CSP, hors ligne, performances), servie sur le port 4179 pour ne pas gêner `npm run app` |
 | `npm run typecheck` / `npm run build` | Typage / compilation |
 | `MEASURE=1 npx vitest run src/engine/levels.measure.test.ts` | Tournoi de mesure des niveaux |
 | `node scripts/extract-puzzles.mjs <fichier.csv.zst>` | Régénérer les exercices depuis la base Lichess |
@@ -77,16 +80,19 @@ Base IndexedDB `chess-master-academy` :
 | `drills` (v2) | Positions à retravailler (répétition espacée) |
 | `integrations` (v3) | Liaison Chess.com (pseudo, consentement, statistiques) |
 | `monthCache` (v3) | Mois d'archives Chess.com terminés (jamais redemandés) |
+| `games.uid` (v4) | Identifiant stable d'une partie, identique sur tous les appareils |
+| `tombstones` (v4) | Traces des suppressions (partie, Chess.com délié) pour la synchronisation |
+| `sync` (v4) | État local de la synchronisation Google Drive (jeton d'une heure, fichier, date) |
 
 **Toute évolution du schéma ajoute une nouvelle `version()`** dans `storage/db.ts`. La sauvegarde (format v3) accepte les sauvegardes v1 et v2.
 
 ## Sécurité
 
-- **CSP** (production) : `default-src 'self'`, `connect-src 'self' https://api.chess.com`, `script-src 'self' 'wasm-unsafe-eval'`, `object-src 'none'`, `form-action 'none'`, `base-uri 'self'` ; `referrer` désactivé.
+- **CSP** (production) : `default-src 'self'`, `connect-src 'self' https://api.chess.com https://www.googleapis.com https://accounts.google.com/gsi/`, `script-src 'self' 'wasm-unsafe-eval' https://accounts.google.com/gsi/client`, `frame-src https://accounts.google.com/gsi/`, `object-src 'none'`, `form-action 'none'`, `base-uri 'self'` ; `referrer` désactivé.
 - Aucun HTML injecté (`innerHTML` absent) ; les textes des leçons passent par `RichText` (gras uniquement).
 - Les adresses reçues de Chess.com ne deviennent un lien que si elles sont `https://www.chess.com/…` (`safeChessComUrl`) ; seules des URL d'archives de l'API sont suivies.
 - Entrées bornées : PGN ≤ 5 Mo, sauvegarde ≤ 20 Mo et validée avant toute écriture (aucune donnée effacée si elle est invalide), pseudo validé.
-- Aucun mot de passe, aucune clé, aucun suivi ; aucune donnée personnelle envoyée (les requêtes Chess.com ne contiennent que le pseudo public).
+- Aucun mot de passe, aucune clé, aucun suivi. Les requêtes Chess.com ne contiennent que le pseudo public. La synchronisation (facultative, consentement explicite) n'envoie la progression qu'au Google Drive du joueur, dans le dossier privé de l'application (permission `drive.appdata` uniquement) ; le fichier reçu est validé avant toute écriture. Détails : [guide-synchronisation.md](guide-synchronisation.md).
 - `npm audit` : 0 vulnérabilité ; dépendances figées (`--save-exact`).
 
 ## Application installable (PWA)
