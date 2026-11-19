@@ -176,6 +176,9 @@ test('autorisation expirée : bandeau « Reprendre », puis envoi des changement
 });
 
 test('sans identifiant Google, la section l’indique et propose la sauvegarde manuelle', async ({ page }) => {
+  await page.addInitScript(() => {
+    window.__CMA_TEST_GOOGLE_CLIENT_ID__ = '';
+  });
   await page.goto('./#/parametres');
   await expect(page.getByTestId('sync-panel')).toContainText('pas encore configurée');
 });
