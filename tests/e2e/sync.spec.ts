@@ -82,6 +82,8 @@ async function connect(page: Page) {
   await expect(panel).toContainText('aucun');
   await expect(page.getByTestId('sync-connect')).toBeDisabled();
   await page.getByTestId('sync-consent').check();
+  // La bibliothèque de Google est chargée dès le consentement, avant le toucher sur « Connecter ».
+  await expect.poll(() => page.evaluate(() => !!window.google)).toBe(true);
   await page.getByTestId('sync-connect').click();
   await expect(page.getByTestId('sync-status')).toContainText('Synchronisé');
 }

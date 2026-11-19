@@ -9,7 +9,7 @@
  * - Un fichier distant illisible ou d'une version plus récente n'est jamais écrasé.
  */
 import { googleClientId } from '../integrations/google/config';
-import { GoogleAuthError, requestGoogleToken, revokeGoogleToken, type GoogleToken } from '../integrations/google/auth';
+import { GoogleAuthError, loadGoogleIdentity, requestGoogleToken, revokeGoogleToken, type GoogleToken } from '../integrations/google/auth';
 import { DriveError, GoogleDrive, type DriveApi } from '../integrations/google/drive';
 import { db, type CmaDatabase, type SyncState } from '../storage/db';
 import { onDataChange } from '../storage/events';
@@ -36,6 +36,8 @@ export interface SyncDeps {
   now: () => number;
   /** Délai entre un changement et la synchronisation (regroupe les changements rapprochés). */
   debounceMs: number;
+  /** Charge d'avance la bibliothèque de Google (facultatif). */
+  preloadAuth?: () => Promise<unknown>;
 }
 
 export class SyncManager {
@@ -85,6 +87,15 @@ export class SyncManager {
     if (!row) return this.set({ status: 'off', connectedAt: undefined, lastSyncAt: undefined, pending: false });
     const valid = !!row.token && (row.tokenExpiresAt ?? 0) > this.deps.now();
     this.set({ status: valid ? 'idle' : 'needs-auth', connectedAt: row.connectedAt, lastSyncAt: row.lastSyncAt });
+  }
+
+  /**
+   * Charge d'avance la bibliothèque de connexion de Google (après le consentement, ou quand une reprise est attendue) :
+   * au toucher, la fenêtre de Google s'ouvre alors aussitôt, sans être bloquée par le navigateur (Safari surtout).
+   */
+  prepareAuth(): void {
+    if (!this.deps.clientId()) return;
+    this.deps.preloadAuth?.().catch(() => undefined);
   }
 
   /** Première liaison (à la suite d'un geste) : fenêtre de Google, puis première synchronisation. */
@@ -236,6 +247,7 @@ export function getSyncManager(): SyncManager {
     drive: (token) => new GoogleDrive(token),
     now: () => Date.now(),
     debounceMs: 8000,
+    preloadAuth: loadGoogleIdentity,
   });
   return instance;
 }

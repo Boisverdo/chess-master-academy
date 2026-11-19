@@ -264,6 +264,15 @@ describe('synchronisation entre deux appareils', () => {
     expect(m.state.status).toBe('unconfigured');
   });
 
+  it('la bibliothèque de Google se charge d’avance seulement si l’identifiant est configuré (fenêtre non bloquée au toucher)', () => {
+    let loads = 0;
+    const preloadAuth = () => (loads++, Promise.reject(new Error('hors ligne')));
+    device(drive, clock, { clientId: () => '', preloadAuth }).m.prepareAuth();
+    expect(loads).toBe(0);
+    device(drive, clock, { preloadAuth }).m.prepareAuth();
+    expect(loads).toBe(1); // un échec de chargement est ignoré ici (il sera signalé au toucher)
+  });
+
   it('le téléphone reçoit la progression du PC, puis le PC celle du téléphone', async () => {
     const pc = device(drive, clock);
     await saveProfile(newProfile('debutant', 'x', []), pc.d);

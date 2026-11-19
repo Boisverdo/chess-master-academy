@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { formatSyncTime, useSync } from '../sync/useSync';
 import { ConfirmModal } from '../ui/Modal';
 
@@ -20,6 +20,11 @@ export function SyncSettings() {
       setBusy(false);
     }
   };
+
+  const needsAuth = view?.status === 'needs-auth';
+  useEffect(() => {
+    if (consent || needsAuth) manager?.prepareAuth();
+  }, [consent, needsAuth, manager]);
 
   if (!view || !manager) return null;
   const linked = view.status !== 'off' && view.status !== 'unconfigured';

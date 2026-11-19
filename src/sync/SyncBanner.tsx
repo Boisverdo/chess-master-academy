@@ -15,6 +15,9 @@ export function SyncBanner() {
   useEffect(() => {
     if (view?.pending) setHidden(false);
   }, [view?.pending]);
+  useEffect(() => {
+    if (view?.status === 'needs-auth') manager?.prepareAuth();
+  }, [view?.status, manager]);
 
   if (!manager || view?.status !== 'needs-auth' || hidden) return null;
   return (
