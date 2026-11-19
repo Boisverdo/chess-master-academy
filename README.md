@@ -18,6 +18,10 @@ Académie d'échecs indépendante, propulsée par un entraîneur IA qui apprend 
 
 ## Installer et utiliser
 
+**En ligne (ordinateur, Android, iPhone) :** https://boisverdo.github.io/chess-master-academy/ — ouvrir l’adresse puis l’installer (voir le [guide](docs/guide-utilisation.md#2-installer-lapplication-sur-un-cellulaire)). Le site est republié automatiquement à chaque envoi sur `main`.
+
+**Depuis le code, sur Windows :**
+
 Prérequis : Node.js 20 ou plus récent.
 
 ```powershell

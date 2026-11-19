@@ -8,10 +8,10 @@
   --c-blunder: #c0392b;
 }
 
-.setup { display: grid; gap: 6px; max-width: 760px; }
+.setup { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; max-width: 760px; }
 .setup .panel-title { margin: 10px 0 4px; }
 .setup .btn-large { justify-self: start; margin-top: 12px; }
-.level-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+.level-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr)); gap: 8px; }
 .level-grid .choice { display: grid; gap: 2px; }
 
 .clock { padding: 8px 12px; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); font-variant-numeric: tabular-nums; font-weight: 600; }

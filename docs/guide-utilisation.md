@@ -21,12 +21,23 @@ L’application apparaît alors dans le menu Démarrer et sur le bureau, dans sa
 
 > **Important — tes données sont liées à l’adresse.** L’application installée (port 4173) et la version de développement (port 5173) ont des données séparées. Pour transférer ta progression : *Paramètres › Télécharger une sauvegarde* d’un côté, *Restaurer une sauvegarde* de l’autre.
 
-## 2. Premiers pas
+## 2. Installer l’application sur un cellulaire
+
+L’application est publiée en HTTPS à l’adresse **https://boisverdo.github.io/chess-master-academy/** (elle peut aussi être installée ainsi sur un ordinateur, sans `npm`).
+
+- **Android (Chrome)** : ouvre l’adresse, puis menu **⋮** › **Installer l’application** (ou **Ajouter à l’écran d’accueil**).
+- **iPhone / iPad (Safari obligatoirement)** : ouvre l’adresse, bouton **Partager** › **Sur l’écran d’accueil**.
+
+Ouvre-la une première fois avec une connexion : ensuite elle fonctionne **hors ligne** (moteur et exercices compris). Les mises à jour arrivent automatiquement à la prochaine ouverture avec connexion.
+
+> **Chaque appareil a ses propres données.** Pour retrouver ta progression sur le cellulaire : *Paramètres › Télécharger une sauvegarde* sur l’ordinateur, envoie-toi le fichier, puis *Paramètres › Restaurer une sauvegarde* sur le cellulaire.
+
+## 3. Premiers pas
 
 1. **Mon apprentissage → Commencer l’évaluation** (≈ 10 min) : questionnaire, règles, 6 exercices, positions, partie commentée. Tu obtiens un niveau de départ et, si possible, une **fourchette indicative** (jamais un classement officiel).
 2. Suis la **séance du jour** : elle combine tes révisions, ta prochaine leçon et ton point faible.
 
-## 3. Les sections
+## 4. Les sections
 
 | Section | Ce que tu y fais |
 |---|---|
@@ -43,26 +54,26 @@ L’application apparaît alors dans le menu Démarrer et sur le bureau, dans sa
 | **Ma progression** | Tableau de bord et graphiques, défi du jour, objectifs de la semaine, examens, badges de maîtrise, historique. |
 | **Paramètres** | Notation (figurines, française, anglaise), coups légaux, coordonnées, thème clair/sombre, sauvegarde et restauration. |
 
-## 4. L’échiquier
+## 5. L’échiquier
 
 - Déplace les pièces **à la souris** (glisser ou clic-clic) ou **au toucher**.
 - **Clic droit** sur une case : cercle ; **clic droit glissé** : flèche.
 - Clavier : **← →** pour naviguer dans la partie, **F** pour retourner l’échiquier.
 
-## 5. Comprendre une analyse
+## 6. Comprendre une analyse
 
 - **Probabilité de gain** : traduction de l’évaluation de Stockfish en pourcentage (formule ouverte).
 - Seuils : **imprécision** si tu perds au moins 5 points de probabilité de gain, **erreur** ≥ 10, **gaffe** ≥ 15.
 - **Précision** : moyenne coup par coup ; ce n’est pas un classement.
 - Toutes les explications viennent de **calculs réels** (variantes du moteur, pièces attaquées, matériel). L’application n’invente jamais une évaluation.
 
-## 6. Tes données
+## 7. Tes données
 
 - Tout est enregistré **sur ton appareil** (aucun serveur, aucun compte).
 - **Sauvegarde régulièrement** : *Paramètres › Télécharger une sauvegarde*. Vider les données du navigateur effacerait ta progression.
 - *Tout effacer* supprime définitivement les données de cet appareil.
 
-## 7. Questions fréquentes
+## 8. Questions fréquentes
 
 **Le moteur ne démarre pas.** Un message s’affiche ; les leçons, exercices et ouvertures restent disponibles. Recharge la page ; si le problème persiste, relance `npm run app`.
 

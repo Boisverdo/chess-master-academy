@@ -17,3 +17,19 @@ test('téléphone : menu, échiquier tactile et pas de défilement horizontal', 
   await page.getByRole('link', { name: 'Paramètres' }).click();
   await expect(page.getByRole('heading', { name: 'Paramètres' })).toBeVisible();
 });
+
+// Chaque écran doit tenir dans la largeur du téléphone (défaut trouvé sur « Jouer » après publication).
+const SCREENS = ['./', './#/echiquier', './#/lecons', './#/lecons/regles-roque', './#/tactiques', './#/ouvertures',
+  './#/ouvertures/italienne', './#/jouer', './#/analyse', './#/chesscom', './#/entraineur', './#/progression',
+  './#/parametres', './#/evaluation', './#/apprentissage'];
+test('téléphone : aucun écran ne déborde horizontalement', async ({ page }) => {
+  const wide: string[] = [];
+  for (const url of SCREENS) {
+    await page.goto(url);
+    await page.locator('main').waitFor();
+    await page.waitForTimeout(300);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    if (overflow > 0) wide.push(`${url} (+${overflow} px)`);
+  }
+  expect(wide).toEqual([]);
+});
