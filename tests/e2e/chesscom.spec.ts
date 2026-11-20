@@ -123,3 +123,54 @@ test('Chess.com hors ligne : le reste de l’application fonctionne', async ({ p
   await page.getByRole('link', { name: 'Leçons' }).click();
   await expect(page.getByRole('heading', { name: 'Leçons' })).toBeVisible();
 });
+
+test('import automatique : désactivé par défaut, puis nouvelles parties importées à l’ouverture, au plus toutes les 6 heures', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-11-20T12:00:00'));
+  const calls = await mockChessCom(page);
+  await page.goto('./#/chesscom');
+  await page.getByTestId('chesscom-username').fill('Testeur-CMA');
+  await page.getByTestId('chesscom-consent').check();
+  await page.getByTestId('chesscom-search').click();
+  await page.getByTestId('chesscom-confirm').click();
+  await expect(page.getByTestId('chesscom-auto-toggle')).not.toBeChecked();
+
+  // Liaison seule : rouvrir l'application ne déclenche aucune requête.
+  const linked = calls.length;
+  await page.reload();
+  await expect(page.getByTestId('chesscom-profile')).toBeVisible();
+  await page.waitForTimeout(500);
+  expect(calls.length).toBe(linked);
+
+  await page.getByTestId('chesscom-auto-toggle').check();
+  await expect(page.getByTestId('chesscom-auto-status')).toContainText('Première vérification');
+
+  // Ouverture de l'application : seuls les mois récents (novembre) sont vérifiés.
+  await page.goto('./#/');
+  await page.reload();
+  await expect(page.getByTestId('chesscom-auto-banner')).toContainText('1 nouvelle partie Chess.com importée');
+  expect(calls.some((u) => u.endsWith('/2026/10'))).toBe(false);
+  await page.getByTestId('chesscom-auto-banner').getByRole('link', { name: 'Les analyser' }).click();
+  await expect(page).toHaveURL(/#\/chesscom$/);
+  await expect(page.getByTestId('chesscom-auto-status')).toContainText('Dernière vérification');
+
+  // Nouvelle ouverture dans les 6 heures : aucune requête.
+  const after = calls.length;
+  await page.reload();
+  await expect(page.getByTestId('chesscom-auto')).toBeVisible();
+  await page.waitForTimeout(500);
+  expect(calls.length).toBe(after);
+  await expect(page.getByTestId('chesscom-auto-banner')).toHaveCount(0);
+
+  // « Vérifier maintenant » : pas de doublon.
+  await page.getByTestId('chesscom-auto-now').click();
+  await expect(page.getByTestId('chesscom-auto-result')).toContainText('Aucune nouvelle partie');
+
+  // Désactivation : plus aucune vérification.
+  await page.getByTestId('chesscom-auto-toggle').uncheck();
+  await page.clock.setFixedTime(new Date('2026-11-21T12:00:00'));
+  const off = calls.length;
+  await page.reload();
+  await expect(page.getByTestId('chesscom-auto')).toBeVisible();
+  await page.waitForTimeout(500);
+  expect(calls.length).toBe(off);
+});

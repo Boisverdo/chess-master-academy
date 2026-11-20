@@ -49,7 +49,7 @@ Ouvre-la une première fois avec une connexion : ensuite elle fonctionne **hors 
 | **Ouvertures** | 14 ouvertures : idées, plans, ligne principale expliquée coup par coup, variantes, pièges, erreurs typiques, entraînement espacé, et partie contre l’ordinateur à partir de l’ouverture. |
 | **Jouer contre l’IA** | 6 niveaux, Blancs ou Noirs, avec ou sans pendule, commentaires de l’entraîneur, annulation et indice en partie d’entraînement. |
 | **Analyse des parties** | Chaque coup classé (théorie, meilleur, bon, imprécision, erreur, gaffe), précision, courbe, moments critiques, « Comprendre mon erreur », « Retente ta chance », PGN annoté. |
-| **Chess.com et mes parties** | Facultatif : lie ton pseudo (avec ton accord), importe tes parties publiques, analyse-les en série. |
+| **Chess.com et mes parties** | Facultatif : lie ton pseudo (avec ton accord), importe tes parties publiques, analyse-les en série. Option *Import automatique* (désactivée par défaut) : à l’ouverture de l’application, tes nouvelles parties sont importées (au plus toutes les 6 heures, seulement les mois récents) ; un bandeau t’indique combien, et l’analyse reste à lancer toi-même. |
 | **Mon entraîneur IA** | Tes habitudes (vues dans au moins 3 de tes 10 dernières parties), ton programme, tes positions à retravailler, le carnet de l’entraîneur. |
 | **Ma progression** | Tableau de bord et graphiques, défi du jour, objectifs de la semaine, examens, badges de maîtrise, historique. |
 | **Paramètres** | Notation (figurines, française, anglaise), coups légaux, coordonnées, thème clair/sombre, sauvegarde et restauration. |

@@ -109,7 +109,7 @@ export function mergeSnapshots(a: SyncSnapshot, b: SyncSnapshot): SyncSnapshot {
   const gameUids = new Set(games.map((g) => g.uid));
   const drills = unionBy(a.drills, b.drills, drillKey, better((d) => [d.attempts, d.due])).filter((d) => gameUids.has(d.gameUid));
 
-  const integrations = unionBy(a.integrations, b.integrations, (i) => i.id, better((i) => [Math.max(i.consentAt, i.refreshedAt ?? 0, i.lastImportAt ?? 0)])).filter(
+  const integrations = unionBy(a.integrations, b.integrations, (i) => i.id, better((i) => [Math.max(i.consentAt, i.refreshedAt ?? 0, i.lastImportAt ?? 0, i.autoImport?.updatedAt ?? 0, i.lastAutoCheckAt ?? 0)])).filter(
     (i) => (deletedAt.get(`integration:${i.id}`) ?? -Infinity) < i.consentAt,
   );
 

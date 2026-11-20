@@ -107,6 +107,10 @@ export interface IntegrationRecord {
   stats?: unknown;
   refreshedAt?: number;
   lastImportAt?: number;
+  /** Import automatique des nouvelles parties au lancement (désactivé par défaut). */
+  autoImport?: { enabled: boolean; updatedAt: number; timeClasses: string[]; ratedOnly: boolean };
+  /** Dernière vérification automatique (au plus une toutes les 6 heures). */
+  lastAutoCheckAt?: number;
 }
 
 /** Mois d'archives terminés, déjà téléchargés (ne changent plus). */

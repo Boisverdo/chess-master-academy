@@ -78,7 +78,7 @@ Base IndexedDB `chess-master-academy` :
 | `openings` (v1) | Révision espacée des ouvertures |
 | `games` (v2, index `externalId` en v3) | Parties (PGN), analyses Stockfish, étiquettes d'habitudes |
 | `drills` (v2) | Positions à retravailler (répétition espacée) |
-| `integrations` (v3) | Liaison Chess.com (pseudo, consentement, statistiques) |
+| `integrations` (v3) | Liaison Chess.com (pseudo, consentement, statistiques, choix d'import automatique `autoImport` et dernière vérification `lastAutoCheckAt`) |
 | `monthCache` (v3) | Mois d'archives Chess.com terminés (jamais redemandés) |
 | `games.uid` (v4) | Identifiant stable d'une partie, identique sur tous les appareils |
 | `tombstones` (v4) | Traces des suppressions (partie, Chess.com délié) pour la synchronisation |
@@ -91,6 +91,7 @@ Base IndexedDB `chess-master-academy` :
 - **CSP** (production) : `default-src 'self'`, `connect-src 'self' https://api.chess.com https://www.googleapis.com https://accounts.google.com/gsi/`, `script-src 'self' 'wasm-unsafe-eval' https://accounts.google.com/gsi/client`, `frame-src https://accounts.google.com/gsi/`, `object-src 'none'`, `form-action 'none'`, `base-uri 'self'` ; `referrer` désactivé.
 - Aucun HTML injecté (`innerHTML` absent) ; les textes des leçons passent par `RichText` (gras uniquement).
 - Les adresses reçues de Chess.com ne deviennent un lien que si elles sont `https://www.chess.com/…` (`safeChessComUrl`) ; seules des URL d'archives de l'API sont suivies.
+- **Import automatique Chess.com** (`integrations/chesscom/auto.ts`, lancé par `AutoImportBanner` à l'ouverture et au retour sur l'application) : consentement distinct de la liaison, désactivé par défaut ; au plus une vérification toutes les 6 heures (notée avant les requêtes, donc une erreur ne relance rien à chaque ouverture) ; seulement les mois depuis la dernière vérification, 3 au maximum ; requêtes en série par le même client ; échec silencieux ; aucune analyse automatique (coûteuse en processeur).
 - Entrées bornées : PGN ≤ 5 Mo, sauvegarde ≤ 20 Mo et validée avant toute écriture (aucune donnée effacée si elle est invalide), pseudo validé.
 - Aucun mot de passe, aucune clé, aucun suivi. Les requêtes Chess.com ne contiennent que le pseudo public. La synchronisation (facultative, consentement explicite) n'envoie la progression qu'au Google Drive du joueur, dans le dossier privé de l'application (permission `drive.appdata` uniquement) ; le fichier reçu est validé avant toute écriture. Détails : [guide-synchronisation.md](guide-synchronisation.md).
 - `npm audit` : 0 vulnérabilité ; dépendances figées (`--save-exact`).

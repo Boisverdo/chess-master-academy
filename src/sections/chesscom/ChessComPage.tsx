@@ -1,9 +1,10 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { analyseBatch, type BatchProgress } from '../../analysis/batch';
 import { getEngine } from '../../engine/browser';
 import { archiveLabel, normalizeUsername, safeChessComUrl, type ChessComProfile, type ChessComStats } from '../../integrations/chesscom/client';
 import { importMonths, TIME_CLASS_LABELS, type ImportSummary, type TimeClass } from '../../integrations/chesscom/importer';
+import { AUTO_INTERVAL_MS, type AutoResult } from '../../integrations/chesscom/auto';
 import { chessComClient } from '../../integrations/chesscom/service';
 import { db, type IntegrationRecord } from '../../storage/db';
 import { disconnectIntegration, existingExternalIds, getIntegration, saveGameRecord, saveIntegration } from '../../storage/repo';
@@ -97,6 +98,90 @@ function Connect() {
 }
 
 const CLASSES: TimeClass[] = ['rapid', 'blitz', 'bullet', 'daily'];
+
+const fmtDate = (t: number) => new Date(t).toLocaleString('fr-FR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+
+/** Import automatique : choix distinct de la liaison, désactivé par défaut, modifiable à tout moment. */
+function AutoImportPanel({ integration }: { integration: IntegrationRecord }) {
+  const auto = integration.autoImport;
+  // État affiché immédiatement (la base est mise à jour juste après).
+  const [enabled, setEnabled] = useState(!!auto?.enabled);
+  useEffect(() => setEnabled(!!auto?.enabled), [auto?.enabled]);
+  const [classes, setClasses] = useState<Set<string>>(new Set(auto?.timeClasses ?? ['rapid', 'blitz', 'daily']));
+  const [ratedOnly, setRatedOnly] = useState(auto?.ratedOnly ?? false);
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState<AutoResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const save = (next: { enabled: boolean; timeClasses?: Set<string>; ratedOnly?: boolean }) => {
+    setEnabled(next.enabled);
+    return saveIntegration({
+      ...integration,
+      autoImport: { enabled: next.enabled, updatedAt: Date.now(), timeClasses: [...(next.timeClasses ?? classes)], ratedOnly: next.ratedOnly ?? ratedOnly },
+      // À l'activation, la première vérification part de maintenant (pas de rattrapage de tout l'historique).
+      ...(next.enabled && !enabled ? { lastAutoCheckAt: undefined } : {}),
+    });
+  };
+
+  const checkNow = async () => {
+    setBusy(true);
+    setError(null);
+    setResult(null);
+    try {
+      const { autoImportNow } = await import('../../integrations/chesscom/autoRunner');
+      setResult(await autoImportNow(true));
+    } catch (e) {
+      setError(errText(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const toggleClass = (c: string) => {
+    const n = new Set(classes);
+    if (n.has(c)) n.delete(c);
+    else n.add(c);
+    setClasses(n);
+    if (enabled && n.size) void save({ enabled: true, timeClasses: n });
+  };
+
+  return (
+    <section className="panel" data-testid="chesscom-auto">
+      <h2 className="panel-title">Import automatique des nouvelles parties</h2>
+      <label className="check consent">
+        <input type="checkbox" checked={enabled} disabled={!classes.size} onChange={(e) => void save({ enabled: e.target.checked })} data-testid="chesscom-auto-toggle" />
+        <span>
+          À l’ouverture de l’application, vérifier si j’ai joué de nouvelles parties sur Chess.com et les importer sur cet appareil (lecture seule, au plus une vérification toutes les {AUTO_INTERVAL_MS / 3600_000} heures, seulement les mois récents).
+        </span>
+      </label>
+      <p className="small"><strong>Cadences importées :</strong></p>
+      <div className="chips">
+        {CLASSES.map((c) => (
+          <button key={c} type="button" className={`chip${classes.has(c) ? ' active' : ''}`} aria-pressed={classes.has(c)} onClick={() => toggleClass(c)}>{TIME_CLASS_LABELS[c]}</button>
+        ))}
+      </div>
+      <label className="check">
+        <input type="checkbox" checked={ratedOnly} onChange={(e) => { setRatedOnly(e.target.checked); if (enabled) void save({ enabled: true, ratedOnly: e.target.checked }); }} />
+        <span>Parties classées seulement</span>
+      </label>
+      {enabled && (
+        <>
+          <p className="muted small" data-testid="chesscom-auto-status">
+            {integration.lastAutoCheckAt ? `Dernière vérification : ${fmtDate(integration.lastAutoCheckAt)}.` : 'Première vérification à la prochaine ouverture de l’application.'}
+          </p>
+          <button type="button" className="btn btn-small" onClick={checkNow} disabled={busy} data-testid="chesscom-auto-now">{busy ? 'Vérification…' : 'Vérifier maintenant'}</button>
+        </>
+      )}
+      {result?.ran && (
+        <p className="feedback ok" role="status" data-testid="chesscom-auto-result">
+          {result.summary.imported ? `${result.summary.imported} nouvelle${result.summary.imported > 1 ? 's' : ''} partie${result.summary.imported > 1 ? 's' : ''} importée${result.summary.imported > 1 ? 's' : ''}.` : 'Aucune nouvelle partie.'}
+        </p>
+      )}
+      {error && <p className="error" role="alert">{error}</p>}
+      <p className="muted small">L’analyse des parties reste à lancer toi-même (ci-dessous) : elle utilise beaucoup le processeur.</p>
+    </section>
+  );
+}
 
 function Connected({ integration }: { integration: IntegrationRecord }) {
   const profile = integration.profile as ChessComProfile | undefined;
@@ -276,6 +361,8 @@ function Connected({ integration }: { integration: IntegrationRecord }) {
           )}
         </section>
       </div>
+
+      <AutoImportPanel integration={integration} />
 
       <section className="panel">
         <h2 className="panel-title">Analyser mes parties pour détecter mes erreurs récurrentes</h2>
