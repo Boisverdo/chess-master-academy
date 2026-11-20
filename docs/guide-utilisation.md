@@ -52,7 +52,7 @@ Ouvre-la une première fois avec une connexion : ensuite elle fonctionne **hors 
 | **Chess.com et mes parties** | Facultatif : lie ton pseudo (avec ton accord), importe tes parties publiques, analyse-les en série. Option *Import automatique* (désactivée par défaut) : à l’ouverture de l’application, tes nouvelles parties sont importées (au plus toutes les 6 heures, seulement les mois récents) ; un bandeau t’indique combien, et l’analyse reste à lancer toi-même. |
 | **Mon entraîneur IA** | Tes habitudes (vues dans au moins 3 de tes 10 dernières parties), ton programme, tes positions à retravailler, le carnet de l’entraîneur. |
 | **Ma progression** | Tableau de bord et graphiques, défi du jour, objectifs de la semaine, examens, badges de maîtrise, historique. |
-| **Paramètres** | Notation (figurines, française, anglaise), coups légaux, coordonnées, thème clair/sombre, sauvegarde et restauration. |
+| **Paramètres** | Notation (figurines, française, anglaise), coups légaux, coordonnées, thème clair/sombre, couleurs de l’échiquier (Ardoise, Bois, Vert, Contraste élevé), sons des coups (désactivés par défaut), vibration à chaque coup (sur les téléphones qui la proposent : Android, pas l’iPhone), sauvegarde et restauration. Sur téléphone tenu à l’horizontale, l’échiquier occupe la hauteur de l’écran et les coups s’affichent à côté. |
 
 ## 5. L’échiquier
 

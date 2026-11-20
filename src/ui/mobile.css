@@ -79,3 +79,21 @@
   .toast { bottom: calc(16px + env(safe-area-inset-bottom, 0px)); width: calc(100vw - 32px); text-align: center; }
   .sync-banner .btn { flex: 1 1 auto; }
 }
+
+/*
+ * Téléphone tenu à l'horizontale : l'échiquier occupe la hauteur de l'écran et le reste se place à côté.
+ * (« pointer: coarse » : écrans tactiles seulement, l'affichage sur ordinateur ne change pas.)
+ */
+@media (orientation: landscape) and (max-height: 520px) and (pointer: coarse) {
+  .content { padding: 10px 14px; }
+  .topbar { padding: 4px 12px; }
+  .board-page, .board-page.play-page, .lesson-grid, .tactics-page .lesson-grid, .line-viewer, .analysis-grid {
+    grid-template-columns: minmax(0, calc(100svh - 76px)) minmax(0, 1fr);
+    max-width: none;
+    gap: 16px;
+  }
+  .board-page.play-page { grid-template-columns: minmax(0, calc(100svh - 160px)) minmax(0, 1fr); }
+  .analysis-grid { grid-template-columns: minmax(0, calc(100svh - 50px)) minmax(0, 1fr); }
+  .board-column, .play-page .board-column, .lesson-board, .analysis-board { width: auto; margin: 0; }
+  .moves { max-height: calc(100svh - 200px); }
+}

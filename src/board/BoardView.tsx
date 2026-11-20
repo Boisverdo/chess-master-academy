@@ -13,6 +13,8 @@ import type { DrawShape } from 'chessground/draw';
 import 'chessground/assets/chessground.base.css';
 import 'chessground/assets/chessground.cburnett.css';
 import './board.css';
+import { useOptionalSettings } from '../ui/settings';
+import { moveFeedback, moveKind } from './feedback';
 
 export type BoardColor = 'white' | 'black';
 
@@ -44,6 +46,19 @@ export function BoardView(props: BoardViewProps) {
   onMoveRef.current = props.onMove;
   const onSelectRef = useRef(props.onSelect);
   onSelectRef.current = props.onSelect;
+
+  // Son et vibration quand un nouveau coup apparaît (le joueur, l'adversaire ou la navigation dans la partie).
+  const settings = useOptionalSettings();
+  const feedbackRef = useRef({ sound: settings.sound, vibration: settings.vibration });
+  feedbackRef.current = { sound: settings.sound, vibration: settings.vibration };
+  const prev = useRef({ fen: props.fen, last: props.lastMove?.join('') });
+  useEffect(() => {
+    const last = props.lastMove?.join('');
+    const before = prev.current;
+    prev.current = { fen: props.fen, last };
+    if (!last || (last === before.last && props.fen === before.fen) || props.fen === before.fen) return;
+    moveFeedback(moveKind(before.fen, props.fen, props.check), feedbackRef.current);
+  }, [props.fen, props.lastMove, props.check]);
 
   const config = (): Config => ({
     fen: props.fen,

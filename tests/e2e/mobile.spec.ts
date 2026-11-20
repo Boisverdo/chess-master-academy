@@ -63,3 +63,41 @@ test('téléphone : boutons faciles à toucher et champs sans zoom automatique',
   }
   expect(problems).toEqual([]);
 });
+
+test('téléphone : vibration à chaque coup (réglable) et couleurs d’échiquier', async ({ page }) => {
+  await page.addInitScript(() => {
+    (window as unknown as { __vib: unknown[] }).__vib = [];
+    Object.defineProperty(navigator, 'vibrate', { value: (p: unknown) => ((window as unknown as { __vib: unknown[] }).__vib.push(p), true) });
+  });
+  await freshBoard(page);
+  const tap = async (sq: string) => { const c = await squareCenter(page, sq); await page.touchscreen.tap(c.x, c.y); };
+  await tap('e2'); await tap('e4');
+  await expect(page.locator('[data-ply]')).toHaveCount(1);
+  expect(await page.evaluate(() => (window as unknown as { __vib: unknown[] }).__vib)).toEqual([12]);
+
+  await page.goto('./#/parametres');
+  await page.getByTestId('setting-vibration').uncheck();
+  await page.getByTestId('setting-board-theme').selectOption('bois');
+  await expect(page.getByTestId('board-swatch').locator('.dark').first()).toHaveCSS('background-color', 'rgb(169, 124, 86)');
+  await page.goto('./#/echiquier');
+  await expect(page.getByTestId('board').locator('cg-board')).toHaveCSS('background-color', 'rgb(236, 216, 180)');
+  await tap('e7'); await tap('e5');
+  await expect(page.locator('[data-ply]')).toHaveCount(2);
+  expect(await page.evaluate(() => (window as unknown as { __vib: unknown[] }).__vib)).toHaveLength(1);
+});
+
+test('téléphone à l’horizontale : échiquier et coups côte à côte, sans débordement', async ({ page }) => {
+  await page.setViewportSize({ width: 844, height: 390 });
+  for (const url of ['./#/echiquier', './#/jouer', './#/lecons/regles-roque', './#/tactiques', './#/ouvertures/italienne']) {
+    await page.goto(url);
+    await page.locator('main').waitFor();
+    await page.waitForTimeout(300);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth), url).toBeLessThanOrEqual(0);
+  }
+  await page.goto('./#/echiquier');
+  const board = await page.getByTestId('board').boundingBox();
+  const moves = await page.locator('.side-panel').boundingBox();
+  expect(board!.height).toBeLessThanOrEqual(390);
+  expect(board!.height).toBeGreaterThan(250);
+  expect(moves!.x).toBeGreaterThan(board!.x + board!.width - 1); // à droite de l'échiquier
+});

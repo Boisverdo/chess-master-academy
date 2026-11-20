@@ -108,6 +108,13 @@ Base IndexedDB `chess-master-academy` :
 - Ajustements : cibles tactiles d'au moins 40 à 44 px (puces, onglets, liens de liste, cases à cocher), champs en 16 px (pas de zoom automatique sur iPhone), onglets sur plusieurs lignes, champ de fichier contenu dans la largeur, boutons principaux pleine largeur. Les coordonnées de l'échiquier (lettres et chiffres) sont placées dans les cases du bord sur tous les écrans (`src/board/board.css`).
 - Vérification : `tests/e2e/mobile.spec.ts` (aucun débordement sur 15 écrans, cibles et champs) ; lors de la mise en place, 76 captures d'écran ordinateur et tablette (1920, 1366, 1024 et 768 px, 19 écrans) étaient identiques au pixel près avant et après.
 
+### Confort sur téléphone
+
+- **Mode paysage** : bloc `@media (orientation: landscape) and (max-height: 520px) and (pointer: coarse)` de `src/ui/mobile.css` — échiquier à gauche, à la hauteur de l'écran, le reste à droite. `pointer: coarse` limite la règle aux écrans tactiles : l'ordinateur n'est pas concerné.
+- **Sons et vibration** (`src/board/feedback.ts`) : déclenchés par `BoardView` quand un nouveau coup apparaît (joueur, adversaire ou navigation) ; coup, prise (une pièce de moins) ou échec. Sons synthétisés avec Web Audio (aucun fichier, aucune licence). Vibration par `navigator.vibrate` quand elle existe. Son désactivé par défaut, vibration activée par défaut.
+- **Couleurs d'échiquier** : attribut `data-board` sur `<html>` (posé par `SettingsProvider`) qui redéfinit `--sq-light` et `--sq-dark` (`src/board/board.css`) ; les coordonnées suivent automatiquement. Les pièces restent celles de cburnett (seul jeu fourni par chessground).
+- Vérification : 54 captures PC et tablette (1920, 1366, 768 px) identiques au pixel à la version précédente ; seule la page Paramètres change (nouveaux réglages).
+
 ## Pistes d'évolution
 
 Tournois et multijoueur (nouveau module `integrations/` ou serveur), entraîneur à question libre via un modèle de langage (facultatif, faits calculés uniquement, clé de l'utilisateur), application Tauri avec Stockfish complet, autres langues (textes à extraire dans des fichiers de traduction), tables de finales pour démontrer les forteresses.

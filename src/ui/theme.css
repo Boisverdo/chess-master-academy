@@ -233,3 +233,6 @@ button.move:hover { background: var(--border); }
 .sync-banner { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 16px; padding: 10px 14px; border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: var(--radius); background: var(--surface); }
 .sync-banner span { flex: 1 1 220px; }
 .sync-facts { display: grid; gap: 6px; margin: 8px 0 14px; padding-left: 20px; }
+.board-swatch { display: grid; grid-template-columns: repeat(4, 28px); grid-template-rows: repeat(2, 28px); width: max-content; margin: -6px 0 14px; border-radius: 4px; overflow: hidden; box-shadow: var(--shadow-board); }
+.board-swatch .light { background: var(--sq-light); }
+.board-swatch .dark { background: var(--sq-dark); }

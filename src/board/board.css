@@ -66,3 +66,8 @@
 .cg-wrap.cma-board.orientation-black .files coord:nth-child(even) {
   color: var(--sq-light);
 }
+
+/* Couleurs d'échiquier au choix (Paramètres). « Ardoise » reste celle par défaut, définie dans theme.css. */
+html:root[data-board='bois'] { --sq-light: #ecd8b4; --sq-dark: #a97c56; }
+html:root[data-board='vert'] { --sq-light: #e4ead2; --sq-dark: #6d915c; }
+html:root[data-board='contraste'] { --sq-light: #fafafa; --sq-dark: #3f5470; }
