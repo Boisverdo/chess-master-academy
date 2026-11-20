@@ -41,7 +41,7 @@ Ouvre-la une première fois avec une connexion : ensuite elle fonctionne **hors 
 
 | Section | Ce que tu y fais |
 |---|---|
-| **Accueil** | Vue d’ensemble et accès rapides. |
+| **Accueil** | Ton tableau de bord : *Reprendre* (leçon commencée ou partie en cours sur l’échiquier), la séance du jour, le défi du jour, ta série de jours et les objectifs de la semaine. Au premier lancement : les premiers pas. |
 | **Mon apprentissage** | Ton niveau, ta séance du jour, tes points à travailler. |
 | **Leçons** | 32 leçons en 4 cours : règles, premiers principes, stratégie, finales. Chaque leçon explique, démontre, puis te fait pratiquer. Certaines finales se jouent contre l’ordinateur. |
 | **Échiquier interactif** | Partie à deux sur le même appareil, import/export PGN, « Analyser cette partie ». |

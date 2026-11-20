@@ -6,7 +6,7 @@ import { OPENINGS } from '../../learning/openings';
 import type { Puzzle } from '../../learning/puzzles/puzzle';
 import { loadPuzzles } from '../../learning/puzzles/select';
 import { themeLabel } from '../../learning/puzzles/themes';
-import { badges, dailyChallenge, dailyId, streak, weeklyObjectives } from '../../progress/challenges';
+import { activityTimes, badges, dailyChallenge, dailyId, streak, weeklyObjectives } from '../../progress/challenges';
 import { EXAMS } from '../../progress/exams';
 import { LineChart } from '../../progress/LineChart';
 import { eloEstimate, endgameProgress, estimatedLearningMinutes, estimatedLevel, exerciseCounts, gameSummary, history as buildHistory, openingMastery, tacticsSeries } from '../../progress/stats';
@@ -53,14 +53,6 @@ export function ProgressPage() {
 }
 
 type Data = Awaited<ReturnType<typeof load>>;
-
-/** Moments d'activité d'apprentissage : essais, leçons, parties jouées contre l'ordinateur et analyses. */
-const activityTimes = (data: Data) => [
-  ...data.attempts.map((a) => a.at),
-  ...[...data.lessons.values()].map((l) => l.updatedAt),
-  ...data.games.filter((g) => g.source === 'ia').map((g) => g.createdAt),
-  ...data.games.flatMap((g) => (g.analyzedAt ? [g.analyzedAt] : [])),
-];
 
 function Dashboard({ data }: { data: Data }) {
   const p = data.profile;

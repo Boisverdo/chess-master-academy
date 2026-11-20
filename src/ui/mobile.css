@@ -66,6 +66,15 @@
   .eval-bar { width: 18px; }
   .check + .field { margin-top: 8px; }
 
+  /* ---------- Accueil ---------- */
+  /* « Explorer » compact : deux colonnes, titres seuls (le menu ☰ donne aussi accès à tout). */
+  .home-explore { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .home-explore .card { padding: 10px; min-height: 52px; align-content: center; }
+  .home-explore .card-title { font-size: 0.92rem; font-weight: 600; }
+  .home-explore .card .muted { display: none; }
+  .home-objectives li { grid-template-columns: minmax(0, 1fr) auto; }
+  .home-objectives .bar { grid-column: 1 / -1; grid-row: 2; }
+
   /* ---------- Messages ---------- */
   .toast { bottom: calc(16px + env(safe-area-inset-bottom, 0px)); width: calc(100vw - 32px); text-align: center; }
   .sync-banner .btn { flex: 1 1 auto; }

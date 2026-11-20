@@ -2,7 +2,8 @@ import { lazy, Suspense, useEffect, useState } from 'react';
 import { HashRouter, NavLink, Route, Routes, useLocation } from 'react-router-dom';
 import { CURRENT_PHASE, SECTIONS } from './ui/sections';
 import { SettingsProvider } from './ui/settings';
-import { HomePage, PlannedPage, SettingsPage } from './sections/Pages';
+import { HomePage } from './sections/HomePage';
+import { PlannedPage, SettingsPage } from './sections/Pages';
 import { SyncBanner } from './sync/SyncBanner';
 
 /** Chaque écran est chargé à la demande : le démarrage reste léger. */

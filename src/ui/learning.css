@@ -100,3 +100,16 @@
   .lesson-link { grid-template-columns: 28px 1fr; }
   .lesson-status { grid-column: 2; text-align: left; }
 }
+
+/* ---------- Accueil : tableau de bord ---------- */
+.home-resume .rec-resume { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-color: var(--accent); border-left: 4px solid var(--accent); }
+.home-resume .rec-resume > span:first-child { display: grid; gap: 2px; }
+.home-side { display: grid; gap: 16px; align-content: start; }
+.home-side .panel + .panel { margin-top: 0; }
+.home-more { margin: 10px 0 0; }
+.home-objectives li { grid-template-columns: minmax(0, 1fr) 80px auto; }
+.home-actions { margin-top: 14px; }
+.home-explore-panel { margin-top: 16px; }
+.home-explore .card-title { display: flex; gap: 8px; align-items: center; }
+.home-icon { color: var(--accent-text); width: 1.2em; text-align: center; }
+.home-resume { margin-bottom: 16px; }

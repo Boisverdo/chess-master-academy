@@ -1,43 +1,9 @@
 import { Link } from 'react-router-dom';
-import { CURRENT_PHASE, SECTIONS, type SectionDef } from '../ui/sections';
+import type { SectionDef } from '../ui/sections';
 import { DataSettings } from './DataSettings';
 import { SyncSettings } from './SyncSettings';
 import { useSettings, type ThemeChoice } from '../ui/settings';
 import type { NotationStyle } from '../core/notation';
-
-export function HomePage() {
-  return (
-    <div className="page">
-      <section className="hero">
-        <p className="eyebrow">Bienvenue</p>
-        <h1>Apprendre à penser comme un joueur d'échecs expérimenté</h1>
-        <p className="lead">
-          Chess Master Academy réunit un échiquier, des leçons, des exercices et un entraîneur qui vous fait réfléchir avant de vous donner les réponses.
-        </p>
-        <div className="row">
-          <Link to="/apprentissage" className="btn btn-primary btn-large">Mon apprentissage</Link>
-          <Link to="/echiquier" className="btn btn-large">Ouvrir l'échiquier</Link>
-        </div>
-      </section>
-      <section className="panel">
-        <h2 className="panel-title">Où en est l'application</h2>
-        <p>
-          Cette version (Phase 5) permet d'importer tes parties publiques Chess.com, avec ton accord, pour que l'entraîneur les analyse.
-          Elle comprend le moteur Stockfish (adversaire à 6 niveaux, analyse expliquée, « Comprendre mon erreur », habitudes),
-          l'évaluation initiale, 16 leçons, plus de 3 000 exercices tactiques et 14 ouvertures.
-        </p>
-        <ul className="phase-list">
-          {SECTIONS.filter((s) => s.path !== '/').map((s) => (
-            <li key={s.path}>
-              <Link to={s.path}>{s.label}</Link>
-              <span className={`badge ${s.phase <= CURRENT_PHASE ? 'badge-ok' : ''}`}>{s.phase <= CURRENT_PHASE ? 'Disponible' : `Phase ${s.phase}`}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
-    </div>
-  );
-}
 
 export function PlannedPage({ section }: { section: SectionDef }) {
   return (

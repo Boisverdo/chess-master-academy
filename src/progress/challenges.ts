@@ -28,6 +28,16 @@ export function dailyChallenge(puzzles: readonly Puzzle[], rating: number, now: 
 
 export const dailyId = (now: number) => `defi-${dayKey(now)}`;
 
+/** Moments d'activité d'apprentissage : essais, leçons, parties jouées contre l'ordinateur et analyses. */
+export function activityTimes(data: { attempts: readonly Attempt[]; lessons: ReadonlyMap<string, LessonProgress>; games: readonly GameRecord[] }): number[] {
+  return [
+    ...data.attempts.map((a) => a.at),
+    ...[...data.lessons.values()].map((l) => l.updatedAt),
+    ...data.games.filter((g) => g.source === 'ia').map((g) => g.createdAt),
+    ...data.games.flatMap((g) => (g.analyzedAt ? [g.analyzedAt] : [])),
+  ];
+}
+
 /** Série : jours consécutifs avec au moins une activité, jusqu'à aujourd'hui (ou hier, si rien encore aujourd'hui). */
 export function streak(activityTimes: readonly number[], now: number): number {
   const days = new Set(activityTimes.map(dayKey));

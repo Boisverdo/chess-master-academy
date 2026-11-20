@@ -11,10 +11,10 @@ export interface SectionDef {
 }
 
 export const SECTIONS: SectionDef[] = [
-  { path: '/', label: 'Accueil', icon: '⌂', phase: 2, summary: 'Votre point de départ.', planned: [] },
+  { path: '/', label: 'Accueil', icon: '⌂', phase: 2, summary: 'Ton point de départ.', planned: [] },
   {
     path: '/apprentissage', label: 'Mon apprentissage', icon: '◎', phase: 3,
-    summary: 'Votre parcours personnalisé et la séance du jour.',
+    summary: 'Ton parcours personnalisé et la séance du jour.',
     planned: ['Évaluation initiale du niveau', 'Parcours adapté à vos faiblesses', 'Révision espacée des notions fragiles'],
   },
   {
@@ -22,7 +22,7 @@ export const SECTIONS: SectionDef[] = [
     summary: 'Règles, principes, stratégie et finales, pas à pas.',
     planned: ['Règles fondamentales avec démonstrations', 'Principes stratégiques', 'Stratégie positionnelle', 'Finales'],
   },
-  { path: '/echiquier', label: 'Échiquier interactif', icon: '♞', phase: 2, summary: 'Jouez une partie complète à deux, importez ou exportez un PGN.', planned: [] },
+  { path: '/echiquier', label: 'Échiquier interactif', icon: '♞', phase: 2, summary: 'Joue une partie complète à deux, importe ou exporte un PGN.', planned: [] },
   {
     path: '/tactiques', label: 'Exercices tactiques', icon: '⚡', phase: 3,
     summary: 'Fourchettes, clouages, enfilades, mats en plusieurs coups…',
@@ -45,7 +45,7 @@ export const SECTIONS: SectionDef[] = [
   },
   {
     path: '/chesscom', label: 'Chess.com et mes parties', icon: '⇄', phase: 5,
-    summary: 'Importez vos parties publiques Chess.com (facultatif).',
+    summary: 'Importe tes parties publiques Chess.com (facultatif).',
     planned: ['Recherche par pseudo, avec votre consentement', 'Import mois par mois', 'Analyse de votre historique'],
   },
   {
