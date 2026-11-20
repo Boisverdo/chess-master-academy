@@ -4,6 +4,7 @@ import { App } from './App';
 import './ui/theme.css';
 import './ui/learning.css';
 import './ui/analysis.css';
+import './ui/mobile.css';
 
 const root = document.getElementById('root');
 if (!root) throw new Error('Élément #root introuvable');

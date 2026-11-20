@@ -162,10 +162,11 @@ test('deux appareils : la progression passe de l’un à l’autre, dans les deu
 test('autorisation expirée : bandeau « Reprendre », puis envoi des changements', async ({ browser }) => {
   const drive = new FakeDrive();
   const context = await browser.newContext();
-  // Jeton de test très court (61 s - 60 s de marge = 1 s) : l'autorisation expire presque aussitôt.
-  const page = await makeDevice(context, drive, 61);
+  // Jeton de test très court (63 s - 60 s de marge = 3 s) : l’autorisation expire presque aussitôt
+  // (3 s laissent à la première synchronisation le temps de finir, même quand toute la suite tourne en parallèle).
+  const page = await makeDevice(context, drive, 63);
   await connect(page);
-  await page.waitForTimeout(1500);
+  await page.waitForTimeout(3500);
   await finishPatLesson(page);
   const banner = page.getByTestId('sync-banner');
   await expect(banner).toBeVisible({ timeout: 20_000 });

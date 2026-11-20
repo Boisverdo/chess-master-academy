@@ -3,10 +3,18 @@ import { expect, type Page } from '@playwright/test';
 /** Centre d'une case à l'écran, selon l'orientation de l'échiquier. */
 export async function squareCenter(page: Page, square: string): Promise<{ x: number; y: number }> {
   const board = page.getByTestId('board');
-  await board.waitFor({ state: 'visible' });
-  const box = await board.boundingBox();
-  if (!box) throw new Error('échiquier introuvable');
-  const black = await board.evaluate((el) => el.classList.contains('orientation-black'));
+  // L'échiquier peut être remplacé pendant un changement d'étape : on attend celui qui reste affiché.
+  let found: { box: { x: number; y: number; width: number }; black: boolean } | null = null;
+  await expect
+    .poll(async () => {
+      await board.waitFor({ state: 'visible' });
+      const box = await board.boundingBox();
+      const black = await board.evaluate((el) => el.classList.contains('orientation-black')).catch(() => null);
+      found = box && black !== null ? { box, black } : null;
+      return found !== null;
+    }, { message: 'échiquier introuvable' })
+    .toBe(true);
+  const { box, black } = found!;
   const file = square.charCodeAt(0) - 97;
   const rank = Number(square[1]) - 1;
   const col = black ? 7 - file : file;

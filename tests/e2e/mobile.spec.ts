@@ -33,3 +33,33 @@ test('téléphone : aucun écran ne déborde horizontalement', async ({ page }) 
   }
   expect(wide).toEqual([]);
 });
+
+// Navigation tactile : cibles d'au moins 40 px et champs à 16 px (sinon l'iPhone zoome pendant la saisie).
+test('téléphone : boutons faciles à toucher et champs sans zoom automatique', async ({ page }) => {
+  const problems: string[] = [];
+  for (const url of ['./', './#/tactiques', './#/jouer', './#/analyse', './#/ouvertures/italienne', './#/parametres', './#/echiquier']) {
+    await page.goto(url);
+    await page.locator('main').waitFor();
+    await page.waitForTimeout(300);
+    problems.push(
+      ...(await page.evaluate(() => {
+        const out: string[] = [];
+        const vw = document.documentElement.clientWidth;
+        for (const el of document.querySelectorAll<HTMLElement>('main button, main a, main select, main input, main textarea')) {
+          const r = el.getBoundingClientRect();
+          if (!r.width || !r.height || r.left >= vw || el.closest('cg-board, .cg-wrap')) continue;
+          if (el.tagName === 'A' && getComputedStyle(el).display === 'inline') continue;
+          const name = `${location.hash || '/'} « ${(el.textContent || el.getAttribute('aria-label') || el.tagName).trim().slice(0, 30)} »`;
+          if (el instanceof HTMLInputElement && (el.type === 'checkbox' || el.type === 'radio')) {
+            if ((el.closest('label') ?? el).getBoundingClientRect().height < 40) out.push(`case trop petite ${name}`);
+            continue;
+          }
+          if (r.height < 40) out.push(`cible de ${Math.round(r.height)} px ${name}`);
+          if (el.matches('select, textarea, input:not([type=file])') && parseFloat(getComputedStyle(el).fontSize) < 16) out.push(`champ < 16 px ${name}`);
+        }
+        return out;
+      })),
+    );
+  }
+  expect(problems).toEqual([]);
+});

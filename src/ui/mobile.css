@@ -1,0 +1,83 @@
+/*
+ * Optimisations pour téléphone (écrans de 640 px de large et moins).
+ * Tout est dans cette requête média : l'affichage sur ordinateur n'est pas modifié.
+ * Objectifs : cibles tactiles d'au moins 40-44 px, champs à 16 px (sinon l'iPhone zoome à la saisie),
+ * aucun débordement horizontal, boutons principaux faciles à atteindre au pouce.
+ */
+@media (max-width: 640px) {
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  button, a, select, input, .chip, .choice, .tab { touch-action: manipulation; }
+
+  /* ---------- Menu ---------- */
+  .sidebar .nav-link { padding: 11px 12px; font-size: 1rem; }
+  .sidebar .version { padding-bottom: 12px; }
+
+  /* ---------- Boutons et cibles tactiles ---------- */
+  .btn { min-height: 44px; }
+  .btn-small { min-height: 40px; padding: 6px 12px; }
+  .chip { min-height: 40px; padding: 8px 14px; font-size: 0.9rem; }
+  .chips, .theme-picker { gap: 8px; }
+  .tab { min-height: 44px; }
+  .move { min-height: 38px; }
+  .row > .btn { flex: 1 1 auto; }
+  .hero .row > .btn, .setup .btn-large { width: 100%; }
+  .setup .btn-large { justify-self: stretch; }
+  .modal { padding: 16px; }
+  .modal-actions { flex-wrap: wrap; }
+  .modal-actions .btn { flex: 1 1 140px; }
+
+  /* Liens d'une liste (accueil) : toute la ligne devient touchable. */
+  .phase-list li { padding: 0; }
+  .phase-list li > a { flex: 1; padding: 10px 0; }
+
+  /* Cases à cocher : grande zone de toucher (toute l'étiquette). */
+  .check { min-height: 44px; margin-bottom: 6px; }
+  .check input { width: 22px; height: 22px; flex: none; }
+  .settings .check + .check, .month-list .check { margin-bottom: 0; }
+
+  /* ---------- Champs : 16 px pour éviter le zoom automatique de l'iPhone ---------- */
+  .field { grid-template-columns: minmax(0, 1fr); }
+  .field select, .field textarea, .field input[type='file'], .text-input, .inline-field select { font-size: 16px; min-height: 44px; max-width: 100%; }
+  .field input[type='file'] { min-width: 0; width: 100%; }
+  .text-input { width: 100%; max-width: none; }
+  .inline-field { flex-wrap: wrap; }
+
+  /* ---------- Onglets : sur deux lignes plutôt que cachés hors de l'écran ---------- */
+  .tabs { flex-wrap: wrap; overflow-x: visible; gap: 0 4px; }
+  .tab { padding: 10px; }
+
+  /* ---------- Lisibilité ---------- */
+  .badge { font-size: 0.8rem; }
+  .eyebrow { font-size: 0.82rem; }
+  .panel { padding: 14px; }
+  .panel-title { font-size: 0.82rem; }
+  .lead { font-size: 1rem; }
+  .card-grid { grid-template-columns: minmax(0, 1fr); }
+  .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .badge-list { grid-template-columns: minmax(0, 1fr); }
+  .month-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .course-head > .btn, .course-head > a.btn { width: 100%; }
+
+  /* ---------- Échiquier et analyse ---------- */
+  .board-page, .lesson-grid, .line-viewer, .analysis-grid { gap: 16px; }
+  .nav-bar .btn { flex: 1; }
+  .moves { max-height: 240px; }
+  .analysis-board { grid-template-columns: 18px minmax(0, 1fr); gap: 6px; }
+  .eval-bar { width: 18px; }
+  /* Coordonnées lisibles et placées dans les cases du bord (lettres en bas à droite, chiffres en haut à gauche). */
+  .cg-wrap.cma-board coords { font-size: 10px; opacity: 1; }
+  .cg-wrap.cma-board coords.files { bottom: 0; left: 0; width: 100%; height: auto; }
+  .cg-wrap.cma-board coords.files coord { flex: 1 1 0; text-align: right; padding: 0 3px 1px 0; line-height: 1; }
+  .cg-wrap.cma-board coords.ranks { top: 0; left: 0; width: auto; height: 100%; }
+  .cg-wrap.cma-board coords.ranks coord { flex: 1 1 0; transform: none; padding: 2px 0 0 3px; line-height: 1; }
+  /* Chiffres posés sur la colonne de gauche : couleur contrastée avec leur case (a1 est foncée, h1 claire). */
+  .cg-wrap.cma-board.orientation-white .ranks coord:nth-child(odd),
+  .cg-wrap.cma-board.orientation-black .ranks coord:nth-child(even) { color: var(--sq-light); }
+  .cg-wrap.cma-board.orientation-white .ranks coord:nth-child(even),
+  .cg-wrap.cma-board.orientation-black .ranks coord:nth-child(odd) { color: var(--sq-dark); }
+  .check + .field { margin-top: 8px; }
+
+  /* ---------- Messages ---------- */
+  .toast { bottom: calc(16px + env(safe-area-inset-bottom, 0px)); width: calc(100vw - 32px); text-align: center; }
+  .sync-banner .btn { flex: 1 1 auto; }
+}

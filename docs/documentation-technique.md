@@ -101,6 +101,12 @@ Base IndexedDB `chess-master-academy` :
 - `dist/sw.js` est généré à la compilation (`vite.config.ts`, modèle `scripts/sw-template.js`) : met en cache **tous** les fichiers (moteur et exercices compris), version = empreinte du contenu, anciens caches supprimés.
 - Correctif notable : `caches.match(..., { ignoreVary: true })` — sans lui, les modules chargés à la demande (en-tête `Origin`, réponses `Vary: Origin`) ne sont pas retrouvés hors ligne.
 
+## Affichage sur téléphone
+
+- `src/ui/mobile.css`, chargé en dernier, regroupe tous les ajustements pour téléphone dans une seule requête `@media (max-width: 640px)` : l'affichage sur ordinateur et tablette n'est pas touché.
+- Ajustements : cibles tactiles d'au moins 40 à 44 px (puces, onglets, liens de liste, cases à cocher), champs en 16 px (pas de zoom automatique sur iPhone), onglets sur plusieurs lignes, champ de fichier contenu dans la largeur, boutons principaux pleine largeur, coordonnées de l'échiquier lisibles dans les cases du bord.
+- Vérification : `tests/e2e/mobile.spec.ts` (aucun débordement sur 15 écrans, cibles et champs) ; lors de la mise en place, 76 captures d'écran ordinateur et tablette (1920, 1366, 1024 et 768 px, 19 écrans) étaient identiques au pixel près avant et après.
+
 ## Pistes d'évolution
 
 Tournois et multijoueur (nouveau module `integrations/` ou serveur), entraîneur à question libre via un modèle de langage (facultatif, faits calculés uniquement, clé de l'utilisateur), application Tauri avec Stockfish complet, autres langues (textes à extraire dans des fichiers de traduction), tables de finales pour démontrer les forteresses.
