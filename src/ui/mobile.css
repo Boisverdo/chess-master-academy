@@ -64,17 +64,6 @@
   .moves { max-height: 240px; }
   .analysis-board { grid-template-columns: 18px minmax(0, 1fr); gap: 6px; }
   .eval-bar { width: 18px; }
-  /* Coordonnées lisibles et placées dans les cases du bord (lettres en bas à droite, chiffres en haut à gauche). */
-  .cg-wrap.cma-board coords { font-size: 10px; opacity: 1; }
-  .cg-wrap.cma-board coords.files { bottom: 0; left: 0; width: 100%; height: auto; }
-  .cg-wrap.cma-board coords.files coord { flex: 1 1 0; text-align: right; padding: 0 3px 1px 0; line-height: 1; }
-  .cg-wrap.cma-board coords.ranks { top: 0; left: 0; width: auto; height: 100%; }
-  .cg-wrap.cma-board coords.ranks coord { flex: 1 1 0; transform: none; padding: 2px 0 0 3px; line-height: 1; }
-  /* Chiffres posés sur la colonne de gauche : couleur contrastée avec leur case (a1 est foncée, h1 claire). */
-  .cg-wrap.cma-board.orientation-white .ranks coord:nth-child(odd),
-  .cg-wrap.cma-board.orientation-black .ranks coord:nth-child(even) { color: var(--sq-light); }
-  .cg-wrap.cma-board.orientation-white .ranks coord:nth-child(even),
-  .cg-wrap.cma-board.orientation-black .ranks coord:nth-child(odd) { color: var(--sq-dark); }
   .check + .field { margin-top: 8px; }
 
   /* ---------- Messages ---------- */

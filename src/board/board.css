@@ -39,19 +39,30 @@
   background: radial-gradient(ellipse at center, rgba(220, 38, 38, 0.95) 0%, rgba(220, 38, 38, 0.55) 35%, rgba(220, 38, 38, 0) 80%);
 }
 
-.cma-board coords {
+/*
+ * Coordonnées posées dans les cases du bord : lettres en bas à droite de la première rangée,
+ * chiffres en haut à gauche de la colonne de gauche, dans la couleur de la case opposée pour rester lisibles.
+ * (La position par défaut de chessground les place hors de l'échiquier, où le cadre arrondi les cachait.)
+ */
+.cg-wrap.cma-board coords {
   font-weight: 600;
-  font-size: clamp(8px, 1.6vmin, 12px);
+  font-size: clamp(10px, 1.6vmin, 12px);
+  opacity: 1;
 }
-.cma-board.orientation-white .ranks :nth-child(odd),
-.cma-board.orientation-white .files :nth-child(even),
-.cma-board.orientation-black .ranks :nth-child(even),
-.cma-board.orientation-black .files :nth-child(odd) {
+.cg-wrap.cma-board coords.files { bottom: 0; left: 0; width: 100%; height: auto; }
+.cg-wrap.cma-board coords.files coord { flex: 1 1 0; text-align: right; padding: 0 3px 2px 0; line-height: 1; }
+.cg-wrap.cma-board coords.ranks { top: 0; left: 0; width: auto; height: 100%; }
+.cg-wrap.cma-board coords.ranks coord { flex: 1 1 0; transform: none; padding: 3px 0 0 4px; line-height: 1; }
+/* a1 est foncée et h1 claire : la couleur alterne selon la case occupée. */
+.cg-wrap.cma-board.orientation-white .ranks coord:nth-child(even),
+.cg-wrap.cma-board.orientation-white .files coord:nth-child(even),
+.cg-wrap.cma-board.orientation-black .ranks coord:nth-child(odd),
+.cg-wrap.cma-board.orientation-black .files coord:nth-child(odd) {
   color: var(--sq-dark);
 }
-.cma-board.orientation-white .ranks :nth-child(even),
-.cma-board.orientation-white .files :nth-child(odd),
-.cma-board.orientation-black .ranks :nth-child(odd),
-.cma-board.orientation-black .files :nth-child(even) {
+.cg-wrap.cma-board.orientation-white .ranks coord:nth-child(odd),
+.cg-wrap.cma-board.orientation-white .files coord:nth-child(odd),
+.cg-wrap.cma-board.orientation-black .ranks coord:nth-child(even),
+.cg-wrap.cma-board.orientation-black .files coord:nth-child(even) {
   color: var(--sq-light);
 }
