@@ -104,7 +104,7 @@ Base IndexedDB `chess-master-academy` :
 ## Affichage sur téléphone
 
 - `src/ui/mobile.css`, chargé en dernier, regroupe tous les ajustements pour téléphone dans une seule requête `@media (max-width: 640px)` : l'affichage sur ordinateur et tablette n'est pas touché.
-- Ajustements : cibles tactiles d'au moins 40 à 44 px (puces, onglets, liens de liste, cases à cocher), champs en 16 px (pas de zoom automatique sur iPhone), onglets sur plusieurs lignes, champ de fichier contenu dans la largeur, boutons principaux pleine largeur, coordonnées de l'échiquier lisibles dans les cases du bord.
+- Ajustements : cibles tactiles d'au moins 40 à 44 px (puces, onglets, liens de liste, cases à cocher), champs en 16 px (pas de zoom automatique sur iPhone), onglets sur plusieurs lignes, champ de fichier contenu dans la largeur, boutons principaux pleine largeur. Les coordonnées de l'échiquier (lettres et chiffres) sont placées dans les cases du bord sur tous les écrans (`src/board/board.css`).
 - Vérification : `tests/e2e/mobile.spec.ts` (aucun débordement sur 15 écrans, cibles et champs) ; lors de la mise en place, 76 captures d'écran ordinateur et tablette (1920, 1366, 1024 et 768 px, 19 écrans) étaient identiques au pixel près avant et après.
 
 ## Pistes d'évolution
