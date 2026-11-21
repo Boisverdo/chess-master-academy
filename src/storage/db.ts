@@ -72,7 +72,7 @@ export interface OpeningProgress {
   updatedAt: number;
 }
 
-export type GameSource = 'ia' | 'import' | 'echiquier' | 'chesscom';
+export type GameSource = 'ia' | 'import' | 'echiquier' | 'chesscom' | 'lichess';
 
 export interface GameRecord {
   id?: number;
@@ -99,8 +99,10 @@ export interface GameRecord {
 }
 
 /** Liaison facultative avec un service externe (Phase 5). Supprimable à tout moment. */
+export type IntegrationId = 'chesscom' | 'lichess';
+
 export interface IntegrationRecord {
-  id: 'chesscom';
+  id: IntegrationId;
   username: string;
   consentAt: number;
   profile?: unknown;

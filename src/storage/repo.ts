@@ -1,5 +1,5 @@
 /** Accès aux données du joueur : lecture, écriture, sauvegarde et restauration. */
-import { db, type Attempt, type CmaDatabase, type Drill, type GameRecord, type IntegrationRecord, type LessonProgress, type Level, type OpeningProgress, type Profile } from './db';
+import { db, type Attempt, type CmaDatabase, type Drill, type GameRecord, type IntegrationId, type IntegrationRecord, type LessonProgress, type Level, type OpeningProgress, type Profile } from './db';
 import { notifyDataChange } from './events';
 import { gameUid } from './ids';
 import { reviewQuality, scheduleReview, START_RATING, updateRating } from './learning';
@@ -191,15 +191,15 @@ export async function saveIntegration(r: IntegrationRecord, d: CmaDatabase = db)
 }
 
 /** Déconnexion : oublie le pseudo et le cache ; supprime aussi les parties importées si demandé. */
-export async function disconnectIntegration(deleteGames: boolean, d: CmaDatabase = db): Promise<number> {
+export async function disconnectIntegration(deleteGames: boolean, d: CmaDatabase = db, id: IntegrationId = 'chesscom'): Promise<number> {
   let removed = 0;
   await d.transaction('rw', [d.integrations, d.monthCache, d.games, d.drills, d.tombstones], async () => {
     const now = Date.now();
-    await d.integrations.delete('chesscom');
-    await d.tombstones.put({ key: 'integration:chesscom', at: now });
-    await d.monthCache.clear();
+    await d.integrations.delete(id);
+    await d.tombstones.put({ key: `integration:${id}`, at: now });
+    if (id === 'chesscom') await d.monthCache.clear();
     if (deleteGames) {
-      const games = await d.games.where('source').equals('chesscom').toArray();
+      const games = await d.games.where('source').equals(id).toArray();
       const ids = games.map((g) => g.id!);
       await d.tombstones.bulkPut(games.map((g) => ({ key: `game:${gameUid(g)}`, at: now })));
       removed = ids.length;
@@ -209,6 +209,10 @@ export async function disconnectIntegration(deleteGames: boolean, d: CmaDatabase
   });
   notifyDataChange();
   return removed;
+}
+
+export async function getLichessIntegration(d: CmaDatabase = db): Promise<IntegrationRecord | undefined> {
+  return d.integrations.get('lichess');
 }
 
 export async function existingExternalIds(d: CmaDatabase = db): Promise<Set<string>> {

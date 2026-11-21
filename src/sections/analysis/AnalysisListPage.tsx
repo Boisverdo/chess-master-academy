@@ -5,7 +5,7 @@ import type { GameRecord } from '../../storage/db';
 import { listGames, saveGameRecord } from '../../storage/repo';
 import { useData } from '../../ui/useData';
 
-const SOURCE_LABELS: Record<GameRecord['source'], string> = { ia: 'Contre l’ordinateur', import: 'Importée', echiquier: 'Échiquier', chesscom: 'Chess.com' };
+const SOURCE_LABELS: Record<GameRecord['source'], string> = { ia: 'Contre l’ordinateur', import: 'Importée', echiquier: 'Échiquier', chesscom: 'Chess.com', lichess: 'Lichess' };
 
 export function AnalysisListPage() {
   const navigate = useNavigate();

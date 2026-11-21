@@ -20,7 +20,7 @@ test('téléphone : menu, échiquier tactile et pas de défilement horizontal', 
 
 // Chaque écran doit tenir dans la largeur du téléphone (défaut trouvé sur « Jouer » après publication).
 const SCREENS = ['./', './#/echiquier', './#/lecons', './#/lecons/regles-roque', './#/tactiques', './#/ouvertures',
-  './#/ouvertures/italienne', './#/jouer', './#/analyse', './#/chesscom', './#/entraineur', './#/progression',
+  './#/ouvertures/italienne', './#/jouer', './#/analyse', './#/chesscom', './#/lichess', './#/entraineur', './#/progression',
   './#/parametres', './#/evaluation', './#/apprentissage'];
 test('téléphone : aucun écran ne déborde horizontalement', async ({ page }) => {
   const wide: string[] = [];

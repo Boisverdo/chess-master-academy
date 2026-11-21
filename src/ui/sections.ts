@@ -49,6 +49,11 @@ export const SECTIONS: SectionDef[] = [
     planned: ['Recherche par pseudo, avec votre consentement', 'Import mois par mois', 'Analyse de votre historique'],
   },
   {
+    path: '/lichess', label: 'Lichess et mes parties', icon: '♘', phase: 7,
+    summary: 'Importe tes parties publiques Lichess (facultatif).',
+    planned: [],
+  },
+  {
     path: '/entraineur', label: 'Mon entraîneur IA', icon: '✦', phase: 4,
     summary: 'Un entraîneur qui pose des questions avant de donner les réponses.',
     planned: ['Méthode socratique', 'Détection des mauvaises habitudes', 'Programme personnalisé'],

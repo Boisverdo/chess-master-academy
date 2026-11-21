@@ -1,17 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { analyseBatch, type BatchProgress } from '../../analysis/batch';
-import { getEngine } from '../../engine/browser';
 import { archiveLabel, normalizeUsername, safeChessComUrl, type ChessComProfile, type ChessComStats } from '../../integrations/chesscom/client';
 import { importMonths, TIME_CLASS_LABELS, type ImportSummary, type TimeClass } from '../../integrations/chesscom/importer';
-import { AUTO_INTERVAL_MS, type AutoResult } from '../../integrations/chesscom/auto';
 import { chessComClient } from '../../integrations/chesscom/service';
-import { db, type IntegrationRecord } from '../../storage/db';
+import type { IntegrationRecord } from '../../storage/db';
 import { disconnectIntegration, existingExternalIds, getIntegration, saveGameRecord, saveIntegration } from '../../storage/repo';
 import { Modal } from '../../ui/Modal';
+import { AutoImportPanel, BatchAnalysisPanel, errText, SummaryLine, toggle } from '../integrations/shared';
 import { useData } from '../../ui/useData';
 
-const errText = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
 export function ChessComPage() {
   const { data: integration } = useData(() => getIntegration().then((i) => i ?? null));
@@ -99,90 +96,6 @@ function Connect() {
 
 const CLASSES: TimeClass[] = ['rapid', 'blitz', 'bullet', 'daily'];
 
-const fmtDate = (t: number) => new Date(t).toLocaleString('fr-FR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
-
-/** Import automatique : choix distinct de la liaison, désactivé par défaut, modifiable à tout moment. */
-function AutoImportPanel({ integration }: { integration: IntegrationRecord }) {
-  const auto = integration.autoImport;
-  // État affiché immédiatement (la base est mise à jour juste après).
-  const [enabled, setEnabled] = useState(!!auto?.enabled);
-  useEffect(() => setEnabled(!!auto?.enabled), [auto?.enabled]);
-  const [classes, setClasses] = useState<Set<string>>(new Set(auto?.timeClasses ?? ['rapid', 'blitz', 'daily']));
-  const [ratedOnly, setRatedOnly] = useState(auto?.ratedOnly ?? false);
-  const [busy, setBusy] = useState(false);
-  const [result, setResult] = useState<AutoResult | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  const save = (next: { enabled: boolean; timeClasses?: Set<string>; ratedOnly?: boolean }) => {
-    setEnabled(next.enabled);
-    return saveIntegration({
-      ...integration,
-      autoImport: { enabled: next.enabled, updatedAt: Date.now(), timeClasses: [...(next.timeClasses ?? classes)], ratedOnly: next.ratedOnly ?? ratedOnly },
-      // À l'activation, la première vérification part de maintenant (pas de rattrapage de tout l'historique).
-      ...(next.enabled && !enabled ? { lastAutoCheckAt: undefined } : {}),
-    });
-  };
-
-  const checkNow = async () => {
-    setBusy(true);
-    setError(null);
-    setResult(null);
-    try {
-      const { autoImportNow } = await import('../../integrations/chesscom/autoRunner');
-      setResult(await autoImportNow(true));
-    } catch (e) {
-      setError(errText(e));
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const toggleClass = (c: string) => {
-    const n = new Set(classes);
-    if (n.has(c)) n.delete(c);
-    else n.add(c);
-    setClasses(n);
-    if (enabled && n.size) void save({ enabled: true, timeClasses: n });
-  };
-
-  return (
-    <section className="panel" data-testid="chesscom-auto">
-      <h2 className="panel-title">Import automatique des nouvelles parties</h2>
-      <label className="check consent">
-        <input type="checkbox" checked={enabled} disabled={!classes.size} onChange={(e) => void save({ enabled: e.target.checked })} data-testid="chesscom-auto-toggle" />
-        <span>
-          À l’ouverture de l’application, vérifier si j’ai joué de nouvelles parties sur Chess.com et les importer sur cet appareil (lecture seule, au plus une vérification toutes les {AUTO_INTERVAL_MS / 3600_000} heures, seulement les mois récents).
-        </span>
-      </label>
-      <p className="small"><strong>Cadences importées :</strong></p>
-      <div className="chips">
-        {CLASSES.map((c) => (
-          <button key={c} type="button" className={`chip${classes.has(c) ? ' active' : ''}`} aria-pressed={classes.has(c)} onClick={() => toggleClass(c)}>{TIME_CLASS_LABELS[c]}</button>
-        ))}
-      </div>
-      <label className="check">
-        <input type="checkbox" checked={ratedOnly} onChange={(e) => { setRatedOnly(e.target.checked); if (enabled) void save({ enabled: true, ratedOnly: e.target.checked }); }} />
-        <span>Parties classées seulement</span>
-      </label>
-      {enabled && (
-        <>
-          <p className="muted small" data-testid="chesscom-auto-status">
-            {integration.lastAutoCheckAt ? `Dernière vérification : ${fmtDate(integration.lastAutoCheckAt)}.` : 'Première vérification à la prochaine ouverture de l’application.'}
-          </p>
-          <button type="button" className="btn btn-small" onClick={checkNow} disabled={busy} data-testid="chesscom-auto-now">{busy ? 'Vérification…' : 'Vérifier maintenant'}</button>
-        </>
-      )}
-      {result?.ran && (
-        <p className="feedback ok" role="status" data-testid="chesscom-auto-result">
-          {result.summary.imported ? `${result.summary.imported} nouvelle${result.summary.imported > 1 ? 's' : ''} partie${result.summary.imported > 1 ? 's' : ''} importée${result.summary.imported > 1 ? 's' : ''}.` : 'Aucune nouvelle partie.'}
-        </p>
-      )}
-      {error && <p className="error" role="alert">{error}</p>}
-      <p className="muted small">L’analyse des parties reste à lancer toi-même (ci-dessous) : elle utilise beaucoup le processeur.</p>
-    </section>
-  );
-}
-
 function Connected({ integration }: { integration: IntegrationRecord }) {
   const profile = integration.profile as ChessComProfile | undefined;
   const stats = (integration.stats ?? {}) as ChessComStats;
@@ -194,14 +107,9 @@ function Connected({ integration }: { integration: IntegrationRecord }) {
   const [ratedOnly, setRatedOnly] = useState(false);
   const [importing, setImporting] = useState<{ month: string; done: number; total: number } | null>(null);
   const [summary, setSummary] = useState<ImportSummary | null>(null);
-  const [batch, setBatch] = useState<BatchProgress | null>(null);
-  const [batchDone, setBatchDone] = useState<number | null>(null);
-  const [count, setCount] = useState(10);
   const [confirm, setConfirm] = useState(false);
   const [deleteGames, setDeleteGames] = useState(false);
   const abort = useRef<AbortController | null>(null);
-  const { data: pending } = useData(() => db.games.where('source').equals('chesscom').filter((g) => !g.analyzedAt).toArray().then((l) => l.sort((a, b) => b.createdAt - a.createdAt)));
-  const { data: importedCount } = useData(() => db.games.where('source').equals('chesscom').count());
 
   const refresh = async () => {
     setError(null);
@@ -248,29 +156,6 @@ function Connected({ integration }: { integration: IntegrationRecord }) {
     } finally {
       setImporting(null);
     }
-  };
-
-  const runBatch = async () => {
-    if (!pending?.length) return;
-    setError(null);
-    setBatchDone(null);
-    abort.current = new AbortController();
-    try {
-      const engine = await getEngine();
-      const n = await analyseBatch(pending.slice(0, count), engine, { signal: abort.current.signal, onProgress: setBatch });
-      setBatchDone(n);
-    } catch (e) {
-      setError(errText(e));
-    } finally {
-      setBatch(null);
-    }
-  };
-
-  const toggle = (set: Set<string>, v: string) => {
-    const n = new Set(set);
-    if (n.has(v)) n.delete(v);
-    else n.add(v);
-    return n;
   };
 
   return (
@@ -350,50 +235,23 @@ function Connected({ integration }: { integration: IntegrationRecord }) {
               <p className="muted small">Les parties en Chess960 ou autres variantes sont ignorées. Les parties déjà importées ne sont pas dupliquées.</p>
             </>
           )}
-          {summary && (
-            <div className="feedback ok" role="status" data-testid="chesscom-summary">
-              {summary.imported} partie{summary.imported > 1 ? 's' : ''} importée{summary.imported > 1 ? 's' : ''}
-              {summary.duplicates ? ` · ${summary.duplicates} déjà présente${summary.duplicates > 1 ? 's' : ''}` : ''}
-              {summary.variants ? ` · ${summary.variants} variante${summary.variants > 1 ? 's' : ''} ignorée${summary.variants > 1 ? 's' : ''}` : ''}
-              {summary.filtered ? ` · ${summary.filtered} hors filtres` : ''}
-              {summary.invalid ? ` · ${summary.invalid} illisible${summary.invalid > 1 ? 's' : ''}` : ''}.
-            </div>
-          )}
+          {summary && <SummaryLine summary={summary} testId="chesscom-summary" />}
         </section>
       </div>
 
-      <AutoImportPanel integration={integration} />
+      <AutoImportPanel
+        integration={integration}
+        prefix="chesscom"
+        service="Chess.com"
+        scope="seulement les mois récents"
+        classes={CLASSES}
+        labels={TIME_CLASS_LABELS}
+        defaults={['rapid', 'blitz', 'daily']}
+        run={(force) => import('../../integrations/chesscom/autoRunner').then(({ autoImportNow }) => autoImportNow(force))}
+      />
 
-      <section className="panel">
-        <h2 className="panel-title">Analyser mes parties pour détecter mes erreurs récurrentes</h2>
-        <p>
-          {importedCount ?? 0} partie{(importedCount ?? 0) > 1 ? 's' : ''} Chess.com importée{(importedCount ?? 0) > 1 ? 's' : ''}, dont <strong>{pending?.length ?? 0}</strong> pas encore analysée{(pending?.length ?? 0) > 1 ? 's' : ''}.
-          L’analyse prend quelques dizaines de secondes par partie ; tu peux l’interrompre à tout moment.
-        </p>
-        {batch ? (
-          <div>
-            <p className="muted" data-testid="batch-progress">Partie {batch.game} / {batch.games} · position {batch.position} / {batch.positions}</p>
-            <button type="button" className="btn btn-small" onClick={() => abort.current?.abort()}>Interrompre</button>
-          </div>
-        ) : (
-          <div className="row">
-            <label className="inline-field">
-              Les
-              <select value={count} onChange={(e) => setCount(Number(e.target.value))}>
-                {[5, 10, 20, 50].map((n) => <option key={n} value={n}>{n}</option>)}
-              </select>
-              plus récentes
-            </label>
-            <button type="button" className="btn btn-primary" disabled={!pending?.length} onClick={runBatch} data-testid="batch-analyse">Analyser</button>
-          </div>
-        )}
-        {batchDone !== null && (
-          <p className="feedback ok" role="status" data-testid="batch-done">
-            {batchDone} partie{batchDone > 1 ? 's' : ''} analysée{batchDone > 1 ? 's' : ''}. Tes habitudes et tes positions à retravailler sont à jour dans <Link to="/entraineur">Mon entraîneur IA</Link>.
-          </p>
-        )}
-        {error && <p className="error" role="alert">{error}</p>}
-      </section>
+      <BatchAnalysisPanel source="chesscom" label="Chess.com" />
+      {error && <p className="error" role="alert">{error}</p>}
 
       <Modal
         open={confirm}

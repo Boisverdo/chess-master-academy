@@ -20,6 +20,7 @@ const AnalysisListPage = lazy(() => import('./sections/analysis/AnalysisListPage
 const AnalysisView = lazy(() => import('./sections/analysis/AnalysisView').then((m) => ({ default: m.AnalysisView })));
 const CoachPage = lazy(() => import('./sections/coach/CoachPage').then((m) => ({ default: m.CoachPage })));
 const ChessComPage = lazy(() => import('./sections/chesscom/ChessComPage').then((m) => ({ default: m.ChessComPage })));
+const LichessPage = lazy(() => import('./sections/lichess/LichessPage').then((m) => ({ default: m.LichessPage })));
 const ProgressPage = lazy(() => import('./sections/progress/ProgressPage').then((m) => ({ default: m.ProgressPage })));
 const ExamPage = lazy(() => import('./sections/progress/ExamPage').then((m) => ({ default: m.ExamPage })));
 const BoardPage = lazy(() => import('./sections/board/BoardPage').then((m) => ({ default: m.BoardPage })));
@@ -84,6 +85,7 @@ function Shell() {
           <Route path="/analyse/:id" element={<AnalysisView />} />
           <Route path="/entraineur" element={<CoachPage />} />
           <Route path="/chesscom" element={<ChessComPage />} />
+          <Route path="/lichess" element={<LichessPage />} />
           <Route path="/progression" element={<ProgressPage />} />
           <Route path="/progression/examen/:id" element={<ExamPage />} />
           {SECTIONS.filter((s) => s.phase > CURRENT_PHASE).map((s) => (

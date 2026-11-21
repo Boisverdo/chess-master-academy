@@ -15,7 +15,7 @@ const CSP = [
   "default-src 'self'",
   "script-src 'self' 'wasm-unsafe-eval' https://accounts.google.com/gsi/client",
   "worker-src 'self'",
-  "connect-src 'self' https://api.chess.com https://www.googleapis.com https://accounts.google.com/gsi/",
+  "connect-src 'self' https://api.chess.com https://lichess.org https://www.googleapis.com https://accounts.google.com/gsi/",
   "frame-src https://accounts.google.com/gsi/",
   "img-src 'self' data:",
   "style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style",

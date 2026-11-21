@@ -31,7 +31,7 @@ src/
                  « Retente ta chance » (retry.ts), données de l'entraîneur (coachData.ts)
   learning/      Leçons (contenu + vérification), ouvertures, exercices, évaluation, recommandations
   progress/      Statistiques, défis, objectifs, badges, examens, graphique
-  integrations/  Chess.com (client PubAPI, import, service) et Google (connexion, Drive) — modules isolés et facultatifs
+  integrations/  Chess.com (client PubAPI, import, service), Lichess (client de l'API publique, import) et Google (connexion, Drive) — modules isolés et facultatifs
   sync/          Synchronisation entre appareils : instantané portable et fusion (snapshot.ts), base locale (local.ts),
                  gestionnaire automatique (manager.ts), bandeau et état pour les écrans
   storage/       Base Dexie, dépôt (lecture/écriture/sauvegarde), calculs d'apprentissage, événements
@@ -88,9 +88,10 @@ Base IndexedDB `chess-master-academy` :
 
 ## Sécurité
 
-- **CSP** (production) : `default-src 'self'`, `connect-src 'self' https://api.chess.com https://www.googleapis.com https://accounts.google.com/gsi/`, `script-src 'self' 'wasm-unsafe-eval' https://accounts.google.com/gsi/client`, `frame-src https://accounts.google.com/gsi/`, `object-src 'none'`, `form-action 'none'`, `base-uri 'self'` ; `referrer` désactivé.
+- **CSP** (production) : `default-src 'self'`, `connect-src 'self' https://api.chess.com https://lichess.org https://www.googleapis.com https://accounts.google.com/gsi/`, `script-src 'self' 'wasm-unsafe-eval' https://accounts.google.com/gsi/client`, `frame-src https://accounts.google.com/gsi/`, `object-src 'none'`, `form-action 'none'`, `base-uri 'self'` ; `referrer` désactivé.
 - Aucun HTML injecté (`innerHTML` absent) ; les textes des leçons passent par `RichText` (gras uniquement).
 - Les adresses reçues de Chess.com ne deviennent un lien que si elles sont `https://www.chess.com/…` (`safeChessComUrl`) ; seules des URL d'archives de l'API sont suivies.
+- **Lichess** (`integrations/lichess/`) : API publique sans connexion au compte (OAuth existe chez Lichess mais n'est pas nécessaire pour des parties publiques). Profil `GET /api/user/{pseudo}`, parties `GET /api/games/user/{pseudo}` en NDJSON (`pgnInJson`, `clocks`, `opening`, `finished`, filtres `perfType`, `rated`, `since`, `max`). Une requête à la fois ; après un 429, une minute d'attente puis une seule nouvelle tentative (règle de Lichess). Identifiant de partie : `https://lichess.org/{id}` (`externalId`), source `lichess`, liaison `integrations` d'id `lichess`. Variantes et parties non terminées ignorées. Vérifié le 21/11/2026 : l'API répond aux navigateurs avec `Access-Control-Allow-Origin: *` (elle renvoie 404 aux outils en ligne de commande sans en-tête de navigateur). L'import automatique reprend les règles de Chess.com (consentement distinct, 6 heures) avec `since` = dernière vérification et 100 parties au plus. Le bandeau `AutoImportBanner` vérifie Chess.com puis Lichess. Panneaux communs : `sections/integrations/shared.tsx`.
 - **Import automatique Chess.com** (`integrations/chesscom/auto.ts`, lancé par `AutoImportBanner` à l'ouverture et au retour sur l'application) : consentement distinct de la liaison, désactivé par défaut ; au plus une vérification toutes les 6 heures (notée avant les requêtes, donc une erreur ne relance rien à chaque ouverture) ; seulement les mois depuis la dernière vérification, 3 au maximum ; requêtes en série par le même client ; échec silencieux ; aucune analyse automatique (coûteuse en processeur).
 - Entrées bornées : PGN ≤ 5 Mo, sauvegarde ≤ 20 Mo et validée avant toute écriture (aucune donnée effacée si elle est invalide), pseudo validé.
 - Aucun mot de passe, aucune clé, aucun suivi. Les requêtes Chess.com ne contiennent que le pseudo public. La synchronisation (facultative, consentement explicite) n'envoie la progression qu'au Google Drive du joueur, dans le dossier privé de l'application (permission `drive.appdata` uniquement) ; le fichier reçu est validé avant toute écriture. Détails : [guide-synchronisation.md](guide-synchronisation.md).
