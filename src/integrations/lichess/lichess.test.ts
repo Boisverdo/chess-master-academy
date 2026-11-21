@@ -45,6 +45,9 @@ describe('Lichess : client de l’API publique', () => {
     expect(Object.fromEntries(u.searchParams)).toMatchObject({ max: '50', since: '123', perfType: 'blitz,rapid', rated: 'true', pgnInJson: 'true', finished: 'true' });
     expect(a.headers[0]).toBe('application/x-ndjson');
     expect(parseNdjson('')).toEqual([]);
+    // Jamais plus que le nombre demandé, même si Lichess en envoie davantage.
+    const more = new LichessClient({ fetchImpl: api(() => ndjson([game('a1'), game('a2'), game('a3')])).fetchImpl });
+    expect(await more.games('xx', { max: 2 })).toHaveLength(2);
   });
 
   it('429 : une minute d’attente, puis une seule nouvelle tentative ; 404 et réseau : messages clairs', async () => {

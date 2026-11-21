@@ -142,7 +142,8 @@ export class LichessClient {
     if (q.speeds?.length) p.set('perfType', q.speeds.join(','));
     if (q.ratedOnly) p.set('rated', 'true');
     const text = await this.get(`${LICHESS_ROOT}/api/games/user/${encodeURIComponent(normalizeLichessUsername(username))}?${p}`, 'application/x-ndjson');
-    return parseNdjson(text);
+    // Lichess peut renvoyer un peu plus que « max » (constaté le 21/11/2026 : 60 pour 50) : on s'en tient au nombre demandé.
+    return parseNdjson(text).slice(0, q.max);
   }
 }
 
