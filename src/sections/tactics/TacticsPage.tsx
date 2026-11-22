@@ -2,15 +2,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { PlayableBoard } from '../../board/PlayableBoard';
 import type { PromotionPiece, Square } from '../../core/game';
-import { formatSan } from '../../core/notation';
 import { explainSolution, PuzzleRun, type Puzzle } from '../../learning/puzzles/puzzle';
 import { loadPuzzles, selectPuzzle } from '../../learning/puzzles/select';
 import { THEME_BY_KEY, THEMES, themeLabel } from '../../learning/puzzles/themes';
 import { db } from '../../storage/db';
 import { themeStats, weakThemes } from '../../storage/learning';
 import { getProfile, recordPuzzle } from '../../storage/repo';
-import { useSettings } from '../../ui/settings';
 import { useData } from '../../ui/useData';
+import { useWalkthrough, WalkthroughPanel } from './SolutionWalkthrough';
 
 type Phase = 'thinking' | 'opponent' | 'solved' | 'failed';
 
@@ -21,7 +20,6 @@ async function loadContext() {
 }
 
 export function TacticsPage() {
-  const { settings } = useSettings();
   const [puzzles, setPuzzles] = useState<Puzzle[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [params] = useSearchParams();
@@ -137,8 +135,10 @@ export function TacticsPage() {
     setFen(run.game.fen);
     setLast([ply.from, ply.to]);
     setPhase('failed');
-    setMessage({ tone: 'info', text: 'Voici la solution complète. Rejoue-la dans ta tête : c’est ainsi que le motif se mémorise.' });
+    setMessage({ tone: 'info', text: 'Voici la solution complète. Suis-la coup par coup avec l’entraîneur, puis rejoue-la dans ta tête : c’est ainsi que le motif se mémorise.' });
   };
+
+  const walk = useWalkthrough(run, phase === 'solved' || phase === 'failed');
 
   const hintShapes = useMemo(() => {
     if (!run || phase !== 'thinking') return [];
@@ -155,9 +155,6 @@ export function TacticsPage() {
   const info = run ? run.puzzle.themes.map((t) => THEME_BY_KEY.get(t)).filter(Boolean) : [];
   const playerName = run?.player === 'w' ? 'Blancs' : 'Noirs';
   const isMate = run?.puzzle.themes.find((t) => t.startsWith('mat-en-'));
-  const solutionLine = run && (phase === 'solved' || phase === 'failed')
-    ? run.game.plies.slice(1).map((p) => formatSan(p.san, p.color, settings.notation)).join(' ')
-    : '';
 
   return (
     <div className="page page-wide tactics-page">
@@ -184,9 +181,9 @@ export function TacticsPage() {
       </div>
 
       {run && (
-        <div className="lesson-grid">
+        <div className={`lesson-grid${walk ? ' walking' : ''}`}>
           <div className="lesson-board">
-            <PlayableBoard fen={fen} orientation={run.player === 'w' ? 'white' : 'black'} interactive={phase === 'thinking'} shapes={hintShapes} lastMove={last} syncKey={sync} onMove={onMove} />
+            <PlayableBoard fen={walk ? walk.step.fen : fen} orientation={run.player === 'w' ? 'white' : 'black'} interactive={phase === 'thinking'} shapes={walk ? walk.step.shapes : hintShapes} lastMove={walk ? walk.step.lastMove : last} syncKey={sync} onMove={onMove} />
           </div>
           <div className="lesson-text">
             <p className="eyebrow">
@@ -220,7 +217,7 @@ export function TacticsPage() {
 
             {(phase === 'solved' || phase === 'failed') && (
               <div className="explain-box" data-testid="explanation">
-                <p><strong>Solution :</strong> {solutionLine}</p>
+                {walk && <WalkthroughPanel key={run.puzzle.id} walk={walk} />}
                 {info.map((i) => (
                   <p key={i!.key}><strong>{i!.label} :</strong> {i!.idea}</p>
                 ))}

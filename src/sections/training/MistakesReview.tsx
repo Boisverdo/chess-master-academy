@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PlayableBoard } from '../../board/PlayableBoard';
 import type { PromotionPiece, Square } from '../../core/game';
-import { formatSan } from '../../core/notation';
 import { HABIT_LABELS } from '../../coach/habits';
 import { drillQueue, drillTags, missedPuzzles } from '../../learning/mistakes';
 import { explainSolution, PuzzleRun, type Puzzle } from '../../learning/puzzles/puzzle';
@@ -10,9 +9,9 @@ import { loadPuzzles } from '../../learning/puzzles/select';
 import { THEME_BY_KEY } from '../../learning/puzzles/themes';
 import { db } from '../../storage/db';
 import { recordAttempt } from '../../storage/repo';
-import { useSettings } from '../../ui/settings';
 import { useData } from '../../ui/useData';
 import { DrillTrainer } from '../coach/DrillTrainer';
+import { useWalkthrough, WalkthroughPanel } from '../tactics/SolutionWalkthrough';
 
 async function loadMistakes() {
   const [attempts, drills, games] = await Promise.all([db.attempts.toArray(), db.drills.toArray(), db.games.toArray()]);
@@ -113,7 +112,6 @@ type Phase = 'opponent' | 'thinking' | 'solved' | 'failed';
 
 /** Reprise d'un exercice manqué, sans pression : erreurs permises, solution à la demande. */
 function PuzzleReplay({ id, position, onNext }: { id: string; position: string; onNext?: () => void }) {
-  const { settings } = useSettings();
   const [puzzle, setPuzzle] = useState<Puzzle | null | undefined>(undefined);
   const [run, setRun] = useState<PuzzleRun | null>(null);
   const [fen, setFen] = useState('');
@@ -196,6 +194,7 @@ function PuzzleReplay({ id, position, onNext }: { id: string; position: string; 
     setMessage({ tone: 'info', text: 'Voici la solution. L’exercice reste dans ta liste : tu le reverras.' });
   };
 
+  const walk = useWalkthrough(run, phase === 'solved' || phase === 'failed');
   const facts = useMemo(() => (run && (phase === 'solved' || phase === 'failed') ? explainSolution(run) : []), [run, phase]);
 
   if (puzzle === null) return <p className="muted">Exercice {id} introuvable dans la base actuelle.</p>;
@@ -205,9 +204,9 @@ function PuzzleReplay({ id, position, onNext }: { id: string; position: string; 
   return (
     <section className="panel" data-testid="puzzle-replay" data-puzzle-id={id} data-ready={phase === 'thinking'} data-cursor={run.cursor}>
       <h2 className="panel-title">Exercice manqué {position}</h2>
-      <div className="lesson-grid">
+      <div className={`lesson-grid${walk ? ' walking' : ''}`}>
         <div className="lesson-board">
-          <PlayableBoard fen={fen} orientation={run.player === 'w' ? 'white' : 'black'} interactive={phase === 'thinking'} lastMove={last} syncKey={sync} onMove={onMove} />
+          <PlayableBoard fen={walk ? walk.step.fen : fen} orientation={run.player === 'w' ? 'white' : 'black'} interactive={phase === 'thinking'} shapes={walk?.step.shapes} lastMove={walk ? walk.step.lastMove : last} syncKey={sync} onMove={onMove} />
         </div>
         <div className="lesson-text">
           <p className="eyebrow">Exercice {id} · difficulté {run.puzzle.rating}</p>
@@ -217,7 +216,7 @@ function PuzzleReplay({ id, position, onNext }: { id: string; position: string; 
           {!done && <button type="button" className="btn btn-small" onClick={reveal} disabled={phase !== 'thinking'}>Voir la solution</button>}
           {done && (
             <div className="explain-box">
-              <p><strong>Solution :</strong> {run.game.plies.slice(1).map((p) => formatSan(p.san, p.color, settings.notation)).join(' ')}</p>
+              {walk && <WalkthroughPanel key={id} walk={walk} />}
               {info.map((i) => <p key={i!.key}><strong>{i!.label} :</strong> {i!.idea}</p>)}
               {facts.map((f) => <p key={f}>{f}</p>)}
               {onNext ? <button type="button" className="btn btn-primary" onClick={onNext} data-testid="review-next">Exercice suivant</button> : <p className="muted">C’était le dernier exercice de la séance.</p>}

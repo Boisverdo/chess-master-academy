@@ -24,10 +24,14 @@ const PAGES: [string, string][] = [
 for (const scheme of ['light', 'dark'] as const) {
   test.describe(`accessibilité (${scheme === 'light' ? 'clair' : 'sombre'})`, () => {
     test.use({ colorScheme: scheme });
-    for (const [name, url] of PAGES) {
+    for (const [name, url] of [...PAGES, ['Solution expliquée', './#/tactiques'] as [string, string]]) {
       test(name, async ({ page }) => {
         await page.goto(url);
         await page.waitForTimeout(800);
+        if (name === 'Solution expliquée') {
+          await page.getByRole('button', { name: 'Voir la solution' }).click();
+          await page.getByTestId('walk-prev').click();
+        }
         const results = await new AxeBuilder({ page })
           .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
           // L'échiquier (Chessground) est une zone graphique interactive ; il porte un libellé

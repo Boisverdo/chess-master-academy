@@ -1,8 +1,8 @@
 {
  "date": "2026-11-22",
  "note": "Mesures sur la machine de développement, version de production servie en local (vite preview), Chromium de test.",
- "chargementPremierEcranMs": 755,
- "domContentLoadedMs": 228,
- "analyse41PositionsMs": 8399,
- "analyseParPositionMs": 205
+ "chargementPremierEcranMs": 785,
+ "domContentLoadedMs": 272,
+ "analyse41PositionsMs": 11064,
+ "analyseParPositionMs": 270
 }

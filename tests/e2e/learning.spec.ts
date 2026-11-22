@@ -71,6 +71,18 @@ test('exercice tactique : indice, résolution et explication factuelle', async (
   await expect(page.getByTestId('feedback')).toContainText('Résolu avec indices');
   await expect(page.getByTestId('explanation')).toContainText('échec et mat');
   await expect(page.getByTestId('explanation')).not.toContainText('attaque le roi');
+  // Solution expliquée pas à pas : démarre sur le mat (flèche verte du coup), recule jusqu'au départ.
+  const walk = page.getByTestId('walkthrough');
+  await expect(page.getByTestId('walk-count')).toHaveText('Étape 2 / 2');
+  await expect(page.getByTestId('walk-text')).toContainText(/^Ton coup.*Premier coup : .*Échec et mat/);
+  await expect(page.locator('svg.cg-shapes line[stroke="#15781B"]')).toHaveCount(1);
+  await page.getByTestId('walk-prev').click();
+  await expect(walk).toHaveAttribute('data-step', '0');
+  await expect(page.getByTestId('walk-text')).toContainText('position de départ');
+  await expect(page.getByTestId('walk-prev')).toBeDisabled();
+  await expect(page.locator('svg.cg-shapes line[stroke="#003088"]')).toHaveCount(1);
+  await page.getByTestId('walk-next').click();
+  await expect(walk).toHaveAttribute('data-step', '1');
   // Sans évaluation initiale, aucune cote n'est suivie : l'application invite à la faire.
   await expect(page.locator('.notice')).toContainText('évaluation initiale');
 });
