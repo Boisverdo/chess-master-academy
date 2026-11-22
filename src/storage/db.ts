@@ -46,7 +46,7 @@ export interface LessonProgress {
   completedAt?: number;
 }
 
-export type AttemptKind = 'puzzle' | 'lesson' | 'opening' | 'assessment' | 'drill' | 'exam' | 'challenge';
+export type AttemptKind = 'puzzle' | 'lesson' | 'opening' | 'assessment' | 'drill' | 'exam' | 'challenge' | 'rush' | 'endgame' | 'puzzle-review';
 
 export interface Attempt {
   id?: number;
@@ -59,6 +59,10 @@ export interface Attempt {
   ms?: number;
   ratingBefore?: number;
   ratingAfter?: number;
+  /** Course contre la montre : nombre d'exercices résolus. */
+  score?: number;
+  /** Course contre la montre : exercices manqués (repris dans « Revue de mes erreurs »). */
+  missed?: string[];
 }
 
 export interface OpeningProgress {

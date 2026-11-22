@@ -29,7 +29,9 @@ src/
                  menace adverse et PGN annoté (extras.ts), vues (EvalViews.tsx)
   coach/         Faits calculés (facts.ts), explications (explain.ts), habitudes (habits.ts),
                  « Retente ta chance » (retry.ts), données de l'entraîneur (coachData.ts)
-  learning/      Leçons (contenu + vérification), ouvertures, exercices, évaluation, recommandations
+  learning/      Leçons (contenu + vérification), ouvertures, exercices, évaluation, recommandations,
+                 course contre la montre (rush.ts), finales essentielles (endgames.ts, vérifiées par Stockfish),
+                 revue des erreurs (mistakes.ts)
   progress/      Statistiques, défis, objectifs, badges, examens, graphique
   integrations/  Chess.com (client PubAPI, import, service), Lichess (client de l'API publique, import) et Google (connexion, Drive) — modules isolés et facultatifs
   sync/          Synchronisation entre appareils : instantané portable et fusion (snapshot.ts), base locale (local.ts),
@@ -74,7 +76,7 @@ Base IndexedDB `chess-master-academy` :
 |---|---|
 | `profile` (v1) | Niveau, objectifs, évaluation, cote d'exercices |
 | `lessons` (v1) | Progression des leçons |
-| `attempts` (v1) | Tous les essais : exercices, leçons, ouvertures, positions, examens, défis |
+| `attempts` (v1) | Tous les essais : exercices, leçons, ouvertures, positions, examens, défis, courses contre la montre (`rush`, avec `score` et exercices manqués `missed`), finales essentielles (`endgame`), reprises d'exercices manqués (`puzzle-review`, sans effet sur la cote) |
 | `openings` (v1) | Révision espacée des ouvertures |
 | `games` (v2, index `externalId` en v3) | Parties (PGN), analyses Stockfish, étiquettes d'habitudes |
 | `drills` (v2) | Positions à retravailler (répétition espacée) |

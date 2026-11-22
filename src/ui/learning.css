@@ -113,3 +113,17 @@
 .home-explore .card-title { display: flex; gap: 8px; align-items: center; }
 .home-icon { color: var(--accent-text); width: 1.2em; text-align: center; }
 .home-resume { margin-bottom: 16px; }
+
+/* Entraînement ciblé */
+button.card { font: inherit; color: inherit; text-align: left; cursor: pointer; }
+.rush-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; font-size: 1.05rem; }
+.rush-clock { font-variant-numeric: tabular-nums; font-size: 1.6rem; font-weight: 700; }
+.rush-clock.low { color: var(--danger); }
+.rush-life { color: var(--muted); margin-right: 2px; }
+.rush-life.lost { color: var(--danger); }
+.rush-marks { display: flex; flex-wrap: wrap; gap: 4px; min-height: 1.5em; }
+.rush-mark { display: inline-grid; place-items: center; width: 1.5em; height: 1.5em; border-radius: 4px; font-size: 0.85rem; font-weight: 700; }
+.rush-mark.ok { background: color-mix(in srgb, var(--ok) 18%, transparent); color: var(--ok-text); }
+.rush-mark.ko { background: color-mix(in srgb, var(--danger) 18%, transparent); color: var(--danger); }
+.rush-final { font-size: 1.15rem; }
+.rush-final strong { font-size: 2rem; }

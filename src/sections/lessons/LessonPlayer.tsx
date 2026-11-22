@@ -292,7 +292,7 @@ export function PlayExercise({ step, state, onSolve, onFail }: { step: PlayStep 
   const used = game.plies.filter((p) => p.color === player).length;
   const last = game.plies.at(-1);
   return (
-    <div className="play-step">
+    <div className="play-step" data-fen={game.fen}>
       <PlayableBoard
         fen={game.fen}
         orientation={step.orientation ?? (player === 'w' ? 'white' : 'black')}

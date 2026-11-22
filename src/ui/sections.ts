@@ -39,6 +39,11 @@ export const SECTIONS: SectionDef[] = [
     planned: ['Moteur Stockfish intégré', 'Niveaux mesurés', 'Pendule facultative', 'Commentaires de l’entraîneur'],
   },
   {
+    path: '/entrainement', label: 'Entraînement ciblé', icon: '⏱', phase: 7,
+    summary: 'Course contre la montre, finales essentielles, revue de tes erreurs.',
+    planned: [],
+  },
+  {
     path: '/analyse', label: 'Analyse des parties', icon: '⌕', phase: 4,
     summary: 'Chaque coup évalué par le moteur et expliqué simplement.',
     planned: ['Imprécisions, erreurs, gaffes, occasions manquées', 'Moments critiques', '« Comprendre mon erreur »'],
