@@ -8,6 +8,7 @@ import { THEME_BY_KEY, THEMES, themeLabel } from '../../learning/puzzles/themes'
 import { db } from '../../storage/db';
 import { themeStats, weakThemes } from '../../storage/learning';
 import { getProfile, recordPuzzle } from '../../storage/repo';
+import { scrollToTop } from '../../ui/scroll';
 import { useData } from '../../ui/useData';
 import { useWalkthrough, WalkthroughPanel } from './SolutionWalkthrough';
 
@@ -243,7 +244,7 @@ export function TacticsPage() {
                     Cote d’exercices : {result.before} → <strong>{result.rating}</strong>
                   </p>
                 )}
-                <button type="button" className="btn btn-primary" onClick={nextPuzzle} data-testid="next-puzzle">Exercice suivant</button>
+                <button type="button" className="btn btn-primary" onClick={() => { nextPuzzle(); scrollToTop(); }} data-testid="next-puzzle">Exercice suivant</button>
               </div>
             )}
           </div>

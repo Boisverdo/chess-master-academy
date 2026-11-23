@@ -9,6 +9,7 @@ import { loadPuzzles } from '../../learning/puzzles/select';
 import { THEME_BY_KEY } from '../../learning/puzzles/themes';
 import { db } from '../../storage/db';
 import { recordAttempt } from '../../storage/repo';
+import { scrollToTop } from '../../ui/scroll';
 import { useData } from '../../ui/useData';
 import { DrillTrainer } from '../coach/DrillTrainer';
 import { useWalkthrough, WalkthroughPanel } from '../tactics/SolutionWalkthrough';
@@ -219,7 +220,7 @@ function PuzzleReplay({ id, position, onNext }: { id: string; position: string; 
               {walk && <WalkthroughPanel key={id} walk={walk} />}
               {info.map((i) => <p key={i!.key}><strong>{i!.label} :</strong> {i!.idea}</p>)}
               {facts.map((f) => <p key={f}>{f}</p>)}
-              {onNext ? <button type="button" className="btn btn-primary" onClick={onNext} data-testid="review-next">Exercice suivant</button> : <p className="muted">C’était le dernier exercice de la séance.</p>}
+              {onNext ? <button type="button" className="btn btn-primary" onClick={() => { onNext(); scrollToTop(); }} data-testid="review-next">Exercice suivant</button> : <p className="muted">C’était le dernier exercice de la séance.</p>}
             </div>
           )}
         </div>

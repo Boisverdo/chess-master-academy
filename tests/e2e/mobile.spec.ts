@@ -101,3 +101,14 @@ test('téléphone à l’horizontale : échiquier et coups côte à côte, sans 
   expect(board!.height).toBeGreaterThan(250);
   expect(moves!.x).toBeGreaterThan(board!.x + board!.width - 1); // à droite de l'échiquier
 });
+
+test('téléphone : « Exercice suivant » remonte en haut du nouvel exercice', async ({ page }) => {
+  await page.goto('./#/tactiques');
+  await page.getByRole('button', { name: 'Voir la solution' }).click();
+  const id = await page.locator('.eyebrow', { hasText: 'Exercice' }).textContent();
+  await page.getByTestId('next-puzzle').scrollIntoViewIfNeeded();
+  expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(200);
+  await page.getByTestId('next-puzzle').tap();
+  await expect(page.locator('.eyebrow', { hasText: 'Exercice' })).not.toHaveText(id!);
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+});

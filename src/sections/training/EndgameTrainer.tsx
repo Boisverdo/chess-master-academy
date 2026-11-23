@@ -5,6 +5,7 @@ import { db } from '../../storage/db';
 import { recordAttempt } from '../../storage/repo';
 import { freshState, PlayExercise, type ExerciseState } from '../lessons/LessonPlayer';
 import { RichText } from '../../ui/RichText';
+import { scrollToTop } from '../../ui/scroll';
 import { useData } from '../../ui/useData';
 
 const LEVELS = { 1: 'Incontournable', 2: 'Important', 3: 'Difficile' } as const;
@@ -32,7 +33,7 @@ export function EndgameTrainer() {
     setRound((r) => r + 1);
     setState(freshState());
     setMessage(null);
-    window.scrollTo?.({ top: 0 });
+    scrollToTop();
   };
 
   const e = current ? ENDGAME_BY_ID.get(current) : undefined;
