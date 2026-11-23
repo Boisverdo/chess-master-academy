@@ -150,9 +150,12 @@ function Dashboard({ v }: { v: HomeView }) {
                 <Link to="/progression?onglet=defis" className="btn btn-primary">Relever le défi</Link>
               </>
             ) : (
-              <p className={`feedback ${v.daily === 'reussi' ? 'ok' : 'info'}`}>
-                {v.daily === 'reussi' ? 'Défi du jour réussi. Rendez-vous demain !' : 'Défi du jour manqué. Un nouveau défi t’attend demain.'}
-              </p>
+              <>
+                <p className={`feedback ${v.daily === 'reussi' ? 'ok' : 'info'}`}>
+                  {v.daily === 'reussi' ? 'Défi du jour réussi. Rendez-vous demain !' : 'Défi du jour manqué. Un nouveau défi t’attend demain.'}
+                </p>
+                {v.daily === 'manque' && <Link to="/progression?onglet=defis" className="btn" data-testid="home-daily-solution">Voir la solution expliquée</Link>}
+              </>
             )}
           </section>
           <section className="panel" data-testid="home-week">

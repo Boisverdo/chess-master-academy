@@ -142,10 +142,13 @@ button.card { font: inherit; color: inherit; text-align: left; cursor: pointer; 
 .walk-text p { margin: 0; }
 .walk-who { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 600; }
 .walk-controls { flex-wrap: wrap; }
+.daily-solution { display: grid; gap: 12px; margin-top: 12px; }
+.daily-solution > .lesson-board { width: min(100%, 520px); justify-self: center; }
 .walk-controls .btn.active { border-color: var(--accent); }
 /* Téléphone à la verticale : l'échiquier reste visible pendant qu'on lit l'explication. */
 @media (max-width: 860px) and (orientation: portrait) {
-  .lesson-grid.walking > .lesson-board {
+  .lesson-grid.walking > .lesson-board,
+  .daily-solution > .lesson-board {
     position: sticky; top: 60px; z-index: 5;
     width: min(100%, 44svh); justify-self: center;
     background: var(--bg); padding-bottom: 6px;

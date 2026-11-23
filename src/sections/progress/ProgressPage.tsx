@@ -16,6 +16,7 @@ import { getIntegration, recordAttempt } from '../../storage/repo';
 import type { ChessComStats } from '../../integrations/chesscom/client';
 import { useData } from '../../ui/useData';
 import { QuickPuzzle } from '../learning/QuickPuzzle';
+import { SolutionReplay } from '../tactics/SolutionReplay';
 
 type Tab = 'tableau' | 'defis' | 'examens' | 'historique';
 
@@ -170,6 +171,11 @@ function Challenges({ data, puzzles }: { data: Data; puzzles: Puzzle[] | null })
   const daily = puzzles ? dailyChallenge(puzzles, rating, now) : undefined;
   const doneToday = data.attempts.find((a) => a.kind === 'challenge' && a.refId === dailyId(now));
   const [result, setResult] = useState<boolean | null>(null);
+  const missed = doneToday ? !doneToday.success : result === false;
+  // Exercice manqué : celui enregistré avec l'essai, sinon celui tiré avec la cote du moment de l'essai.
+  const missedPuzzle = !missed || !puzzles
+    ? undefined
+    : (doneToday?.puzzleId && puzzles.find((p) => p.id === doneToday.puzzleId)) || (doneToday ? dailyChallenge(puzzles, ratingAt(data.attempts, doneToday.at, rating), now) : daily);
   const objectives = weeklyObjectives({ attempts: data.attempts, lessons: [...data.lessons.values()], games: data.games, weakTheme: weakThemes(data.stats)[0], now });
   const days = streak(activityTimes(data), now);
 
@@ -179,7 +185,7 @@ function Challenges({ data, puzzles }: { data: Data; puzzles: Puzzle[] | null })
         <h2 className="panel-title">Défi du jour</h2>
         {doneToday || result !== null ? (
           <p className={`feedback ${(doneToday?.success ?? result) ? 'ok' : 'info'}`}>
-            {(doneToday?.success ?? result) ? 'Défi du jour réussi. Rendez-vous demain !' : 'Défi du jour manqué. Un nouveau défi t’attend demain.'}
+            {(doneToday?.success ?? result) ? 'Défi du jour réussi. Rendez-vous demain !' : 'Défi du jour manqué. Un nouveau défi t’attend demain. Voici la solution expliquée par ton entraîneur.'}
           </p>
         ) : daily ? (
           <>
@@ -189,13 +195,14 @@ function Challenges({ data, puzzles }: { data: Data; puzzles: Puzzle[] | null })
               puzzle={daily}
               onDone={(success) => {
                 setResult(success);
-                void recordAttempt({ kind: 'challenge', refId: dailyId(now), themes: daily.themes, success, hints: 0, at: Date.now() });
+                void recordAttempt({ kind: 'challenge', refId: dailyId(now), themes: daily.themes, success, hints: 0, at: Date.now(), puzzleId: daily.id });
               }}
             />
           </>
         ) : (
           <p className="muted">Chargement…</p>
         )}
+        {missedPuzzle && <SolutionReplay key={missedPuzzle.id} puzzle={missedPuzzle} />}
         <p className="streak" data-testid="streak">Série en cours : <strong>{days} jour{days > 1 ? 's' : ''}</strong> d’entraînement consécutif{days > 1 ? 's' : ''}.</p>
       </section>
       <section className="panel" data-testid="objectives">
@@ -213,6 +220,18 @@ function Challenges({ data, puzzles }: { data: Data; puzzles: Puzzle[] | null })
       </section>
     </div>
   );
+}
+
+/** Cote d'exercices au moment `t` (le défi du jour dépend de la cote). */
+function ratingAt(attempts: Data['attempts'], t: number, current: number): number {
+  let before: number | undefined;
+  let after: number | undefined;
+  for (const a of attempts) {
+    if (a.at <= t && a.ratingAfter !== undefined && (before === undefined || a.at >= before)) before = a.at;
+    if (a.at > t && a.ratingBefore !== undefined && (after === undefined || a.at < after)) after = a.at;
+  }
+  const pick = (at: number | undefined, key: 'ratingAfter' | 'ratingBefore') => (at === undefined ? undefined : attempts.find((a) => a.at === at && a[key] !== undefined)?.[key]);
+  return pick(before, 'ratingAfter') ?? pick(after, 'ratingBefore') ?? current;
 }
 
 function ExamsAndBadges({ data }: { data: Data }) {

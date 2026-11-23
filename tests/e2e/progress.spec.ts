@@ -1,4 +1,8 @@
 import { expect, test } from '@playwright/test';
+import { Chess } from 'chess.js';
+import data from '../../src/data/puzzles.json' with { type: 'json' };
+import { dailyChallenge } from '../../src/progress/challenges';
+import type { Puzzle } from '../../src/learning/puzzles/puzzle';
 import { clickMove } from './helpers';
 
 test.describe.configure({ timeout: 120_000 });
@@ -60,6 +64,29 @@ test('tableau de bord, défi du jour, examen des règles et historique', async (
 
   await page.getByRole('tab', { name: 'Historique' }).click();
   await expect(page.getByTestId('history')).toContainText('1 examen');
+});
+
+test('défi du jour manqué : solution expliquée, aussi après un rechargement', async ({ page }) => {
+  const puzzle = dailyChallenge(data.puzzles as Puzzle[], 1000, Date.now())!;
+  const [first, answer] = puzzle.moves.split(' ');
+  const pos = new Chess(puzzle.fen);
+  pos.move({ from: first!.slice(0, 2), to: first!.slice(2, 4), promotion: first![4] });
+  const wrong = pos.moves({ verbose: true }).find((m) => !m.promotion && m.from + m.to !== answer!.slice(0, 4))!;
+  await page.goto('./#/progression?onglet=defis');
+  await expect(page.getByTestId('quick-puzzle-prompt')).toContainText('Un seul essai', { timeout: 30_000 });
+  await clickMove(page, wrong.from + wrong.to);
+  const daily = page.getByTestId('daily');
+  await expect(daily).toContainText('Défi du jour manqué');
+  await expect(page.getByTestId('walk-count')).toHaveText(`Étape 1 / ${puzzle.moves.split(' ').length}`);
+  await expect(page.getByTestId('walk-text')).toContainText('position de départ');
+  await page.getByTestId('walk-next').click();
+  await expect(page.getByTestId('walk-text')).toContainText('Premier coup');
+  await expect(page.locator('svg.cg-shapes line[stroke="#15781B"]')).toHaveCount(1);
+  // Après un rechargement, la même solution reste disponible, et l'accueil y mène.
+  await page.goto('./');
+  await page.getByTestId('home-daily-solution').click();
+  await expect(page.getByTestId('daily-solution')).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId('walk-count')).toHaveText(`Étape 1 / ${puzzle.moves.split(' ').length}`);
 });
 
 test('examen des ouvertures : coups affichés selon la notation choisie', async ({ page }) => {

@@ -63,6 +63,8 @@ export interface Attempt {
   score?: number;
   /** Course contre la montre : exercices manqués (repris dans « Revue de mes erreurs »). */
   missed?: string[];
+  /** Défi du jour : exercice proposé (pour en revoir la solution). */
+  puzzleId?: string;
 }
 
 export interface OpeningProgress {

@@ -29,12 +29,12 @@ export interface Walkthrough {
 
 /**
  * Lecteur de la solution : `active` vrai une fois l'exercice terminé.
- * Démarre sur la position finale (celle qui est déjà affichée).
+ * Démarre sur la position finale (celle qui est déjà affichée), ou sur la position de départ.
  */
-export function useWalkthrough(run: PuzzleRun | null, active: boolean): Walkthrough | null {
+export function useWalkthrough(run: PuzzleRun | null, active: boolean, from: 'end' | 'start' = 'end'): Walkthrough | null {
   const steps = useMemo(() => (run && active ? solutionSteps(run) : []), [run, active]);
   const [index, setIndex] = useState(0);
-  useEffect(() => setIndex(Math.max(0, steps.length - 1)), [steps]);
+  useEffect(() => setIndex(from === 'start' ? 0 : Math.max(0, steps.length - 1)), [steps, from]);
   const go = useCallback((i: number) => setIndex(Math.max(0, Math.min(steps.length - 1, i))), [steps.length]);
   if (!steps.length) return null;
   const i = Math.min(index, steps.length - 1);
