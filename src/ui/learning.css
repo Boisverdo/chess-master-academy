@@ -48,7 +48,10 @@
 
 .tactics-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
 .rating-chip { background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 6px 14px; }
-.chips, .theme-picker { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 16px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 16px; }
+.theme-picker { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 12px 0 16px; }
+.theme-picker label { font-weight: 600; }
+.theme-picker select { font: inherit; min-height: 44px; padding: 6px 10px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); color: var(--text); max-width: 100%; flex: 0 1 340px; }
 .chip { font: inherit; font-size: 0.85rem; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; min-height: 34px; }
 .chip:hover { border-color: var(--accent); }
 .chip.active { background: var(--brand); color: var(--brand-contrast); border-color: var(--brand); }

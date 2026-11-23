@@ -16,7 +16,8 @@
   .btn { min-height: 44px; }
   .btn-small { min-height: 40px; padding: 6px 12px; }
   .chip { min-height: 40px; padding: 8px 14px; font-size: 0.9rem; }
-  .chips, .theme-picker { gap: 8px; }
+  .chips { gap: 8px; }
+  .theme-picker select { flex: 1 1 100%; font-size: 16px; }
   .tab { min-height: 44px; }
   .move { min-height: 38px; }
   .row > .btn { flex: 1 1 auto; }

@@ -85,6 +85,14 @@ test('exercice tactique : indice, résolution et explication factuelle', async (
   await expect(walk).toHaveAttribute('data-step', '1');
   // Sans évaluation initiale, aucune cote n'est suivie : l'application invite à la faire.
   await expect(page.locator('.notice')).toContainText('évaluation initiale');
+  // Type d'exercices : un menu déroulant, qui n'affiche que le choix en cours.
+  const select = page.getByTestId('theme-select');
+  await expect(select).toHaveValue('mat-en-1');
+  await expect(page.locator('.theme-picker .chip')).toHaveCount(0);
+  await select.selectOption({ label: 'Mat en 2' });
+  await expect(page.getByTestId('puzzle-prompt')).toContainText('font mat en 2');
+  await select.selectOption('');
+  await expect(page.getByTestId('puzzle-prompt')).toContainText(/jouent/);
 });
 
 test('entraînement d’ouverture : erreur expliquée, ligne terminée, révision planifiée', async ({ page }) => {

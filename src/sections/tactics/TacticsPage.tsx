@@ -169,15 +169,29 @@ export function TacticsPage() {
           Astuce : passe l’<Link to="/evaluation">évaluation initiale</Link> pour que la difficulté démarre à ton niveau et que ta cote soit suivie.
         </p>
       )}
-      <div className="theme-picker" role="group" aria-label="Thème">
-        <button type="button" className={`chip${theme === '' ? ' active' : ''}`} onClick={() => { setTheme(''); setRun(null); }}>
-          Entraînement adapté
-        </button>
-        {THEMES.map((t) => (
-          <button key={t.key} type="button" className={`chip${theme === t.key ? ' active' : ''}`} onClick={() => { setTheme(t.key); setRun(null); }}>
-            {t.label}
-          </button>
-        ))}
+      <div className="theme-picker">
+        <label htmlFor="theme-select">Type d’exercices</label>
+        <select
+          id="theme-select"
+          data-testid="theme-select"
+          value={theme}
+          onChange={(e) => {
+            setTheme(e.target.value);
+            setRun(null);
+          }}
+        >
+          <option value="">Entraînement adapté (tous les thèmes)</option>
+          <optgroup label="Motifs tactiques">
+            {THEMES.filter((t) => !t.key.startsWith('mat-en-')).map((t) => (
+              <option key={t.key} value={t.key}>{t.label}</option>
+            ))}
+          </optgroup>
+          <optgroup label="Mats">
+            {THEMES.filter((t) => t.key.startsWith('mat-en-')).map((t) => (
+              <option key={t.key} value={t.key}>{t.label}</option>
+            ))}
+          </optgroup>
+        </select>
       </div>
 
       {run && (
