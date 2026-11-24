@@ -26,6 +26,11 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      # Garde-fou : si la vérification des types ou un test unitaire échoue, rien n'est publié.
+      - name: Vérification des types
+        run: npm run typecheck
+      - name: Tests unitaires
+        run: npm test
       - run: npm run build
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
