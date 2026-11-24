@@ -26,9 +26,11 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      # Garde-fou : si la vérification des types ou un test unitaire échoue, rien n'est publié.
+      # Garde-fou : si la vérification des types, celle du code ou un test unitaire échoue, rien n'est publié.
       - name: Vérification des types
         run: npm run typecheck
+      - name: Vérification du code (React)
+        run: npm run lint
       - name: Tests unitaires
         run: npm test
       - run: npm run build

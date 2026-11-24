@@ -6,6 +6,8 @@ import { defineConfig, devices } from '@playwright/test';
  * celle qui est livrée (voir « npm run test:prod »).
  */
 const prod = !!process.env.CMA_PROD;
+// Rend visibles (et interceptables) les requêtes faites par le service hors ligne (test de mise à jour).
+if (prod) process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS = '1';
 // Port distinct de « npm run app » (4173) : les tests de production ne gênent pas l'application installée.
 const baseURL = prod ? 'http://localhost:4179/' : 'http://localhost:5173/';
 

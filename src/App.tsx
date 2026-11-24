@@ -6,6 +6,7 @@ import { HomePage } from './sections/HomePage';
 import { PlannedPage, SettingsPage } from './sections/Pages';
 import { SyncBanner } from './sync/SyncBanner';
 import { AutoImportBanner } from './integrations/chesscom/AutoImportBanner';
+import { UpdateBanner } from './pwa/UpdateBanner';
 
 /** Chaque écran est chargé à la demande : le démarrage reste léger. */
 const LessonRoute = lazy(() => import('./sections/lessons/LessonsPage').then((m) => ({ default: m.LessonRoute })));
@@ -67,6 +68,7 @@ function Shell() {
       </nav>
       <div className="scrim" onClick={() => setMenuOpen(false)} aria-hidden="true" />
       <main className="content" id="contenu">
+        <UpdateBanner />
         <SyncBanner />
         <AutoImportBanner />
         <Suspense fallback={<p className="muted" role="status">Chargement…</p>}>

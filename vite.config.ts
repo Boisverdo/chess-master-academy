@@ -53,9 +53,15 @@ function offlineWorker(): Plugin {
       const hash = crypto.createHash('sha256');
       const template = fs.readFileSync('scripts/sw-template.js', 'utf8');
       hash.update(template); // une modification du service lui-même change aussi la version
-      for (const f of files.sort()) hash.update(f).update(fs.readFileSync(path.join(dist, f)));
+      // Empreinte de chaque fichier : à la mise à jour, les fichiers inchangés sont repris du cache.
+      const rev = new Map<string, string>();
+      for (const f of files.sort()) {
+        const content = fs.readFileSync(path.join(dist, f));
+        hash.update(f).update(content);
+        rev.set(f, crypto.createHash('sha256').update(content).digest('hex').slice(0, 12));
+      }
       const version = `${pkg.version}-${hash.digest('hex').slice(0, 10)}`;
-      const list = ['./', ...files.filter((f) => f !== 'index.html'), 'index.html'];
+      const list = ['./', ...files.filter((f) => f !== 'index.html'), 'index.html'].map((f) => [f, rev.get(f === './' ? 'index.html' : f)!]);
       const sw = template.replace('__VERSION__', version).replace('__FILES__', JSON.stringify(list, null, 1));
       fs.writeFileSync(path.join(dist, 'sw.js'), sw);
     },

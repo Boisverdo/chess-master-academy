@@ -187,7 +187,7 @@ function AiGame({ setup, userColor, onExit, onRematch }: { setup: Setup; userCol
         if (gen === generation.current) setThinking(false);
       }
     })();
-  }, [game, aiColor, level, status.over, addIncrement]);
+  }, [game, aiColor, level, status.over, addIncrement, openingPlies]);
 
   // Enregistrement automatique en fin de partie.
   useEffect(() => {
@@ -203,7 +203,7 @@ function AiGame({ setup, userColor, onExit, onRematch }: { setup: Setup; userCol
       userColor,
       level: level.id,
     }).then(setSavedId);
-  }, [status.over, savedId, game, status.result, userColor, level.id]);
+  }, [status.over, savedId, game, status.result, userColor, level.id, openingPlies]);
 
   const onMove = async (from: Square, to: Square, promotion?: PromotionPiece) => {
     if (!userTurn || thinking) return;

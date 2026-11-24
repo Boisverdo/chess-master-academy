@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import { expect, test } from '@playwright/test';
 import { clickMove } from './helpers';
 
@@ -47,4 +48,39 @@ test('hors ligne : l’application, les leçons et le moteur fonctionnent sans r
   await expect(page.locator('[data-ply]')).toHaveCount(2, { timeout: 30_000 });
   await context.unrouteAll({ behavior: 'ignoreErrors' });
   expect(errors.filter((e) => !/Failed to load resource|net::ERR_/.test(e))).toEqual([]);
+});
+
+test('mise à jour : seuls les fichiers modifiés sont téléchargés, et la nouvelle version attend « Recharger »', async ({ page, context }) => {
+  await page.goto('./');
+  await page.evaluate(() => navigator.serviceWorker.ready);
+  await page.reload();
+  await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller), { timeout: 30_000 }).toBe(true);
+  const before = await page.evaluate(async () => (await caches.keys()).filter((k) => k.startsWith('cma-')));
+  expect(before).toHaveLength(1);
+
+  // Nouvelle version simulée (fichier servi à côté, sans toucher sw.js) : autre numéro de cache,
+  // et un seul fichier dont le contenu « change ».
+  const original = fs.readFileSync('dist/sw.js', 'utf8');
+  const updated = original.replace(/const CACHE = 'cma-[^']+'/, "const CACHE = 'cma-test-maj'").replace(/("favicon\.svg",\s*")[0-9a-f]+"/, '$1changé"');
+  expect(updated).toContain('cma-test-maj');
+  expect(updated).toContain('"changé"');
+  fs.writeFileSync('dist/sw-maj.js', updated);
+  const downloaded: string[] = [];
+  context.on('request', (r) => r.serviceWorker() && downloaded.push(new URL(r.url()).pathname.split('/').pop() || './'));
+  try {
+    await page.evaluate(() => navigator.serviceWorker.register('./sw-maj.js'));
+    await expect(page.getByTestId('update-banner')).toContainText('Nouvelle version', { timeout: 30_000 });
+    // Le cache de la version précédente a fourni tout le reste (moteur et exercices compris).
+    expect(downloaded.filter((f) => !f.startsWith('sw'))).toEqual(['favicon.svg']);
+    // La version en cours reste active tant qu'on ne recharge pas.
+    expect(await page.evaluate(async () => (await caches.keys()).filter((k) => k.startsWith('cma-')).length)).toBe(2);
+
+    await Promise.all([page.waitForEvent('load'), page.getByTestId('update-reload').click()]);
+    // Après « Recharger », la page est servie par la nouvelle version. (L'application réenregistre
+    // ensuite sw.js, propre à ce test : on ne vérifie donc pas la disparition du bandeau.)
+    await expect.poll(() => page.evaluate(() => navigator.serviceWorker.controller?.scriptURL ?? '').catch(() => ''), { timeout: 30_000 }).toMatch(/sw-maj\.js$/);
+    await expect(page.getByRole('navigation', { name: 'Navigation principale' })).toBeVisible();
+  } finally {
+    fs.rmSync('dist/sw-maj.js', { force: true });
+  }
 });

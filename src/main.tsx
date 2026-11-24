@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
+import { registerServiceWorker } from './pwa/update';
 import './ui/theme.css';
 import './ui/learning.css';
 import './ui/analysis.css';
@@ -15,10 +16,4 @@ createRoot(root).render(
 );
 
 // Application installable et utilisable hors ligne (version de production uniquement).
-if (import.meta.env.PROD && 'serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(() => {
-      /* sans service worker, l'application fonctionne normalement en ligne */
-    });
-  });
-}
+if (import.meta.env.PROD) window.addEventListener('load', registerServiceWorker);
