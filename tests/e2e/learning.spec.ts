@@ -169,6 +169,7 @@ test('question sur une position : après une erreur, solution expliquée coup pa
   await expect(page.getByTestId('walk-text')).toContainText('Les Blancs ont le trait');
   await page.getByTestId('walk-next').click();
   await expect(page.getByTestId('walk-text')).toContainText('Les Blancs jouent : la dame blanche va de h1 à h6. Échec !');
+  await expect(page.locator('.walk-who')).toHaveText('Les Blancs');
   await expect.poll(lastSpoken).toContain('Les Blancs jouent : la dame blanche va de h1 à h6');
   await page.getByTestId('walk-next').click();
   await expect(page.getByTestId('walk-text')).toContainText('Les Noirs jouent : le roi noir va de d2 à d1 pour échapper à l’échec.');

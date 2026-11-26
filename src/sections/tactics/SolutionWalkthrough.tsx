@@ -129,7 +129,7 @@ export function WalkthroughPanel({ walk }: { walk: Walkthrough }) {
         ))}
       </ol>
       <div className={`walk-text feedback ${step.mine ? 'ok' : 'info'}`} aria-live="polite" data-testid="walk-text">
-        <span className="walk-who">{step.ply ? (step.mine ? 'Ton coup' : 'Réponse de l’adversaire') : 'Position'}</span>
+        <span className="walk-who">{step.ply ? (step.who ?? (step.mine ? 'Ton coup' : 'Réponse de l’adversaire')) : 'Position'}</span>
         <p>{step.text}</p>
       </div>
       <div className="row walk-controls">

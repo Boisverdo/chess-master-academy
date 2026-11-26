@@ -24,6 +24,8 @@ export interface WalkStep {
   mine: boolean;
   /** Phrase de l'entraîneur, lisible à voix haute (pas de symboles). */
   text: string;
+  /** Étiquette du camp (démonstrations sans « toi ») : remplace « Ton coup » / « Réponse de l'adversaire ». */
+  who?: string;
 }
 
 const FEM = new Set<PieceSymbol>(['q', 'r']);
@@ -255,7 +257,7 @@ export function demoLineSteps(startFen: string, line: { san: string; comment?: s
       if (outro) parts.push(outro);
     }
     const mine = ply.color === first;
-    steps.push({ fen: ply.fenAfter, lastMove: [ply.from, ply.to], shapes: [{ orig: ply.from, dest: ply.to, brush: mine ? 'green' : 'blue' }], ply, mine, text: parts.join(' ') });
+    steps.push({ fen: ply.fenAfter, lastMove: [ply.from, ply.to], shapes: [{ orig: ply.from, dest: ply.to, brush: mine ? 'green' : 'blue' }], ply, mine, text: parts.join(' '), who: `Les ${side(ply.color)}` });
   });
   return steps;
 }
