@@ -11,7 +11,7 @@ import { recordAttempt, saveLessonProgress } from '../../storage/repo';
 import { RichText } from '../../ui/RichText';
 import { useSettings } from '../../ui/settings';
 import { speak, speechOk, stopSpeaking } from '../../ui/voice';
-import { lineSteps, type WalkStep } from '../../learning/puzzles/walkthrough';
+import { demoLineSteps, lineSteps, type WalkStep } from '../../learning/puzzles/walkthrough';
 import { useWalkSteps, WalkthroughPanel } from '../tactics/SolutionWalkthrough';
 
 type Feedback = { tone: 'ok' | 'bad' | 'info'; text: string } | null;
@@ -44,6 +44,11 @@ function stepSpeech(step: Lesson['steps'][number]): string {
   }
 }
 
+function choiceIntro(fen: string): string {
+  const side = ChessGame.create(fen).turn === 'w' ? 'Blancs' : 'Noirs';
+  return `Voici comment la partie peut se dérouler, avec le meilleur jeu des deux camps (vérifié par Stockfish). Les ${side} ont le trait. Les coups des ${side} sont en vert, les réponses en bleu.`;
+}
+
 function solutionIntro(step: PlayStep): string {
   const side = ChessGame.create(step.fen).turn === 'w' ? 'Blancs' : 'Noirs';
   const goal = step.goal === 'mate' ? `mater le roi adverse en ${step.maxMoves} coups au plus` : step.goal === 'promote' ? 'mener ton pion à dame' : 'tenir la nulle';
@@ -66,11 +71,13 @@ export function LessonPlayer({ lesson, startStep = 0, next }: { lesson: Lesson; 
   const step = lesson.steps[index]!;
   const exercises = lesson.steps.filter(isExercise).length;
   const canContinue = !isExercise(step) || state.solved;
-  const solutionLine = step.kind === 'play' && state.revealed && step.solution ? step : null;
-  const walkSteps = useMemo(
-    () => (solutionLine ? lineSteps(solutionLine.fen, solutionLine.solution!, solutionIntro(solutionLine), solutionLine.solutionOutro) : NO_STEPS),
-    [solutionLine],
-  );
+  const solutionLine = (step.kind === 'play' || step.kind === 'choice') && state.revealed && step.solution ? step : null;
+  const walkSteps = useMemo(() => {
+    if (!solutionLine) return NO_STEPS;
+    if (solutionLine.kind === 'play') return lineSteps(solutionLine.fen, solutionLine.solution!, solutionIntro(solutionLine), solutionLine.solutionOutro);
+    const fen = solutionLine.board!.fen;
+    return demoLineSteps(fen, solutionLine.solution!, choiceIntro(fen), solutionLine.solutionOutro);
+  }, [solutionLine]);
   const walk = useWalkSteps(walkSteps, 'start');
 
   useEffect(() => {
@@ -180,8 +187,10 @@ export function LessonPlayer({ lesson, startStep = 0, next }: { lesson: Lesson; 
       </div>
       <div className={`lesson-grid${walk ? ' walking' : ''}`}>
         <div className="lesson-board">
-          {walk && step.kind === 'play' ? (
-            <PlayableBoard fen={walk.step.fen} orientation={step.orientation ?? (ChessGame.create(step.fen).turn === 'w' ? 'white' : 'black')} shapes={walk.step.shapes} lastMove={walk.step.lastMove} ariaLabel="Échiquier de la solution" />
+          {walk && (step.kind === 'play' || step.kind === 'choice') ? (
+            <PlayableBoard
+              fen={walk.step.fen}
+              orientation={step.kind === 'play' ? (step.orientation ?? (ChessGame.create(step.fen).turn === 'w' ? 'white' : 'black')) : (step.board?.orientation ?? 'white')} shapes={walk.step.shapes} lastMove={walk.step.lastMove} ariaLabel="Échiquier de la solution" />
           ) : (
             <StepBoard key={`${index}-${attempt}`} step={step} state={state} onSolve={solve} onFail={fail} setState={setState} />
           )}
@@ -193,7 +202,7 @@ export function LessonPlayer({ lesson, startStep = 0, next }: { lesson: Lesson; 
             </p>
             {speechOk() && (
               <button type="button" className={`btn btn-small${voice ? ' active' : ''}`} aria-pressed={voice} onClick={toggleVoice} data-testid="lesson-voice">
-                {voice ? '🔊 Voix de l’entraîneur' : '🔇 Voix de l’entraîneur'}
+                {voice ? '🔊 Voix de l’entraîneur activée' : '🔇 Activer la voix de l’entraîneur'}
               </button>
             )}
           </div>
@@ -232,12 +241,19 @@ export function LessonPlayer({ lesson, startStep = 0, next }: { lesson: Lesson; 
               )}
             </div>
           )}
+          {step.kind === 'choice' && step.solution && !state.revealed && (state.tries >= 1 || state.solved) && (
+            <div className="row">
+              <button type="button" className="btn btn-small" data-testid="lesson-solution" onClick={() => setState((s) => ({ ...s, revealed: true }))}>
+                Voir la solution expliquée
+              </button>
+            </div>
+          )}
           {walk && (
             <>
               <WalkthroughPanel key={`${index}-${attempt}`} walk={walk} />
               <div className="row">
                 <button type="button" className="btn btn-small" onClick={retry} data-testid="lesson-retry">
-                  Réessayer l’exercice
+                  {step.kind === 'choice' ? 'Revenir à la position' : 'Réessayer l’exercice'}
                 </button>
               </div>
             </>

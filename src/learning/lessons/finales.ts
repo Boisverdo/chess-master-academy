@@ -39,6 +39,8 @@ export const FINALES: Lesson[] = [
         prompt: 'Le roi blanc occupe déjà une case clé. Les Blancs jouent : quel est le résultat ?',
         board: { fen: '8/8/2k5/8/3K4/8/4P3/8 w - - 0 1' },
         verify: { result: 'win' },
+        solution: [{"san": "Ke5", "comment": "Le roi blanc est déjà sur une case clé. Il avance encore, devant son pion."}, {"san": "Kd7"}, {"san": "Kf6", "comment": "Le roi blanc garde les cases e7, f7 et g7, sur la route du pion."}, {"san": "Ke8", "comment": "Le roi noir se place devant le pion pour le bloquer."}, {"san": "Ke6", "comment": "Le roi blanc occupe e6, une case clé du pion quand il sera plus avancé : le roi noir ne peut plus l’arrêter."}, {"san": "Kf8"}, {"san": "e4", "comment": "Le chemin est préparé : le pion avance."}, {"san": "Ke8"}, {"san": "e5"}, {"san": "Kf8"}, {"san": "Kd7", "comment": "Le roi blanc s’écarte et contrôle e7 et e8, les cases devant le pion."}, {"san": "Kf7"}, {"san": "e6+"}, {"san": "Kf8"}, {"san": "e7+"}, {"san": "Kf7"}, {"san": "e8=Q+", "comment": "Le pion devient une dame, protégée par le roi blanc."}],
+        solutionOutro: "Retiens : quand le roi accompagnant le pion atteint une case clé, le pion va à dame, quoi que fasse l’adversaire.",
         options: [
           { label: 'Les Blancs gagnent', correct: true, feedback: 'Exact : roi sur une case clé = pion promu.' },
           { label: 'Nulle', correct: false, feedback: 'Le roi blanc contrôle déjà la route du pion.' },
@@ -56,6 +58,8 @@ export const FINALES: Lesson[] = [
         prompt: 'Les Blancs ont le trait, les rois sont en opposition. Quel est le résultat ?',
         board: { fen: '8/8/8/4k3/8/4K3/4P3/8 w - - 0 1' },
         verify: { result: 'draw' },
+        solution: [{"san": "Kd3", "comment": "Le roi blanc essaie de contourner par la gauche."}, {"san": "Kd5", "comment": "Le roi noir le suit : il garde l’opposition, face au roi blanc."}, {"san": "e3"}, {"san": "Ke5", "comment": "Le roi noir reste devant le pion."}, {"san": "e4"}, {"san": "Ke6", "comment": "Le roi noir recule tout droit, devant le pion."}, {"san": "Kd4"}, {"san": "Kd6", "comment": "Opposition : les rois se font face, et c’est aux Blancs de jouer."}, {"san": "e5+"}, {"san": "Ke6", "comment": "Le roi noir se place juste devant le pion."}, {"san": "Ke4"}, {"san": "Ke7", "comment": "Le roi noir recule tout droit, pour pouvoir reprendre l’opposition."}, {"san": "Kd5"}, {"san": "Kd7", "comment": "Opposition reprise."}, {"san": "e6+"}, {"san": "Ke7"}, {"san": "Ke5"}, {"san": "Ke8", "comment": "Le coup clé : le roi noir recule tout droit jusqu’à la dernière rangée."}, {"san": "Kd6"}, {"san": "Kd8", "comment": "Opposition : le roi blanc ne peut pas passer."}, {"san": "e7+"}, {"san": "Ke8"}, {"san": "Ke6", "comment": "Le roi blanc protège son pion…"}],
+        solutionOutro: "Retiens : avec l’opposition et le roi devant le pion, la défense tient la nulle.",
         options: [
           { label: 'Nulle', correct: true, feedback: 'Exact : les Noirs ont l’opposition et gardent les cases clés d4, e4, f4.' },
           { label: 'Les Blancs gagnent', correct: false, feedback: 'Le roi noir garde toutes les cases clés ; le roi blanc ne peut pas passer.' },
@@ -83,6 +87,8 @@ export const FINALES: Lesson[] = [
         prompt: 'Les Noirs ont le trait. Leur roi rattrape-t-il le pion ?',
         board: { fen: '8/8/8/8/P6k/8/8/7K b - - 0 1' },
         verify: { result: 'loss' },
+        solution: [{"san": "Kg5", "comment": "Le roi noir court vers le pion. Mais le carré du pion va de a4 à e8 : le roi noir, en g5, n’y est pas entré."}, {"san": "a5", "comment": "Le pion avance : son carré se réduit, de a5 à d8."}, {"san": "Kf6", "comment": "Le roi noir est encore hors du carré."}, {"san": "a6"}, {"san": "Ke7"}, {"san": "a7"}, {"san": "Kd7", "comment": "Le roi noir est arrivé trop tard."}, {"san": "a8=Q", "comment": "Le pion devient une dame."}],
+        solutionOutro: "Retiens : trace le carré du pion jusqu’à la case de promotion ; si le roi ne peut pas y entrer, le pion va à dame.",
         options: [
           { label: 'Non : le pion va à dame', correct: true, feedback: 'Exact : le roi h4 est trop loin du carré a4-e8.' },
           { label: 'Oui', correct: false, feedback: 'Compte : le pion a besoin de 4 coups, le roi noir de bien plus.' },
@@ -143,6 +149,8 @@ export const FINALES: Lesson[] = [
         prompt: 'Même structure, mais avec un fou de cases foncées. Les Blancs jouent : résultat ?',
         board: { fen: '7k/8/7P/6K1/8/8/8/4B3 w - - 0 1' },
         verify: { result: 'win' },
+        solution: [{"san": "Kg6", "comment": "Le roi blanc s’approche du coin."}, {"san": "Kg8"}, {"san": "Bb4", "comment": "Coup d’attente. Attention : jouer h7 trop tôt donnerait pat."}, {"san": "Kh8"}, {"san": "Bc5", "comment": "Encore un coup d’attente : le fou contrôle f8."}, {"san": "Kg8"}, {"san": "h7+", "comment": "Le pion avance avec échec."}, {"san": "Kh8"}, {"san": "Bd4#", "comment": "Le fou de cases foncées contrôle h8 : c’est mat."}],
+        solutionOutro: "Retiens : le fou qui contrôle la case de promotion chasse le roi du coin ; le fou de l’autre couleur, lui, ne le peut pas.",
         options: [
           { label: 'Les Blancs gagnent', correct: true, feedback: 'Exact : ce fou contrôle h8 ; le roi noir sera chassé du coin (le moteur trouve un mat en 5).' },
           { label: 'Nulle', correct: false, feedback: 'Cette fois, le fou contrôle la case de promotion.' },
@@ -168,6 +176,8 @@ export const FINALES: Lesson[] = [
         prompt: 'Pion central sur la 7e rangée, roi blanc loin. Les Blancs jouent : résultat ?',
         board: { fen: '7K/8/8/8/8/8/3pk3/7Q w - - 0 1' },
         verify: { result: 'win' },
+        solution: [{"san": "Qe4+", "comment": "La dame donne échec en se rapprochant du pion."}, {"san": "Kf2"}, {"san": "Qd3", "comment": "La dame attaque le pion et contrôle d1, la case de promotion."}, {"san": "Ke1", "comment": "Le roi noir protège son pion."}, {"san": "Qe3+"}, {"san": "Kd1", "comment": "Le roi noir doit se mettre devant son pion : le pion ne peut plus avancer."}, {"san": "Kg7", "comment": "Les Blancs en profitent : leur roi approche d’une case."}, {"san": "Kc2", "comment": "Le roi noir libère d1 pour son pion."}, {"san": "Qe2", "comment": "La dame cloue le pion et contrôle d1 : il ne peut pas avancer."}, {"san": "Kc1"}, {"san": "Qc4+"}, {"san": "Kd1"}, {"san": "Qd3"}, {"san": "Ke1"}, {"san": "Qe3+"}, {"san": "Kd1", "comment": "Le roi noir est de nouveau forcé devant son pion."}, {"san": "Kf6", "comment": "Le roi blanc gagne encore une case."}],
+        solutionOutro: "Retiens : avec un pion central, la dame force le roi noir devant son pion ; chaque fois, le roi blanc approche d’une case, jusqu’à gagner le pion.",
         options: [
           { label: 'Les Blancs gagnent', correct: true, feedback: 'Exact : la dame force le roi devant le pion et gagne du temps à chaque fois.' },
           { label: 'Nulle', correct: false, feedback: 'Avec un pion central, il n’y a pas de ressource de pat.' },
@@ -178,6 +188,8 @@ export const FINALES: Lesson[] = [
         prompt: 'Pion de fou sur la 7e rangée, roi blanc loin. Les Blancs jouent : résultat ?',
         board: { fen: '7K/8/8/8/8/8/2pk4/7Q w - - 0 1' },
         verify: { result: 'draw' },
+        solution: [{"san": "Qh6+"}, {"san": "Kd1"}, {"san": "Qd6+"}, {"san": "Kc1"}, {"san": "Qc5", "comment": "La dame se place sur la colonne c, derrière le pion."}, {"san": "Kb2", "comment": "Le roi noir quitte son pion pour aller vers le coin."}, {"san": "Qb4+"}, {"san": "Ka1", "comment": "Le coin a1 : c’est là que le roi noir trouve son salut."}, {"san": "Qc3+"}, {"san": "Kb1"}, {"san": "Qb3+"}, {"san": "Ka1", "comment": "Le roi noir retourne dans le coin."}, {"san": "Qxc2", "comment": "La dame prend le pion…"}],
+        solutionOutro: "Retiens : avec un pion de fou, le roi noir file dans le coin. Si la dame prend le pion, c’est pat ; si elle ne le prend pas, le pion menace d’aller à dame, et le roi blanc, trop loin, n’a pas le temps d’approcher.",
         options: [
           { label: 'Nulle', correct: true, feedback: 'Exact : grâce au pat, le roi noir peut abandonner son pion momentanément.' },
           { label: 'Les Blancs gagnent', correct: false, feedback: 'Le pion de fou offre une défense de pat au roi noir.' },
@@ -211,6 +223,8 @@ export const FINALES: Lesson[] = [
         prompt: 'Fous de couleurs opposées, les Blancs ont un pion de plus. Les Blancs jouent : résultat ?',
         board: { fen: '8/2b5/4k3/8/3PK3/8/8/5B2 w - - 0 1' },
         verify: { result: 'draw' },
+        solution: [{"san": "d5+", "comment": "Le pion avance avec échec."}, {"san": "Kd6", "comment": "Le roi noir se place devant le pion, sur d6, une case foncée."}, {"san": "Kd4"}, {"san": "Bb6+"}, {"san": "Kc4"}, {"san": "Ba5"}, {"san": "Bd3"}, {"san": "Bd8", "comment": "Le fou noir reste sur la diagonale et contrôle les cases foncées."}, {"san": "Kd4"}, {"san": "Bf6+"}, {"san": "Kc4"}, {"san": "Be5", "comment": "Le roi et le fou noirs bloquent le pion."}],
+        solutionOutro: "Retiens : le blocus se fait sur des cases foncées, que le fou blanc de cases claires ne pourra jamais attaquer. Le pion de plus ne suffit pas : c’est nulle.",
         options: [
           { label: 'Nulle', correct: true, feedback: 'Exact : le fou noir contrôle les cases foncées devant le pion ; il ne peut pas passer.' },
           { label: 'Les Blancs gagnent', correct: false, feedback: 'Le fou blanc ne peut jamais contester les cases foncées du fou noir.' },

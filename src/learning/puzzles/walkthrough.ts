@@ -210,3 +210,52 @@ export function lineSteps(startFen: string, line: { san: string; comment?: strin
   });
   return steps;
 }
+
+const COLOR_ADJ: Record<Color, { m: string; f: string }> = { w: { m: 'blanc', f: 'blanche' }, b: { m: 'noir', f: 'noire' } };
+/** « la dame blanche », « le pion noir ». */
+const colored = (p: PieceSymbol, c: Color) => `${the(p)} ${FEM.has(p) ? COLOR_ADJ[c].f : COLOR_ADJ[c].m}`;
+
+/** Description neutre : « le roi noir va de e2 à d1 », « la dame blanche va de h1 à c2 et prend le pion noir ». */
+function describeNeutral(ply: Ply): string {
+  if (ply.isCastle) return `ils roquent ${ply.to[0] === 'g' ? 'côté roi' : 'côté dame'}`;
+  const other: Color = ply.color === 'w' ? 'b' : 'w';
+  let s = `${colored(ply.piece, ply.color)} va de ${ply.from} à ${ply.to}`;
+  if (ply.isEnPassant) s += ' et prend le pion en passant';
+  else if (ply.captured) s += ` et prend ${colored(ply.captured, other)}`;
+  if (ply.promotion) s += ` : le pion devient ${FEM.has(ply.promotion) ? 'une' : 'un'} ${name(ply.promotion)}`;
+  return s;
+}
+
+/** Fin de partie, racontée sans « toi » ni « l'adversaire ». */
+function neutralEnding(game: ChessGame): string {
+  const s = game.status();
+  if (!s.over) return '';
+  if (s.termination === 'checkmate') return `Échec et mat : les ${side(game.turn === 'w' ? 'b' : 'w')} gagnent.`;
+  return endingText(game, game.turn);
+}
+
+/**
+ * Démonstration commentée d'une position de leçon (question « quel est le résultat ? ») : les deux camps
+ * sont nommés par leur couleur, et chaque coup peut porter un commentaire de l'entraîneur.
+ */
+export function demoLineSteps(startFen: string, line: { san: string; comment?: string }[], intro: string, outro?: string): WalkStep[] {
+  const game = ChessGame.fromSan(line.map((m) => m.san), startFen);
+  const first = ChessGame.create(startFen).turn;
+  const steps: WalkStep[] = [{ fen: startFen, shapes: [], mine: false, text: intro }];
+  game.plies.forEach((ply, i) => {
+    const after = ChessGame.create(ply.fenAfter);
+    const before = ChessGame.create(ply.fenBefore);
+    const parts = [`Les ${side(ply.color)} jouent : ${describeNeutral(ply)}${before.status().inCheck && ply.piece === 'k' ? ' pour échapper à l’échec' : ''}.`];
+    if (after.status().inCheck && after.status().termination !== 'checkmate') parts.push('Échec !');
+    if (legalCount(ply.fenBefore) === 1) parts.push('C’était le seul coup légal.');
+    if (line[i]!.comment) parts.push(line[i]!.comment!);
+    if (i === game.plies.length - 1) {
+      const end = neutralEnding(game);
+      if (end) parts.push(end);
+      if (outro) parts.push(outro);
+    }
+    const mine = ply.color === first;
+    steps.push({ fen: ply.fenAfter, lastMove: [ply.from, ply.to], shapes: [{ orig: ply.from, dest: ply.to, brush: mine ? 'green' : 'blue' }], ply, mine, text: parts.join(' ') });
+  });
+  return steps;
+}

@@ -146,6 +146,43 @@ test('leçon jouée contre l’ordinateur : indices, solution expliquée coup pa
   await expect(page.getByTestId('setting-voice')).toBeChecked();
 });
 
+test('question sur une position : après une erreur, solution expliquée coup par coup et lue à voix haute', async ({ page }) => {
+  await page.addInitScript(() => {
+    const spoken: string[] = [];
+    (window as unknown as { __spoken: string[] }).__spoken = spoken;
+    if ('speechSynthesis' in window) window.speechSynthesis.speak = (u: SpeechSynthesisUtterance) => void spoken.push(u.text);
+  });
+  const lastSpoken = () => page.evaluate(() => (window as unknown as { __spoken: string[] }).__spoken.at(-1) ?? '');
+  await page.goto('./#/lecons/finales-dames');
+  await page.reload();
+  await next(page);
+  await page.getByRole('button', { name: 'Les Blancs gagnent' }).click();
+  await next(page);
+  await expect(page.getByTestId('lesson-solution')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Les Blancs gagnent' }).click();
+  await expect(page.getByTestId('feedback')).toContainText('défense de pat');
+
+  await page.getByTestId('lesson-voice').click();
+  await expect(page.getByTestId('lesson-voice')).toHaveText('🔊 Voix de l’entraîneur activée');
+  await page.getByTestId('lesson-solution').click();
+  await expect(page.getByTestId('walk-count')).toHaveText('Étape 1 / 14');
+  await expect(page.getByTestId('walk-text')).toContainText('Les Blancs ont le trait');
+  await page.getByTestId('walk-next').click();
+  await expect(page.getByTestId('walk-text')).toContainText('Les Blancs jouent : la dame blanche va de h1 à h6. Échec !');
+  await expect.poll(lastSpoken).toContain('Les Blancs jouent : la dame blanche va de h1 à h6');
+  await page.getByTestId('walk-next').click();
+  await expect(page.getByTestId('walk-text')).toContainText('Les Noirs jouent : le roi noir va de d2 à d1 pour échapper à l’échec.');
+  for (let i = 0; i < 11; i++) await page.getByTestId('walk-next').click();
+  await expect(page.getByTestId('walk-text')).toContainText('prend le pion noir. La dame prend le pion… Pat');
+  await expect(page.getByTestId('walk-text')).toContainText('Retiens : avec un pion de fou, le roi noir file dans le coin.');
+
+  // Retour à la position : la bonne réponse permet de terminer la leçon.
+  await page.getByTestId('lesson-retry').click();
+  await expect(page.getByTestId('walkthrough')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Nulle' }).click();
+  await expect(page.getByTestId('lesson-next')).toBeEnabled();
+});
+
 test('entraînement d’ouverture : erreur expliquée, ligne terminée, révision planifiée', async ({ page }) => {
   await page.goto('./#/ouvertures/italienne');
   await page.getByRole('tab', { name: 'S’entraîner' }).click();

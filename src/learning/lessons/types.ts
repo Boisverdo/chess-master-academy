@@ -79,6 +79,14 @@ export interface ChoiceStep {
    * vérifié par Stockfish dans les tests : la bonne réponse ne peut pas être fausse.
    */
   verify?: { fen?: string; result: 'win' | 'draw' | 'loss' };
+  /**
+   * Solution expliquée (questions sur une position) : une ligne de meilleur jeu depuis `board.fen`,
+   * coups des deux camps en SAN anglaise, commentaires de l'entraîneur facultatifs. Validée par les tests
+   * (légalité) et par Stockfish (chaque coup garde le résultat annoncé par `verify`).
+   */
+  solution?: { san: string; comment?: string }[];
+  /** Conclusion lue à la fin de la solution. */
+  solutionOutro?: string;
 }
 
 /**

@@ -1,7 +1,7 @@
 /** Solutions expliquées des exercices joués contre l'ordinateur : légales, complètes, lisibles à voix haute. */
 import { describe, expect, it } from 'vitest';
 import { ChessGame } from '../../core/game';
-import { lineSteps } from '../puzzles/walkthrough';
+import { demoLineSteps, lineSteps } from '../puzzles/walkthrough';
 import { judgePlay } from './playGoal';
 import { ALL_LESSONS } from './index';
 
@@ -29,6 +29,25 @@ describe('solutions expliquées des leçons', () => {
       const steps = lineSteps(step.fen, line, 'Intro.', step.solutionOutro);
       expect(steps).toHaveLength(line.length + 1);
       for (const s of steps) expect(s.text).not.toMatch(/[♔-♟]|undefined|\[object/);
+    });
+  }
+
+  const choices = ALL_LESSONS.flatMap((l) => l.steps.map((s, i) => ({ lesson: l.id, i, step: s }))).flatMap((x) => (x.step.kind === 'choice' ? [{ ...x, step: x.step }] : []));
+
+  it('chaque question « quel est le résultat ? » vérifiée par Stockfish a une solution expliquée', () => {
+    for (const c of choices.filter((c) => c.step.verify && c.step.board)) expect(c.step.solution?.length, `${c.lesson} étape ${c.i + 1}`).toBeGreaterThan(0);
+  });
+
+  for (const { lesson, i, step } of choices.filter((c) => c.step.solution)) {
+    it(`${lesson} — étape ${i + 1} (question) : démonstration légale et lisible`, () => {
+      expect(step.board, 'une solution demande un échiquier').toBeTruthy();
+      expect(step.verify, 'une solution demande un résultat vérifié').toBeTruthy();
+      const line = step.solution!;
+      expect(ChessGame.fromSan(line.map((m) => m.san), step.board!.fen).length).toBe(line.length);
+      const steps = demoLineSteps(step.board!.fen, line, 'Intro.', step.solutionOutro);
+      expect(steps).toHaveLength(line.length + 1);
+      for (const s of steps) expect(s.text).not.toMatch(/[♔-♟]|undefined|\[object/);
+      expect(steps.at(-1)!.text).toContain(step.solutionOutro!);
     });
   }
 });
