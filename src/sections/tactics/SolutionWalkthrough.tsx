@@ -145,7 +145,9 @@ export function WalkthroughPanel({ walk }: { walk: Walkthrough }) {
         )}
       </div>
       <p className="muted small">
-        Flèche verte : ton coup · flèche bleue : l’adversaire · cercle rouge : pièce menacée · cercle jaune : pièce sacrifiée.
+        {walk.steps.some((x) => x.who)
+          ? 'Flèche verte : le camp qui a le trait au départ · flèche bleue : l’autre camp.'
+          : 'Flèche verte : ton coup · flèche bleue : l’adversaire · cercle rouge : pièce menacée · cercle jaune : pièce sacrifiée.'}
         {canSpeak ? ' La voix est celle de ton appareil.' : ''}
       </p>
     </div>
