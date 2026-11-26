@@ -22,6 +22,8 @@ export interface Settings {
   sound: boolean;
   /** Vibration courte à chaque coup, sur les appareils qui la proposent. */
   vibration: boolean;
+  /** Voix de l'entraîneur : lecture à voix haute des explications (désactivée par défaut). */
+  coachVoice: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -32,6 +34,7 @@ export const DEFAULT_SETTINGS: Settings = {
   boardTheme: 'ardoise',
   sound: false,
   vibration: true,
+  coachVoice: false,
 };
 
 const KEY = 'cma.settings.v1';

@@ -4,6 +4,7 @@ import { DataSettings } from './DataSettings';
 import { SyncSettings } from './SyncSettings';
 import { BOARD_THEMES, useSettings, type BoardTheme, type ThemeChoice } from '../ui/settings';
 import { canVibrate, playSound, vibrate } from '../board/feedback';
+import { speak, speechOk, stopSpeaking } from '../ui/voice';
 import type { NotationStyle } from '../core/notation';
 
 export function PlannedPage({ section }: { section: SectionDef }) {
@@ -74,6 +75,12 @@ export function SettingsPage() {
           <label className="check">
             <input type="checkbox" checked={settings.vibration} onChange={(e) => { update({ vibration: e.target.checked }); if (e.target.checked) vibrate('move'); }} data-testid="setting-vibration" />
             <span>Vibration à chaque coup</span>
+          </label>
+        )}
+        {speechOk() && (
+          <label className="check">
+            <input type="checkbox" checked={settings.coachVoice} onChange={(e) => { update({ coachVoice: e.target.checked }); if (e.target.checked) speak('Voix de l’entraîneur activée.'); else stopSpeaking(); }} data-testid="setting-voice" />
+            <span>Voix de l’entraîneur (lecture des explications à voix haute)</span>
           </label>
         )}
         <p className="muted small">Vos préférences sont enregistrées sur cet appareil uniquement.</p>

@@ -154,3 +154,7 @@ button.card { font: inherit; color: inherit; text-align: left; cursor: pointer; 
     background: var(--bg); padding-bottom: 6px;
   }
 }
+
+/* En-tête d'étape de leçon : numéro d'étape et bouton de la voix de l'entraîneur. */
+.lesson-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+.lesson-head .eyebrow { margin: 0; }

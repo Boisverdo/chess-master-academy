@@ -3,22 +3,7 @@ import { formatSan } from '../../core/notation';
 import type { PuzzleRun } from '../../learning/puzzles/puzzle';
 import { solutionSteps, type WalkStep } from '../../learning/puzzles/walkthrough';
 import { useSettings } from '../../ui/settings';
-
-const VOICE_KEY = 'cma-voice';
-const speechOk = () => typeof window !== 'undefined' && 'speechSynthesis' in window && typeof SpeechSynthesisUtterance !== 'undefined';
-
-function readVoicePref(): boolean {
-  try {
-    return localStorage.getItem(VOICE_KEY) !== 'off';
-  } catch {
-    return true;
-  }
-}
-
-function frenchVoice(): SpeechSynthesisVoice | undefined {
-  const voices = window.speechSynthesis.getVoices();
-  return voices.find((v) => v.lang === 'fr-CA') ?? voices.find((v) => v.lang === 'fr-FR') ?? voices.find((v) => v.lang.toLowerCase().startsWith('fr'));
-}
+import { speak, speechOk, stopSpeaking } from '../../ui/voice';
 
 export interface Walkthrough {
   steps: WalkStep[];
@@ -33,6 +18,11 @@ export interface Walkthrough {
  */
 export function useWalkthrough(run: PuzzleRun | null, active: boolean, from: 'end' | 'start' = 'end'): Walkthrough | null {
   const steps = useMemo(() => (run && active ? solutionSteps(run) : []), [run, active]);
+  return useWalkSteps(steps, from);
+}
+
+/** Lecteur générique : `steps` doit être mémorisé (même tableau tant que la solution ne change pas). */
+export function useWalkSteps(steps: WalkStep[], from: 'end' | 'start' = 'end'): Walkthrough | null {
   const [index, setIndex] = useState(0);
   useEffect(() => setIndex(from === 'start' ? 0 : Math.max(0, steps.length - 1)), [steps, from]);
   const go = useCallback((i: number) => setIndex(Math.max(0, Math.min(steps.length - 1, i))), [steps.length]);
@@ -43,9 +33,9 @@ export function useWalkthrough(run: PuzzleRun | null, active: boolean, from: 'en
 
 /** Explication de l'entraîneur, étape par étape, avec lecture à voix haute (synthèse vocale du navigateur). */
 export function WalkthroughPanel({ walk }: { walk: Walkthrough }) {
-  const { settings } = useSettings();
+  const { settings, update } = useSettings();
   const { steps, index, step, go } = walk;
-  const [voice, setVoice] = useState(readVoicePref);
+  const voice = settings.coachVoice;
   const [playing, setPlaying] = useState(false);
   const canSpeak = speechOk();
   const timer = useRef<number | undefined>(undefined);
@@ -56,7 +46,7 @@ export function WalkthroughPanel({ walk }: { walk: Walkthrough }) {
   const stopSpeech = () => {
     window.clearTimeout(timer.current);
     window.clearTimeout(watchdog.current);
-    if (canSpeak) window.speechSynthesis.cancel();
+    stopSpeaking();
   };
 
   // Lit l'étape ; en lecture automatique, passe à la suivante à la fin de la phrase.
@@ -76,17 +66,7 @@ export function WalkthroughPanel({ walk }: { walk: Walkthrough }) {
         } else setPlaying(false);
       };
       if (canSpeak && latest.current.voice) {
-        const u = new SpeechSynthesisUtterance(s.text);
-        u.lang = 'fr-FR';
-        const v = frenchVoice();
-        if (v) {
-          u.voice = v;
-          u.lang = v.lang;
-        }
-        u.rate = 0.95;
-        u.onend = () => (timer.current = window.setTimeout(advance, 700));
-        u.onerror = () => (timer.current = window.setTimeout(advance, 2500));
-        window.speechSynthesis.speak(u);
+        speak(s.text, { onend: () => (timer.current = window.setTimeout(advance, 700)), onerror: () => (timer.current = window.setTimeout(advance, 2500)) });
         // Certains appareils ne signalent jamais la fin de la phrase : on avance quand même.
         if (auto) watchdog.current = window.setTimeout(advance, 4000 + s.text.length * 110);
       } else if (auto) {
@@ -125,14 +105,10 @@ export function WalkthroughPanel({ walk }: { walk: Walkthrough }) {
 
   const toggleVoice = () => {
     const v = !voice;
-    setVoice(v);
+    update({ coachVoice: v });
     latest.current.voice = v;
-    try {
-      localStorage.setItem(VOICE_KEY, v ? 'on' : 'off');
-    } catch {
-      /* préférence non mémorisée */
-    }
-    if (!v) stopSpeech();
+    if (v) say(index, false);
+    else stopSpeech();
   };
 
   const moveNumber = (s: WalkStep) => (s.ply ? `${s.ply.fenBefore.split(' ')[5] ?? 1}${s.ply.color === 'w' ? '.' : '…'} ` : '');
@@ -164,7 +140,7 @@ export function WalkthroughPanel({ walk }: { walk: Walkthrough }) {
         <button type="button" className="btn btn-small" onClick={() => goTo(index + 1)} disabled={index >= steps.length - 1} data-testid="walk-next">Suivant ▶</button>
         {canSpeak && (
           <button type="button" className={`btn btn-small${voice ? ' active' : ''}`} aria-pressed={voice} onClick={toggleVoice} data-testid="walk-voice">
-            {voice ? '🔊 Voix' : '🔇 Voix coupée'}
+            {voice ? '🔊 Voix activée' : '🔇 Activer la voix'}
           </button>
         )}
       </div>

@@ -97,6 +97,14 @@ export interface PlayStep {
   maxMoves: number;
   hint: string;
   success: string;
+  /**
+   * Solution expliquée : une ligne gagnante (ou tenable) depuis `fen`, coups des deux camps en SAN anglaise,
+   * avec le commentaire de l'entraîneur sur chacun de tes coups. Validée par les tests (légalité, objectif
+   * atteint, et Stockfish confirme que chacun de tes coups garde le résultat).
+   */
+  solution?: { san: string; comment?: string }[];
+  /** Conclusion lue à la fin de la solution. */
+  solutionOutro?: string;
 }
 
 export type Step = ExplainStep | DemoStep | MoveStep | SquareStep | ChoiceStep | PlayStep;

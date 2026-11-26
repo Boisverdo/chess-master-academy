@@ -95,6 +95,57 @@ test('exercice tactique : indice, résolution et explication factuelle', async (
   await expect(page.getByTestId('puzzle-prompt')).toContainText(/jouent/);
 });
 
+test('leçon jouée contre l’ordinateur : indices, solution expliquée coup par coup, voix de l’entraîneur', async ({ page }) => {
+  // La synthèse vocale est remplacée par un enregistreur : on vérifie ce que l'entraîneur dirait.
+  await page.addInitScript(() => {
+    const spoken: string[] = [];
+    (window as unknown as { __spoken: string[] }).__spoken = spoken;
+    if ('speechSynthesis' in window) window.speechSynthesis.speak = (u: SpeechSynthesisUtterance) => void spoken.push(u.text);
+  });
+  const lastSpoken = () => page.evaluate(() => (window as unknown as { __spoken: string[] }).__spoken.at(-1) ?? '');
+  await page.goto('./#/lecons/finales-carre');
+  await page.reload(); // le changement d'ancre seul ne recharge pas la page (le script d'enregistrement doit s'installer)
+
+  // Voix coupée par défaut ; un bouton l'active, et le réglage est repris dans les paramètres.
+  const voice = page.getByTestId('lesson-voice');
+  await expect(voice).toHaveAttribute('aria-pressed', 'false');
+  await voice.click();
+  await expect(voice).toHaveAttribute('aria-pressed', 'true');
+  await expect.poll(lastSpoken).toContain('Un calcul sans calcul. Trace un carré');
+  await next(page);
+  await page.getByRole('button', { name: 'Non : le pion va à dame' }).click();
+  await next(page);
+  await expect.poll(lastSpoken).toBe('Avec les Noirs, rattrape le pion blanc.');
+
+  // Indice 1 (texte), indice 2 (pièce à jouer entourée), puis la solution expliquée.
+  await page.getByTestId('lesson-hint').click();
+  await expect(page.getByTestId('feedback')).toContainText('Indice : Va vers la case de promotion');
+  await expect.poll(lastSpoken).toContain('Indice : Va vers la case de promotion');
+  await page.getByTestId('lesson-piece-hint').click();
+  await expect(page.locator('svg.cg-shapes circle')).toHaveCount(1);
+  await page.getByTestId('lesson-solution').click();
+  await expect(page.getByTestId('walk-count')).toHaveText('Étape 1 / 8');
+  await expect(page.getByTestId('walk-text')).toContainText('Voici une façon de réussir. Tu joues les Noirs');
+  await page.getByTestId('walk-next').click();
+  await expect(page.getByTestId('walk-text')).toContainText('Premier coup : ton roi va de e4 à d5. Ton roi est déjà dans le carré');
+  await expect.poll(lastSpoken).toContain('Premier coup : ton roi va de e4 à d5');
+  await expect(page.locator('svg.cg-shapes line[stroke="#15781B"]')).toHaveCount(1);
+  await page.getByTestId('walk-next').click();
+  await expect(page.getByTestId('walk-text')).toContainText('L’adversaire répond : son pion va de a4 à a5.');
+  for (let i = 0; i < 5; i++) await page.getByTestId('walk-next').click();
+  await expect(page.getByTestId('walk-text')).toContainText('Tu prends le pion. Il ne reste pas assez de matériel pour mater : la partie est nulle. Retiens : si ton roi entre dans le carré');
+
+  // Réessayer : la solution disparaît, l'exercice repart de zéro.
+  await page.getByTestId('lesson-retry').click();
+  await expect(page.getByTestId('walkthrough')).toHaveCount(0);
+  await expect(page.getByTestId('play-count')).toHaveText('Coups joués : 0 / 8');
+  await clickMove(page, 'e4d5');
+  await expect(page.getByTestId('play-count')).toHaveText('Coups joués : 1 / 8', { timeout: 30_000 });
+
+  await page.goto('./#/parametres');
+  await expect(page.getByTestId('setting-voice')).toBeChecked();
+});
+
 test('entraînement d’ouverture : erreur expliquée, ligne terminée, révision planifiée', async ({ page }) => {
   await page.goto('./#/ouvertures/italienne');
   await page.getByRole('tab', { name: 'S’entraîner' }).click();

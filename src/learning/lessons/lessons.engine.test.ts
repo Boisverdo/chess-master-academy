@@ -57,6 +57,18 @@ describe('contenu vérifié par Stockfish', { timeout: 120_000 }, () => {
           else expect(o).toBe('win');
         });
       }
+      if (step.kind === 'play' && step.solution) {
+        it(`${lesson.id} — étape ${i + 1} : chaque coup de la solution garde le résultat`, async () => {
+          const game = ChessGame.fromSan(step.solution!.map((m) => m.san), step.fen);
+          const me = ChessGame.create(step.fen).turn;
+          for (const p of game.plies.filter((x) => x.color === me)) {
+            // Évaluation du point de vue de l'adversaire, juste après ton coup.
+            const o = outcome(await evalFen(p.fenAfter, 18));
+            if (step.goal === 'draw') expect(['draw', 'loss'], `${p.san} ne doit pas perdre`).toContain(o);
+            else expect(o, `${p.san} doit garder le gain`).toBe('loss');
+          }
+        });
+      }
     });
   }
 });

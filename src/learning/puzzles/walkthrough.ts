@@ -157,3 +157,56 @@ export function solutionSteps(run: PuzzleRun): WalkStep[] {
   }
   return steps;
 }
+
+/** Fin de partie atteinte dans la position (phrase factuelle), ou chaîne vide. */
+function endingText(game: ChessGame, me: Color): string {
+  const s = game.status();
+  if (!s.over) return '';
+  switch (s.termination) {
+    case 'checkmate':
+      return game.turn === me ? 'Échec et mat : tu as perdu.' : 'Échec et mat ! Le roi adverse est attaqué et n’a aucune case libre.';
+    case 'stalemate':
+      return 'Pat : le camp au trait n’a aucun coup légal sans être en échec. La partie est nulle.';
+    case 'insufficient-material':
+      return 'Il ne reste pas assez de matériel pour mater : la partie est nulle.';
+    case 'threefold-repetition':
+      return 'La même position est apparue trois fois : la partie est nulle par répétition.';
+    default:
+      return 'La partie est nulle.';
+  }
+}
+
+/**
+ * Solution d'un exercice de leçon joué contre l'ordinateur : une ligne écrite à l'avance
+ * (coups en SAN anglaise, validés par les tests) avec le commentaire de l'entraîneur pour chacun de TES coups.
+ * Les réponses adverses sont décrites automatiquement à partir de la position réelle.
+ */
+export function lineSteps(startFen: string, line: { san: string; comment?: string }[], intro: string, outro?: string): WalkStep[] {
+  const game = ChessGame.fromSan(line.map((m) => m.san), startFen);
+  const me = ChessGame.create(startFen).turn;
+  const steps: WalkStep[] = [{ fen: startFen, shapes: [], mine: false, text: intro }];
+  game.plies.forEach((ply, i) => {
+    const mine = ply.color === me;
+    const after = ChessGame.create(ply.fenAfter);
+    const parts: string[] = [];
+    if (mine) {
+      parts.push(`${i === 0 ? 'Premier coup' : 'Tu joues'} : ${describeMove(ply, true)}.`);
+      if (after.status().inCheck && after.status().termination !== 'checkmate') parts.push('Échec !');
+      const comment = line[i]!.comment;
+      if (comment) parts.push(comment);
+    } else {
+      const before = ChessGame.create(ply.fenBefore);
+      const inCheck = before.status().inCheck;
+      parts.push(`L’adversaire répond : ${describeMove(ply, false)}${inCheck && ply.piece === 'k' ? ' pour échapper à l’échec' : ''}.`);
+      if (legalCount(ply.fenBefore) === 1) parts.push('C’était son seul coup légal.');
+      if (after.status().inCheck && after.status().termination !== 'checkmate') parts.push('Attention : c’est échec pour toi.');
+      if (line[i]!.comment) parts.push(line[i]!.comment!);
+    }
+    // La fin de partie se juge sur la partie entière (la répétition dépend de l'historique).
+    const end = i === game.plies.length - 1 ? endingText(game, me) : '';
+    if (end) parts.push(end);
+    if (i === game.plies.length - 1 && outro) parts.push(outro);
+    steps.push({ fen: ply.fenAfter, lastMove: [ply.from, ply.to], shapes: [{ orig: ply.from, dest: ply.to, brush: mine ? 'green' : 'blue' }], ply, mine, text: parts.join(' ') });
+  });
+  return steps;
+}
