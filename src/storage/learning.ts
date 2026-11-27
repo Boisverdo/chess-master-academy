@@ -58,7 +58,7 @@ export interface ThemeStat {
 /** Réussite par thème sur les `window` dernières tentatives de chaque thème. */
 export function themeStats(attempts: readonly Attempt[], window = 30): ThemeStat[] {
   const byTheme = new Map<string, Attempt[]>();
-  for (const a of [...attempts].sort((x, y) => y.at - x.at)) {
+  for (const a of attempts.toSorted((x, y) => y.at - x.at)) {
     for (const t of a.themes) {
       const list = byTheme.get(t) ?? [];
       if (list.length < window) list.push(a);

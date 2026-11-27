@@ -52,7 +52,7 @@ export function gameSummary(games: readonly GameRecord[]): GameSummary {
  * (moins de 10 minutes entre deux activités) ; chaque séance compte sa durée + 2 minutes.
  */
 export function estimatedLearningMinutes(timestamps: readonly number[], gapMs = 10 * 60_000): number {
-  const ts = [...timestamps].sort((a, b) => a - b);
+  const ts = timestamps.toSorted((a, b) => a - b);
   if (!ts.length) return 0;
   let total = 0;
   let start = ts[0]!;

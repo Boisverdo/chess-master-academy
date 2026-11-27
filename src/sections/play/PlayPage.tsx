@@ -233,7 +233,7 @@ function AiGame({ setup, userColor, onExit, onRematch }: { setup: Setup; userCol
   };
 
   /** Dernier coup du joueur après l'ouverture imposée (annuler revient juste avant lui). */
-  const lastUserPly = [...game.plies].reverse().find((p) => p.color === userColor && p.ply > openingPlies);
+  const lastUserPly = game.plies.findLast((p) => p.color === userColor && p.ply > openingPlies);
 
   const takeback = () => {
     if (!setup.training || thinking || !lastUserPly) return;

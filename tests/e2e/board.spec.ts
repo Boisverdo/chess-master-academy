@@ -54,8 +54,20 @@ test('échec signalé', async ({ page }) => {
 test('promotion : choix de la pièce et annulation', async ({ page }) => {
   await importPgn(page, '[SetUp "1"]\n[FEN "1n2k3/P7/8/8/8/8/8/4K3 w - - 0 1"]\n\n*');
   await clickMove(page, 'a7a8');
-  await page.getByRole('dialog', { name: 'Choisir la pièce de promotion' }).getByRole('button', { name: 'Annuler la promotion' }).click();
-  await expect(page.locator('.promotion-overlay')).toHaveCount(0);
+  // Fenêtre modale native : le focus est sur la première pièce, Tab reste dans la fenêtre, Échap annule.
+  const dialog = page.getByRole('dialog', { name: 'Promotion du pion' });
+  await expect(page.getByTestId('promote-q')).toBeFocused();
+  // Les images des pièces s'affichent dans leur bouton (pas empilées dans un coin par le style de l'échiquier).
+  const icon = await page.getByTestId('promote-q').locator('piece').evaluate((el) => { const cs = getComputedStyle(el); return { position: cs.position, w: parseFloat(cs.width) }; });
+  expect(icon.position).toBe('static');
+  expect(icon.w).toBeGreaterThanOrEqual(44);
+  for (let i = 0; i < 6; i++) await page.keyboard.press('Tab');
+  expect(await page.evaluate(() => !!document.activeElement?.closest('dialog'))).toBe(true);
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.promotion-dialog')).toHaveCount(0);
+  await clickMove(page, 'a7a8');
+  await dialog.getByRole('button', { name: 'Annuler la promotion' }).click();
+  await expect(page.locator('.promotion-dialog')).toHaveCount(0);
   await expect(page.locator('[data-ply]')).toHaveCount(0);
   await clickMove(page, 'a7b8');
   await page.getByTestId('promote-n').click();

@@ -130,7 +130,7 @@ function Dashboard({ data }: { data: Data }) {
           <h2 className="panel-title">Progression tactique par thème</h2>
           {data.stats.length ? (
             <ul className="stat-list">
-              {data.stats.slice().sort((a, b) => b.rate - a.rate).map((s) => (
+              {data.stats.toSorted((a, b) => b.rate - a.rate).map((s) => (
                 <li key={s.theme}>
                   <span>{themeLabel(s.theme)}</span>
                   <span className="bar" aria-hidden="true"><span style={{ width: `${Math.round(s.rate * 100)}%` }} /></span>

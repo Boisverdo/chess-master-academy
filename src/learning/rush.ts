@@ -41,7 +41,7 @@ export function pickRushPuzzle(all: readonly Puzzle[], target: number, used: Rea
 /** Meilleur score et nombre de séries pour chaque mode. */
 export function rushRecords(attempts: readonly Attempt[]): Record<RushMode, { best: number; runs: number; last?: number }> {
   const out = { '3min': { best: 0, runs: 0 }, '5min': { best: 0, runs: 0 }, survie: { best: 0, runs: 0 } } as Record<RushMode, { best: number; runs: number; last?: number }>;
-  for (const a of [...attempts].sort((x, y) => x.at - y.at)) {
+  for (const a of attempts.toSorted((x, y) => x.at - y.at)) {
     if (a.kind !== 'rush' || !(a.refId in out)) continue;
     const r = out[a.refId as RushMode];
     r.best = Math.max(r.best, a.score ?? 0);

@@ -33,7 +33,7 @@ export interface Habit {
 }
 
 export function detectHabits(games: readonly GameTags[], window = 10, threshold = 3): Habit[] {
-  const recent = [...games].sort((a, b) => b.date - a.date).slice(0, window);
+  const recent = games.toSorted((a, b) => b.date - a.date).slice(0, window);
   const counts = new Map<string, { n: number; last: number }>();
   for (const g of recent) {
     for (const t of new Set(g.tags)) {
