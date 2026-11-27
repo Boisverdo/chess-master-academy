@@ -39,8 +39,26 @@ test('leçon complète : choix, erreur expliquée (pat), réussite et progressio
   await expect(page.getByTestId('feedback')).toContainText('Mat');
   await page.getByRole('button', { name: 'Terminer' }).click();
   await expect(page.getByTestId('lesson-done')).toContainText('1 exercice réussi du premier coup sur 2');
+  await expect(page.getByTestId('lesson-review-note')).toContainText('au moins 2 exercices sur 2 du premier coup');
   await page.getByRole('link', { name: 'Toutes les leçons' }).click();
   await expect(page.getByRole('link', { name: /Le pat/ })).toContainText('Terminée · 1/2 du premier coup');
+});
+
+test('leçon reprise après une pause : les exercices déjà réussis comptent, « Revoir » disparaît', async ({ page }) => {
+  await page.goto('./#/lecons/regles-pat');
+  await next(page);
+  await page.getByRole('button', { name: 'Pat : partie nulle' }).click();
+  await next(page);
+  // Pause : on quitte la leçon puis on y revient.
+  await page.goto('./#/');
+  await page.goto('./#/lecons/regles-pat');
+  await clickMove(page, 'g1g7');
+  await expect(page.getByTestId('feedback')).toContainText('Mat');
+  await page.getByRole('button', { name: 'Terminer' }).click();
+  await expect(page.getByTestId('lesson-done')).toContainText('2 exercices réussis du premier coup sur 2');
+  await expect(page.getByTestId('lesson-review-note')).toHaveCount(0);
+  await page.goto('./#/');
+  await expect(page.getByText('Revoir : Le pat')).toHaveCount(0);
 });
 
 test('exercice de coordonnées : clic sur une case', async ({ page }) => {

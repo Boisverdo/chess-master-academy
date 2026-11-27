@@ -7,6 +7,7 @@ import { checkMove, solutions } from '../../learning/lessons/check';
 import { isExercise, type ChoiceStep, type DemoStep, type Lesson, type MoveStep, type PlayStep, type SquareStep } from '../../learning/lessons/types';
 import { judgePlay } from '../../learning/lessons/playGoal';
 import { getEngine } from '../../engine/browser';
+import { needsReview, reviewTarget } from '../../learning/recommend';
 import { recordAttempt, saveLessonProgress } from '../../storage/repo';
 import { RichText } from '../../ui/RichText';
 import { useSettings } from '../../ui/settings';
@@ -55,13 +56,16 @@ function solutionIntro(step: PlayStep): string {
   return `Voici une façon de réussir. Tu joues les ${side} ; objectif : ${goal}. L’ordinateur peut répondre autrement : retiens surtout l’idée de chaque coup.`;
 }
 
-export function LessonPlayer({ lesson, startStep = 0, next }: { lesson: Lesson; startStep?: number; next?: Lesson }) {
+export function LessonPlayer({ lesson, startStep = 0, startCorrect = 0, next }: { lesson: Lesson; startStep?: number; startCorrect?: number; next?: Lesson }) {
   const navigate = useNavigate();
   const [index, setIndex] = useState(Math.min(startStep, lesson.steps.length - 1));
   const [state, setState] = useState<ExerciseState>(freshState);
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [done, setDone] = useState(false);
   const results = useRef(new Map<number, boolean>());
+  // Exercices réussis du premier coup avant une reprise (étapes antérieures à startStep, déjà enregistrées).
+  const priorCorrect = useRef(startCorrect);
+  const correctCount = () => priorCorrect.current + [...results.current.values()].filter(Boolean).length;
   const startedAt = useRef(Date.now());
 
   const [attempt, setAttempt] = useState(0);
@@ -119,7 +123,7 @@ export function LessonPlayer({ lesson, startStep = 0, next }: { lesson: Lesson; 
   };
 
   const persist = async (stepIndex: number, finished: boolean) => {
-    const correct = [...results.current.values()].filter(Boolean).length;
+    const correct = correctCount();
     await saveLessonProgress({
       lessonId: lesson.id,
       status: finished ? 'done' : 'in-progress',
@@ -156,7 +160,8 @@ export function LessonPlayer({ lesson, startStep = 0, next }: { lesson: Lesson; 
   };
 
   if (done) {
-    const correct = [...results.current.values()].filter(Boolean).length;
+    const correct = correctCount();
+    const review = needsReview({ status: 'done', correct, total: exercises });
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));
     return (
       <div className="lesson-done panel" data-testid="lesson-done">
@@ -165,13 +170,18 @@ export function LessonPlayer({ lesson, startStep = 0, next }: { lesson: Lesson; 
           {correct} exercice{correct > 1 ? 's' : ''} réussi{correct > 1 ? 's' : ''} du premier coup sur {exercises} · environ {minutes} min.
         </p>
         <p>{correct === exercises ? 'Excellent : notion maîtrisée.' : 'Les exercices manqués seront proposés à nouveau lors de tes révisions. Tu peux aussi refaire la leçon maintenant.'}</p>
+        {review && (
+          <p data-testid="lesson-review-note">
+            Cette leçon restera dans ta séance du jour (« Revoir ») jusqu’à ce que tu réussisses au moins {reviewTarget(exercises)} exercice{reviewTarget(exercises) > 1 ? 's' : ''} sur {exercises} du premier coup, sans indice ni aide de l’ordinateur.
+          </p>
+        )}
         <div className="row">
           {next && (
             <button type="button" className="btn btn-primary" onClick={() => navigate(`/lecons/${next.id}`)}>
               Leçon suivante : {next.title}
             </button>
           )}
-          <button type="button" className="btn" onClick={() => { results.current.clear(); setDone(false); setIndex(0); }}>
+          <button type="button" className="btn" onClick={() => { results.current.clear(); priorCorrect.current = 0; setDone(false); setIndex(0); }}>
             Refaire la leçon
           </button>
           <Link className="btn" to="/lecons">Toutes les leçons</Link>

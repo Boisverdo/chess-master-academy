@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ChessGame } from '../core/game';
 import { computeAssessment, DEMO_GAME, puzzlePerformance, RULES_QUESTIONS, STRATEGY_QUESTIONS } from './assessment';
-import { recommend } from './recommend';
+import { needsReview, recommend, reviewTarget } from './recommend';
 
 describe('questions de l’évaluation', () => {
   it('positions valides et une seule bonne réponse', () => {
@@ -85,5 +85,23 @@ describe('séance du jour avec les parties analysées', () => {
   it('une habitude ponctuelle ne change pas le programme', () => {
     const r = recommend({ level: 'intermediaire', lessons: new Map(), openings: [], themeStats: [], now: 0, habits: [{ tag: 'finale', label: 'x', games: 1, window: 10, recurrent: false, lastSeen: 0 }] });
     expect(r.some((x) => x.kind === 'habit')).toBe(false);
+  });
+});
+
+describe('leçons à revoir', () => {
+  const done = (correct: number, total: number) => new Map([['finales-mats', { lessonId: 'finales-mats', status: 'done' as const, step: 2, correct, total, updatedAt: 0 }]]);
+  const review = (correct: number, total: number) => recommend({ level: 'intermediaire', lessons: done(correct, total), openings: [], themeStats: [], now: 0 }).find((r) => r.title.startsWith('Revoir'));
+  it('reste proposée tant que le dernier passage est sous 70 %, avec le score réel', () => {
+    expect(review(1, 2)?.reason).toBe('1 exercice sur 2 réussi du premier coup au dernier passage. Objectif : 2 sur 2, sans indice ni aide.');
+    expect(review(0, 2)?.link).toBe('/lecons/finales-mats');
+  });
+  it('disparaît dès que le dernier passage atteint 70 %', () => {
+    expect(review(2, 2)).toBeUndefined();
+    expect(review(7, 10)).toBeUndefined();
+    expect(review(6, 10)).toBeDefined();
+  });
+  it('objectif = 70 % arrondi au supérieur', () => {
+    expect([1, 2, 3, 4, 10].map(reviewTarget)).toEqual([1, 2, 3, 3, 7]);
+    expect(needsReview({ status: 'in-progress', correct: 0, total: 2 })).toBe(false);
   });
 });

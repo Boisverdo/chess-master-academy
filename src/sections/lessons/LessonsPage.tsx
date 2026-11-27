@@ -63,7 +63,8 @@ export function LessonRoute() {
   }
   if (!progress) return <p className="muted">Chargement…</p>;
   const p = progress.get(lesson.id);
-  const start = p && p.status === 'in-progress' ? p.step : 0;
+  const resuming = p?.status === 'in-progress';
+  const start = resuming ? p.step : 0;
   const idx = ALL_LESSONS.indexOf(lesson);
   return (
     <div className="page page-wide">
@@ -71,7 +72,7 @@ export function LessonRoute() {
         <Link to="/lecons">Leçons</Link> › {lesson.title}
       </p>
       <h1>{lesson.title}</h1>
-      <LessonPlayer key={lesson.id} lesson={lesson} startStep={start} next={ALL_LESSONS[idx + 1]} />
+      <LessonPlayer key={lesson.id} lesson={lesson} startStep={start} startCorrect={resuming ? p.correct : 0} next={ALL_LESSONS[idx + 1]} />
     </div>
   );
 }

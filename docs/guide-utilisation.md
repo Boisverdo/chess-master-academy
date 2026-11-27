@@ -35,7 +35,7 @@ Ouvre-la une première fois avec une connexion : ensuite elle fonctionne **hors 
 ## 3. Premiers pas
 
 1. **Mon apprentissage → Commencer l’évaluation** (≈ 10 min) : questionnaire, règles, 6 exercices, positions, partie commentée. Tu obtiens un niveau de départ et, si possible, une **fourchette indicative** (jamais un classement officiel).
-2. Suis la **séance du jour** : elle combine tes révisions, ta prochaine leçon et ton point faible.
+2. Suis la **séance du jour** : elle combine tes révisions, ta prochaine leçon et ton point faible. Une leçon terminée avec moins de 70 % d’exercices réussis du premier coup (sans indice ni aide) y apparaît sous « Revoir » jusqu’à ce que tu la refasses avec ce score.
 
 ## 4. Les sections
 

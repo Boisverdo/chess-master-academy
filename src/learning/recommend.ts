@@ -44,6 +44,21 @@ export const HABIT_ACTIONS: Record<string, { title: string; link: string }> = {
   finale: { title: 'Leçon : roi et pion, cases clés et opposition', link: '/lecons/finales-roi-pion' },
 };
 
+/** Part minimale d'exercices réussis du premier coup (sans indice ni aide) pour qu'une leçon terminée ne soit plus à revoir. */
+export const REVIEW_THRESHOLD = 0.7;
+
+/** Une leçon terminée est à revoir si moins de 70 % de ses exercices ont été réussis du premier coup au dernier passage. */
+export function needsReview(p: Pick<LessonProgress, 'status' | 'correct' | 'total'> | undefined): boolean {
+  return !!p && p.status === 'done' && p.total > 0 && p.correct / p.total < REVIEW_THRESHOLD;
+}
+
+/** Nombre d'exercices à réussir du premier coup pour valider la leçon. */
+export const reviewTarget = (total: number) => Math.ceil(total * REVIEW_THRESHOLD - 1e-9);
+
+/** « 1 exercice sur 2 réussi du premier coup » */
+export const reviewScore = (p: Pick<LessonProgress, 'correct' | 'total'>) =>
+  `${p.correct} exercice${p.correct > 1 ? 's' : ''} sur ${p.total} réussi${p.correct > 1 ? 's' : ''} du premier coup`;
+
 export function recommend(input: RecommendInput): Recommendation[] {
   const out: Recommendation[] = [];
 
@@ -69,11 +84,11 @@ export function recommend(input: RecommendInput): Recommendation[] {
   }
 
   // 3. Leçons terminées avec des erreurs : à refaire.
-  const shaky = lessons.find((l) => {
-    const p = input.lessons.get(l.id);
-    return p?.status === 'done' && p.total > 0 && p.correct / p.total < 0.7;
-  });
-  if (shaky) out.push({ kind: 'lesson', title: `Revoir : ${shaky.title}`, reason: 'Plusieurs exercices manqués lors de ton premier passage.', link: `/lecons/${shaky.id}` });
+  const shaky = lessons.find((l) => needsReview(input.lessons.get(l.id)));
+  if (shaky) {
+    const p = input.lessons.get(shaky.id)!;
+    out.push({ kind: 'lesson', title: `Revoir : ${shaky.title}`, reason: `${reviewScore(p)} au dernier passage. Objectif : ${reviewTarget(p.total)} sur ${p.total}, sans indice ni aide.`, link: `/lecons/${shaky.id}` });
+  }
 
   // 4. Tactique : le thème le plus faible (≥ 5 essais, < 60 % sans indice), sinon entraînement adapté.
   const weak = input.themeStats.find((s) => s.attempts >= 5 && s.rate < 0.6);
