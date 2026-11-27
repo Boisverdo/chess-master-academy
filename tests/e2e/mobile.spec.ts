@@ -18,6 +18,38 @@ test('téléphone : menu, échiquier tactile et pas de défilement horizontal', 
   await expect(page.getByRole('heading', { name: 'Paramètres' })).toBeVisible();
 });
 
+// Menu en tiroir : fermé, ses liens sont inaccessibles ; ouvert, le reste de la page est inerte.
+test('téléphone : le menu se comporte comme une fenêtre modale', async ({ page }) => {
+  await page.goto('./');
+  await page.locator('main').waitFor();
+  const menuBtn = page.getByRole('button', { name: 'Ouvrir le menu' });
+
+  // Fermé : aucun lien du menu n'est exposé ni atteignable avec Tab.
+  expect(await page.evaluate(() => (document.getElementById('menu-principal') as HTMLElement).inert)).toBe(true);
+  await menuBtn.focus();
+  await page.keyboard.press('Tab');
+  expect(await page.evaluate(() => !!document.activeElement?.closest('#menu-principal'))).toBe(false);
+
+  // Ouvert : le focus entre dans le tiroir et la page derrière devient inerte.
+  await menuBtn.click();
+  const drawer = page.getByRole('dialog', { name: 'Menu' });
+  await expect(drawer).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Fermer le menu' })).toBeFocused();
+  await expect(menuBtn).toHaveAttribute('aria-expanded', 'true');
+  expect(await page.evaluate(() => document.querySelector('main')!.inert)).toBe(true);
+
+  // Échap ferme et rend le focus au bouton ☰.
+  await page.keyboard.press('Escape');
+  await expect(menuBtn).toBeFocused();
+  await expect(menuBtn).toHaveAttribute('aria-expanded', 'false');
+  expect(await page.evaluate(() => document.querySelector('main')!.inert)).toBe(false);
+
+  // Le voile sombre ferme aussi le menu.
+  await menuBtn.click();
+  await page.mouse.click(380, 400);
+  await expect(menuBtn).toBeFocused();
+});
+
 // Chaque écran doit tenir dans la largeur du téléphone (défaut trouvé sur « Jouer » après publication).
 const SCREENS = ['./', './#/echiquier', './#/lecons', './#/lecons/regles-roque', './#/tactiques', './#/ouvertures',
   './#/ouvertures/italienne', './#/jouer', './#/analyse', './#/chesscom', './#/lichess', './#/entrainement', './#/entrainement?mode=finales', './#/entrainement?mode=erreurs', './#/entraineur', './#/progression',

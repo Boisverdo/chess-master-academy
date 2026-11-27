@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { HashRouter, NavLink, Route, Routes, useLocation } from 'react-router-dom';
 import { CURRENT_PHASE, SECTIONS } from './ui/sections';
 import { SettingsProvider } from './ui/settings';
@@ -27,10 +27,58 @@ const ProgressPage = lazy(() => import('./sections/progress/ProgressPage').then(
 const ExamPage = lazy(() => import('./sections/progress/ExamPage').then((m) => ({ default: m.ExamPage })));
 const BoardPage = lazy(() => import('./sections/board/BoardPage').then((m) => ({ default: m.BoardPage })));
 
+/** Largeur sous laquelle la barre latérale devient un tiroir (même valeur que dans theme.css). */
+const DRAWER_QUERY = '(max-width: 860px)';
+
+function useMediaQuery(query: string): boolean {
+  return useSyncExternalStore(
+    (onChange) => {
+      const m = window.matchMedia?.(query);
+      m?.addEventListener('change', onChange);
+      return () => m?.removeEventListener('change', onChange);
+    },
+    () => window.matchMedia?.(query).matches ?? false,
+    () => false,
+  );
+}
+
 function Shell() {
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
   useEffect(() => setMenuOpen(false), [location.pathname]);
+
+  /*
+   * Sur téléphone, la barre latérale est un tiroir modal : fermé, il est inerte (ses liens ne sont
+   * plus atteignables au clavier ni lus) ; ouvert, c'est le reste de la page qui devient inerte,
+   * le focus va sur « Fermer le menu », Échap le ferme et le focus revient sur le bouton ☰.
+   */
+  const isDrawer = useMediaQuery(DRAWER_QUERY);
+  const open = isDrawer && menuOpen;
+  const menuBtn = useRef<HTMLButtonElement>(null);
+  const closeBtn = useRef<HTMLButtonElement>(null);
+  const wasOpen = useRef(false);
+
+  useEffect(() => {
+    if (!isDrawer) setMenuOpen(false);
+  }, [isDrawer]);
+
+  useEffect(() => {
+    if (open) closeBtn.current?.focus({ preventScroll: true });
+    else if (wasOpen.current && isDrawer) menuBtn.current?.focus({ preventScroll: true });
+    wasOpen.current = open;
+  }, [open, isDrawer]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [open]);
   const current = SECTIONS.find((s) => s.path !== '/' && (location.pathname === s.path || location.pathname.startsWith(`${s.path}/`)));
 
   useEffect(() => {
@@ -38,36 +86,58 @@ function Shell() {
   }, [current]);
 
   return (
-    <div className={`shell${menuOpen ? ' menu-open' : ''}`}>
-      <header className="topbar">
-        <button type="button" className="btn btn-icon menu-btn" aria-label="Ouvrir le menu" aria-expanded={menuOpen} onClick={() => setMenuOpen((o) => !o)}>
+    <div className={`shell${open ? ' menu-open' : ''}`}>
+      <header className="topbar" inert={open}>
+        <button
+          ref={menuBtn}
+          type="button"
+          className="btn btn-icon menu-btn"
+          aria-label="Ouvrir le menu"
+          aria-controls="menu-principal"
+          aria-expanded={open}
+          onClick={() => setMenuOpen(true)}
+        >
           ☰
         </button>
         <span className="brand-mini">Chess Master Academy</span>
       </header>
-      <nav className="sidebar" aria-label="Navigation principale">
-        <div className="brand">
-          <img src="./favicon.svg" alt="" width={36} height={36} />
-          <div>
-            <strong>Chess Master</strong>
-            <span>Academy</span>
+      <div
+        id="menu-principal"
+        className="sidebar"
+        role={isDrawer ? 'dialog' : undefined}
+        aria-modal={open || undefined}
+        aria-label={isDrawer ? 'Menu' : undefined}
+        inert={isDrawer && !menuOpen}
+      >
+        {isDrawer && (
+          <button ref={closeBtn} type="button" className="btn btn-icon drawer-close" aria-label="Fermer le menu" onClick={() => setMenuOpen(false)}>
+            ✕
+          </button>
+        )}
+        <nav aria-label="Navigation principale">
+          <div className="brand">
+            <img src="./favicon.svg" alt="" width={36} height={36} />
+            <div>
+              <strong>Chess Master</strong>
+              <span>Academy</span>
+            </div>
           </div>
-        </div>
-        <ul>
-          {SECTIONS.map((s) => (
-            <li key={s.path}>
-              <NavLink to={s.path} end={s.path === '/'} className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
-                <span className="nav-icon" aria-hidden="true">{s.icon}</span>
-                <span className="nav-label">{s.label}</span>
-                {s.phase > CURRENT_PHASE && <span className="nav-soon" title={`Prévu en Phase ${s.phase}`}>P{s.phase}</span>}
-              </NavLink>
-            </li>
-          ))}
-        </ul>
-        <p className="version">Version {__APP_VERSION__} · Phase {CURRENT_PHASE}</p>
-      </nav>
+          <ul>
+            {SECTIONS.map((s) => (
+              <li key={s.path}>
+                <NavLink to={s.path} end={s.path === '/'} className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
+                  <span className="nav-icon" aria-hidden="true">{s.icon}</span>
+                  <span className="nav-label">{s.label}</span>
+                  {s.phase > CURRENT_PHASE && <span className="nav-soon" title={`Prévu en Phase ${s.phase}`}>P{s.phase}</span>}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+          <p className="version">Version {__APP_VERSION__} · Phase {CURRENT_PHASE}</p>
+        </nav>
+      </div>
       <div className="scrim" onClick={() => setMenuOpen(false)} aria-hidden="true" />
-      <main className="content" id="contenu">
+      <main className="content" id="contenu" inert={open}>
         <UpdateBanner />
         <SyncBanner />
         <AutoImportBanner />
